@@ -1,4 +1,4 @@
-import React from "react";
+import { useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { CacheProvider } from "@emotion/react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -9,15 +9,38 @@ import { createQawsanTheme } from "./theme/theme";
 
 import "./index.css";
 
-const theme = createQawsanTheme("dark");
+function Root() {
+  const [mode, setMode] = useState<"light" | "dark">("dark");
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  const theme = useMemo(
+    () => createQawsanTheme(mode),
+    [mode]
+  );
+
+  const handleToggleTheme = () => {
+    setMode((currentMode) =>
+      currentMode === "dark"
+        ? "light"
+        : "dark"
+    );
+  };
+
+  return (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <App />
+
+        <App
+          mode={mode}
+          onToggleTheme={handleToggleTheme}
+        />
       </ThemeProvider>
     </CacheProvider>
-  </React.StrictMode>
+  );
+}
+
+ReactDOM.createRoot(
+  document.getElementById("root")!
+).render(
+  <Root />
 );

@@ -2,155 +2,267 @@ import {
     Box,
     Container,
     Typography,
+    IconButton,
 } from "@mui/material";
 
-const services = [
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import BrandingWatermarkOutlinedIcon from "@mui/icons-material/BrandingWatermarkOutlined";
+import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
+import CodeOutlinedIcon from "@mui/icons-material/CodeOutlined";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
+import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+
+const steps = [
     {
         number: "01",
-        title: "BRANDING",
-        arabicTitle: "الهوية البصرية",
+        title: "IDEA",
         description:
-            "نبني هوية بصرية متكاملة تمنح مشروعك شخصية واضحة وحضورًا مميزًا.",
+            "نفهم فكرتك ونحدد هدف مشروعك.",
+        icon: LightbulbOutlinedIcon,
+        featured: true,
     },
     {
         number: "02",
-        title: "UI / UX",
-        arabicTitle: "تصميم التجربة",
+        title: "BRAND",
         description:
-            "نصمم واجهات وتجارب رقمية تجمع بين الجمال، الوضوح، وسهولة الاستخدام.",
+            "نبني الهوية والاتجاه البصري.",
+        icon: BrandingWatermarkOutlinedIcon,
+        featured: false,
     },
     {
         number: "03",
-        title: "DEVELOPMENT",
-        arabicTitle: "التطوير",
+        title: "UI / UX",
         description:
-            "نحوّل التصاميم إلى منتجات رقمية سريعة، متجاوبة، وقابلة للتوسع.",
+            "نصمم تجربة واضحة وسهلة الاستخدام.",
+        icon: DesignServicesOutlinedIcon,
+        featured: false,
     },
     {
         number: "04",
-        title: "DIGITAL PRODUCTS",
-        arabicTitle: "المنتجات الرقمية",
+        title: "CODE",
         description:
-            "نطوّر المنصات والمنتجات الرقمية من الفكرة الأولى حتى الإطلاق.",
+            "نحوّل التصميم إلى منتج رقمي فعلي.",
+        icon: CodeOutlinedIcon,
+        featured: false,
+    },
+    {
+        number: "05",
+        title: "TEST",
+        description:
+            "نختبر ونحسن كل التفاصيل.",
+        icon: CheckCircleOutlineOutlinedIcon,
+        featured: false,
+    },
+    {
+        number: "06",
+        title: "LAUNCH",
+        description:
+            "نطلق المنتج ليصل إلى مستخدميه.",
+        icon: RocketLaunchOutlinedIcon,
+        featured: false,
     },
 ];
 
-function Services() {
+function IdeaToProduct() {
     return (
         <Box
             component="section"
-            id="services"
+            id="process"
             sx={{
+                position: "relative",
+
                 py: {
                     xs: 10,
                     md: 16,
                 },
 
-                bgcolor: "background.default",
+                bgcolor:
+                    "background.default",
 
                 overflow: "hidden",
+
+                direction: "ltr",
             }}
         >
-            <Container maxWidth="xl">
+            {/* ==========================================
+                BACKGROUND GLOW
+            =========================================== */}
+
+            <Box
+                sx={{
+                    position: "absolute",
+
+                    top: {
+                        xs: -180,
+                        md: -280,
+                    },
+
+                    left: {
+                        xs: -180,
+                        md: -260,
+                    },
+
+                    width: {
+                        xs: 420,
+                        md: 680,
+                    },
+
+                    height: {
+                        xs: 420,
+                        md: 680,
+                    },
+
+                    borderRadius: "50%",
+
+
+
+                    pointerEvents:
+                        "none",
+                }}
+            />
+
+            <Container
+                maxWidth="xl"
+                sx={{
+                    position:
+                        "relative",
+
+                    zIndex: 1,
+                }}
+            >
                 {/* ==========================================
-            SECTION HEADER
-        =========================================== */}
+                    SECTION HEADER
+                =========================================== */}
 
                 <Box
                     sx={{
+                        width: "100%",
+
                         display: "flex",
 
-                        flexDirection: {
-                            xs: "column",
-                            md: "row",
-                        },
+                        flexDirection:
+                            "column",
 
-                        alignItems: {
-                            xs: "flex-start",
-                            md: "flex-end",
-                        },
-
-                        justifyContent: "space-between",
-
-                        gap: 4,
+                        alignItems:
+                            "flex-end",
 
                         mb: {
                             xs: 6,
                             md: 8,
                         },
+
+                        textAlign:
+                            "right",
+
+                        direction: "rtl",
                     }}
                 >
-                    {/* Heading */}
+                    {/* Label */}
 
-                    <Box
+                    <Typography
+                        component="span"
                         sx={{
-                            maxWidth: 650,
+                            mb: 2,
+
+                            fontFamily:
+                                "Inter, sans-serif",
+
+                            fontSize: 12,
+
+                            fontWeight: 500,
+
+                            letterSpacing:
+                                "0.12em",
+
+                            color:
+                                "primary.main",
+
+                            direction: "ltr",
+
+                            unicodeBidi:
+                                "plaintext",
+
+                            textAlign:
+                                "right",
                         }}
                     >
-                        <Typography
-                            component="span"
-                            sx={{
-                                display: "block",
+                        {"{ OUR PROCESS }"}
+                    </Typography>
 
-                                mb: 2,
+                    {/* Heading */}
 
-                                fontFamily:
-                                    "Inter, sans-serif",
+                    <Typography
+                        component="h2"
+                        sx={{
+                            m: 0,
 
-                                fontSize: 13,
+                            maxWidth: 720,
 
-                                fontWeight: 500,
+                            fontSize: {
+                                xs: 38,
+                                sm: 48,
+                                md: 58,
+                            },
 
-                                letterSpacing:
-                                    "0.12em",
+                            lineHeight: 1.2,
 
-                                color:
-                                    "primary.main",
-                            }}
-                        >
-                            {"{ SERVICES }"}
-                        </Typography>
+                            fontWeight: 700,
 
-                        <Typography
-                            component="h2"
-                            sx={{
-                                m: 0,
+                            letterSpacing:
+                                "-0.03em",
 
-                                fontSize: {
-                                    xs: 36,
-                                    sm: 44,
-                                    md: 52,
-                                },
+                            color:
+                                "text.primary",
 
-                                lineHeight: 1.2,
+                            direction:
+                                "rtl",
 
-                                fontWeight: 700,
+                            unicodeBidi:
+                                "plaintext",
 
-                                letterSpacing:
-                                    "-0.025em",
+                            textAlign:
+                                "right",
+                        }}
+                    >
+                        لديك فكرة؟
+                    </Typography>
 
-                                color:
-                                    "text.primary",
-                            }}
-                        >
-                            نبني أكثر من
-                            <Box
-                                component="span"
-                                sx={{
-                                    display: {
-                                        xs: "block",
-                                        sm: "inline",
-                                    },
+                    <Typography
+                        component="h2"
+                        sx={{
+                            m: 0,
 
-                                    color:
-                                        "primary.main",
-                                }}
-                            >
-                                {" "}
-                                موقع.
-                            </Box>
-                        </Typography>
-                    </Box>
+                            maxWidth: 720,
+
+                            fontSize: {
+                                xs: 38,
+                                sm: 48,
+                                md: 58,
+                            },
+
+                            lineHeight: 1.2,
+
+                            fontWeight: 700,
+
+                            letterSpacing:
+                                "-0.03em",
+
+                            color:
+                                "primary.main",
+
+                            direction:
+                                "rtl",
+
+                            unicodeBidi:
+                                "plaintext",
+
+                            textAlign:
+                                "right",
+                        }}
+                    >
+                        نحن نبني ما بعدها.
+                    </Typography>
 
                     {/* Description */}
 
@@ -159,7 +271,9 @@ function Services() {
                         sx={{
                             m: 0,
 
-                            maxWidth: 430,
+                            mt: 2.5,
+
+                            maxWidth: 570,
 
                             fontSize: {
                                 xs: 15,
@@ -172,256 +286,496 @@ function Services() {
                                 "text.secondary",
 
                             fontWeight: 400,
+
+                            direction:
+                                "rtl",
+
+                            unicodeBidi:
+                                "plaintext",
+
+                            textAlign:
+                                "left",
                         }}
                     >
-                        من بناء الهوية إلى تطوير المنتج،
-                        نجمع التصميم والتقنية في تجربة
-                        واحدة متكاملة.
+                        لا تحتاج إلى تصميم جاهز أو
+                        هوية مكتملة، نبدأ معك من
+                        الفكرة ونحوّلها إلى تجربة
+                        رقمية متكاملة.
                     </Typography>
                 </Box>
 
                 {/* ==========================================
-            SERVICES GRID
-        =========================================== */}
+                    PROCESS GRID
+                =========================================== */}
 
                 <Box
                     sx={{
+                        position:
+                            "relative",
+
                         display: "grid",
 
                         gridTemplateColumns: {
                             xs: "1fr",
                             sm: "repeat(2, 1fr)",
-                            lg: "repeat(4, 1fr)",
+                            lg: "repeat(3, 1fr)",
                         },
 
                         gap: {
                             xs: 2,
                             md: 3,
                         },
+
+                        direction: "ltr",
                     }}
                 >
-                    {services.map((service) => (
-                        <Box
-                            key={service.number}
-                            sx={{
-                                position: "relative",
+                    {steps.map((step) => {
+                        const Icon =
+                            step.icon;
 
-                                minHeight: {
-                                    xs: 300,
-                                    md: 340,
-                                },
-
-                                p: {
-                                    xs: 3,
-                                    md: 4,
-                                },
-
-                                display: "flex",
-
-                                flexDirection:
-                                    "column",
-
-                                justifyContent:
-                                    "space-between",
-
-                                overflow: "hidden",
-
-                                border: "1px solid",
-
-                                borderColor:
-                                    "divider",
-
-                                borderRadius: "16px",
-
-                                bgcolor:
-                                    "background.paper",
-
-                                transition:
-                                    "transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease",
-
-                                "&:hover": {
-                                    transform:
-                                        "translateY(-6px)",
-
-                                    borderColor:
-                                        "primary.main",
-
-                                    boxShadow:
-                                        "0 20px 50px rgba(0, 208, 132, 0.08)",
-                                },
-                            }}
-                        >
-                            {/* Number */}
-
-                            <Typography
-                                sx={{
-                                    fontFamily:
-                                        "Inter, sans-serif",
-
-                                    fontSize: 13,
-
-                                    fontWeight: 500,
-
-                                    letterSpacing:
-                                        "0.08em",
-
-                                    color:
-                                        "text.secondary",
-                                }}
-                            >
-                                {service.number}
-                            </Typography>
-
-                            {/* Icon / Braces */}
-
+                        return (
                             <Box
+                                key={
+                                    step.number
+                                }
                                 sx={{
-                                    width: 64,
-                                    height: 64,
+                                    position:
+                                        "relative",
 
-                                    display: "flex",
+                                    minHeight: {
+                                        xs: 280,
+                                        md: 245,
+                                    },
 
-                                    alignItems: "center",
+                                    p: {
+                                        xs: 3,
+                                        md: 4,
+                                    },
+
+                                    display:
+                                        "flex",
+
+                                    flexDirection:
+                                        "column",
 
                                     justifyContent:
-                                        "center",
+                                        "space-between",
 
-                                    border: "1px solid",
+                                    overflow:
+                                        "hidden",
+
+                                    border:
+                                        "1px solid",
 
                                     borderColor:
-                                        "divider",
+                                        step.featured
+                                            ? "primary.main"
+                                            : "divider",
 
                                     borderRadius:
-                                        "12px",
+                                        "16px",
 
-                                    color:
-                                        "primary.main",
+                                    bgcolor:
+                                        "background.paper",
 
-                                    fontFamily:
-                                        "Inter, sans-serif",
+                                    direction:
+                                        "ltr",
 
-                                    fontSize: 24,
-
-                                    direction: "ltr",
+                                    textAlign:
+                                        "left",
 
                                     transition:
-                                        "all 250ms ease",
+                                        "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
 
-                                    ".MuiBox-root:hover &":
-                                    {
+                                    "&:hover": {
+                                        transform:
+                                            "translateY(-7px)",
+
                                         borderColor:
                                             "primary.main",
+
+                                        boxShadow:
+                                            "0 24px 60px rgba(0, 208, 132, 0.10)",
                                     },
                                 }}
                             >
-                                {"{}"}
-                            </Box>
+                                {/* ==================================
+                                    CARD BACKGROUND CIRCLE
+                                =================================== */}
 
-                            {/* Content */}
-
-                            <Box>
-                                <Typography
-                                    component="h3"
+                                <Box
                                     sx={{
-                                        m: 0,
+                                        position:
+                                            "absolute",
+
+                                        right:
+                                            -80,
+
+                                        bottom:
+                                            -100,
+
+                                        width:
+                                            250,
+
+                                        height:
+                                            250,
+
+                                        borderRadius:
+                                            "50%",
+
+                                        background:
+                                            "radial-gradient(circle, rgba(0,208,132,0.09) 0%, rgba(0,208,132,0.025) 45%, transparent 70%)",
+
+                                        pointerEvents:
+                                            "none",
+                                    }}
+                                />
+
+                                {/* ==================================
+                                    SUBTLE DOT GRID
+                                =================================== */}
+
+                                <Box
+                                    sx={{
+                                        position:
+                                            "absolute",
+
+                                        right: 0,
+
+                                        bottom: 0,
+
+                                        width:
+                                            130,
+
+                                        height:
+                                            100,
+
+                                        opacity:
+                                            0.12,
+
+                                        backgroundImage:
+                                            "radial-gradient(rgba(0,208,132,0.55) 1px, transparent 1px)",
+
+                                        backgroundSize:
+                                            "10px 10px",
+
+                                        maskImage:
+                                            "linear-gradient(to bottom left, black, transparent 75%)",
+
+                                        pointerEvents:
+                                            "none",
+                                    }}
+                                />
+
+                                {/* ==================================
+                                    NUMBER
+                                =================================== */}
+
+                                <Typography
+                                    sx={{
+                                        position:
+                                            "relative",
+
+                                        zIndex: 2,
+
+                                        alignSelf:
+                                            "flex-end",
 
                                         fontFamily:
                                             "Inter, sans-serif",
 
-                                        fontSize: {
-                                            xs: 20,
-                                            md: 22,
-                                        },
-
-                                        fontWeight: 700,
-
-                                        letterSpacing:
-                                            "-0.02em",
-
-                                        color:
-                                            "text.primary",
-                                    }}
-                                >
-                                    {service.title}
-                                </Typography>
-
-                                <Typography
-                                    component="h4"
-                                    sx={{
-                                        m: 0,
-
-                                        mt: 0.5,
-
-                                        fontSize: 17,
+                                        fontSize: 13,
 
                                         fontWeight: 500,
 
-                                        color:
-                                            "primary.main",
-                                    }}
-                                >
-                                    {service.arabicTitle}
-                                </Typography>
-
-                                <Typography
-                                    component="p"
-                                    sx={{
-                                        m: 0,
-
-                                        mt: 1.5,
-
-                                        fontSize: 14,
-
-                                        lineHeight: 1.9,
+                                        letterSpacing:
+                                            "0.08em",
 
                                         color:
                                             "text.secondary",
+
+                                        direction:
+                                            "ltr",
                                     }}
                                 >
-                                    {service.description}
+                                    {
+                                        step.number
+                                    }
+                                </Typography>
+
+                                {/* ==================================
+                                    ICON
+                                =================================== */}
+
+                                <Box
+                                    sx={{
+                                        position:
+                                            "relative",
+
+                                        zIndex: 2,
+                                        mb: {
+                                            xs: 3,
+                                            md: 4,
+                                        },
+                                        width: 56,
+
+                                        height: 56,
+
+                                        display:
+                                            "flex",
+
+                                        alignItems:
+                                            "center",
+
+                                        justifyContent:
+                                            "center",
+
+                                        border:
+                                            "1px solid",
+
+                                        borderColor:
+                                            step.featured
+                                                ? "rgba(0,208,132,0.45)"
+                                                : "rgba(0,208,132,0.25)",
+
+                                        borderRadius:
+                                            "14px",
+
+                                        background:
+                                            "linear-gradient(145deg, rgba(0,208,132,0.13), rgba(0,208,132,0.025))",
+
+                                        color:
+                                            "primary.main",
+
+                                        boxShadow:
+                                            step.featured
+                                                ? "0 0 30px rgba(0,208,132,0.10)"
+                                                : "none",
+
+                                        transition:
+                                            "transform 300ms ease, box-shadow 300ms ease",
+
+                                        ".MuiBox-root:hover > &":
+                                        {
+                                            transform:
+                                                "translateY(-2px)",
+
+                                            boxShadow:
+                                                "0 0 30px rgba(0,208,132,0.15)",
+                                        },
+                                    }}
+                                >
+                                    <Icon
+                                        sx={{
+                                            fontSize: 28,
+                                        }}
+                                    />
+                                </Box>
+
+                                {/* ==================================
+                                    CONTENT
+                                =================================== */}
+
+                                <Box
+                                    sx={{
+                                        position:
+                                            "relative",
+
+                                        zIndex: 2,
+
+                                        width:
+                                            "100%",
+
+                                        direction:
+                                            "ltr",
+
+                                        textAlign:
+                                            "left",
+                                    }}
+                                >
+                                    {/* Title */}
+
+                                    <Typography
+                                        component="h3"
+                                        sx={{
+                                            m: 0,
+
+                                            fontFamily:
+                                                "Inter, sans-serif",
+
+                                            fontSize: {
+                                                xs: 21,
+                                                md: 23,
+                                            },
+
+                                            fontWeight:
+                                                700,
+
+                                            letterSpacing:
+                                                "-0.02em",
+
+                                            color:
+                                                "text.primary",
+
+                                            direction:
+                                                "ltr",
+
+                                            textAlign:
+                                                "left",
+                                        }}
+                                    >
+                                        {
+                                            step.title
+                                        }
+                                    </Typography>
+
+                                    {/* Description */}
+
+                                    <Typography
+                                        component="p"
+                                        sx={{
+                                            m: 0,
+
+                                            mt: 0.8,
+
+                                            maxWidth:
+                                                300,
+
+                                            fontSize: 14,
+
+                                            lineHeight:
+                                                1.8,
+
+                                            color:
+                                                "text.secondary",
+
+                                            direction:
+                                                "rtl",
+
+                                            unicodeBidi:
+                                                "plaintext",
+
+                                            textAlign:
+                                                "left",
+                                        }}
+                                    >
+                                        {
+                                            step.description
+                                        }
+                                    </Typography>
+                                </Box>
+
+                                {/* ==================================
+                                    ARROW
+                                =================================== */}
+
+                                <IconButton
+                                    aria-label={`الانتقال إلى ${step.title}`}
+                                    sx={{
+                                        position:
+                                            "relative",
+
+                                        zIndex: 2,
+                                        mt: {
+                                            xs: 2,
+                                            md: 3,
+                                        },
+                                        alignSelf:
+                                            "flex-start",
+
+                                        width: 38,
+
+                                        height: 38,
+
+                                        border:
+                                            "1px solid",
+
+                                        borderColor:
+                                            "primary.main",
+
+                                        color:
+                                            "primary.main",
+
+                                        backgroundColor:
+                                            "transparent",
+
+                                        transition:
+                                            "all 250ms ease",
+
+                                        "&:hover": {
+                                            color:
+                                                "#0B0F0E",
+
+                                            backgroundColor:
+                                                "primary.main",
+
+                                            transform:
+                                                "translateX(4px)",
+                                        },
+                                    }}
+                                >
+                                    <ArrowForwardRoundedIcon
+                                        sx={{
+                                            fontSize: 18,
+                                        }}
+                                    />
+                                </IconButton>
+
+                                {/* ==================================
+                                    LARGE BACKGROUND NUMBER
+                                =================================== */}
+
+                                <Typography
+                                    aria-hidden="true"
+                                    sx={{
+                                        position:
+                                            "absolute",
+
+                                        right:
+                                            18,
+
+                                        bottom:
+                                            -18,
+
+                                        fontFamily:
+                                            "Inter, sans-serif",
+
+                                        fontSize:
+                                            86,
+
+                                        fontWeight:
+                                            400,
+
+                                        lineHeight:
+                                            1,
+
+                                        color:
+                                            "primary.main",
+
+                                        opacity:
+                                            0.035,
+
+                                        direction:
+                                            "ltr",
+
+                                        userSelect:
+                                            "none",
+
+                                        pointerEvents:
+                                            "none",
+                                    }}
+                                >
+                                    {
+                                        step.number
+                                    }
                                 </Typography>
                             </Box>
-
-                            {/* Decorative Braces */}
-
-                            <Typography
-                                aria-hidden="true"
-                                sx={{
-                                    position: "absolute",
-
-                                    left: -8,
-
-                                    bottom: -30,
-
-                                    fontFamily:
-                                        "Inter, sans-serif",
-
-                                    fontSize: 150,
-
-                                    lineHeight: 1,
-
-                                    color:
-                                        "primary.main",
-
-                                    opacity: 0.025,
-
-                                    direction: "ltr",
-
-                                    userSelect:
-                                        "none",
-
-                                    pointerEvents:
-                                        "none",
-                                }}
-                            >
-                                {"{}"}
-                            </Typography>
-                        </Box>
-                    ))}
+                        );
+                    })}
                 </Box>
             </Container>
         </Box>
     );
 }
 
-export default Services;
+export default IdeaToProduct;

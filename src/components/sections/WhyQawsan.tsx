@@ -37,6 +37,7 @@ function WhyQawsan() {
           xs: 10,
           md: 14,
         },
+
         bgcolor: "background.default",
       }}
     >
@@ -44,93 +45,164 @@ function WhyQawsan() {
         maxWidth={false}
         sx={{
           maxWidth: 1280,
+
           px: {
             xs: 2.5,
             md: 4,
           },
         }}
       >
+        {/* ==========================================
+            SECTION HEADER
+        =========================================== */}
+
         {/* Section Header */}
         <Box
           sx={{
-            maxWidth: 720,
+            width: "100%",
+
             mb: {
               xs: 6,
               md: 8,
             },
+
+            display: "flex",
+            justifyContent: "center",
+
+            textAlign: "center",
           }}
         >
-          <Typography
+          <Box
             sx={{
-              mb: 2,
-              fontFamily: "Inter, sans-serif",
-              fontSize: {
-                xs: 12,
-                md: 13,
-              },
-              fontWeight: 600,
-              letterSpacing: "0.12em",
-              color: "primary.main",
-            }}
-          >
-            {"{ WHY QAWSAN }"}
-          </Typography>
+              width: "100%",
+              maxWidth: 720,
 
-          <Typography
-            component="h2"
-            sx={{
-              fontSize: {
-                xs: 32,
-                sm: 40,
-                md: 52,
-              },
-              fontWeight: 700,
-              lineHeight: 1.15,
-              color: "text.primary",
-              mb: 2.5,
+              direction: "rtl",
+              textAlign: "center",
             }}
           >
-            لأن المنتج الجيد يبدأ
-            <Box
-              component="span"
+            {/* Label */}
+
+            <Typography
               sx={{
-                display: {
-                  xs: "inline",
-                  md: "block",
+                mb: 2,
+
+                fontFamily: "Inter, sans-serif",
+
+                fontSize: {
+                  xs: 12,
+                  md: 13,
                 },
+
+                fontWeight: 600,
+
+                letterSpacing: "0.12em",
+
+                color: "primary.main",
+
+                direction: "ltr",
+
+                textAlign: "center",
               }}
             >
-              من التفاصيل.
-            </Box>
-          </Typography>
+              {"{ WHY QAWSAN }"}
+            </Typography>
 
-          <Typography
-            sx={{
-              maxWidth: 620,
-              fontSize: {
-                xs: 16,
-                md: 18,
-              },
-              lineHeight: 1.9,
-              fontWeight: 400,
-              color: "text.secondary",
-            }}
-          >
-            نربط التفكير الإبداعي بالتقنية لنصنع منتجات رقمية
-            واضحة، متناسقة، وقابلة للنمو.
-          </Typography>
+            {/* Heading */}
+
+            <Typography
+              component="h2"
+              sx={{
+                fontSize: {
+                  xs: 32,
+                  sm: 40,
+                  md: 52,
+                },
+
+                fontWeight: 700,
+
+                lineHeight: 1.15,
+
+                color: "text.primary",
+
+                mb: 2.5,
+
+                direction: "rtl",
+
+                unicodeBidi: "plaintext",
+
+                textAlign: "center",
+              }}
+            >
+              لأن المنتج الجيد يبدأ
+
+              <Box
+                component="span"
+                sx={{
+                  display: {
+                    xs: "inline",
+                    md: "block",
+                  },
+
+                  direction: "rtl",
+
+                  unicodeBidi: "plaintext",
+                }}
+              >
+                من التفاصيل.
+              </Box>
+            </Typography>
+
+            {/* Description */}
+
+            <Typography
+              sx={{
+                maxWidth: 620,
+
+                mx: "auto",
+
+                fontSize: {
+                  xs: 16,
+                  md: 18,
+                },
+
+                lineHeight: 1.9,
+
+                fontWeight: 400,
+
+                color: "text.secondary",
+
+                direction: "rtl",
+
+                unicodeBidi: "plaintext",
+
+                textAlign: "center",
+              }}
+            >
+              نربط التفكير الإبداعي بالتقنية لنصنع منتجات رقمية
+              واضحة، متناسقة، وقابلة للنمو.
+            </Typography>
+          </Box>
         </Box>
 
-        {/* Reasons */}
+        {/* ==========================================
+            REASONS
+        =========================================== */}
+
         <Box
           sx={{
             display: "grid",
+
             gridTemplateColumns: {
               xs: "1fr",
               sm: "repeat(2, 1fr)",
             },
+
             borderTop: "1px solid",
+
             borderColor: "divider",
+
+            direction: "ltr",
           }}
         >
           {reasons.map((reason) => (
@@ -138,10 +210,12 @@ function WhyQawsan() {
               key={reason.number}
               sx={{
                 position: "relative",
+
                 py: {
                   xs: 4,
                   md: 5,
                 },
+
                 px: {
                   xs: 0,
                   sm: 3,
@@ -149,13 +223,19 @@ function WhyQawsan() {
                 },
 
                 borderBottom: "1px solid",
+
                 borderColor: "divider",
 
+                /*
+                 * Vertical divider
+                 * Always stays in the center
+                 */
                 "&:nth-of-type(odd)": {
-                  borderLeft: {
+                  borderRight: {
                     xs: "none",
                     sm: "1px solid",
                   },
+
                   borderColor: "divider",
                 },
 
@@ -165,44 +245,80 @@ function WhyQawsan() {
                 "&:hover": {
                   bgcolor: "action.hover",
                 },
+
+                direction: "ltr",
+
+                textAlign: "left",
               }}
             >
+              {/* Number */}
+
               <Typography
                 sx={{
                   mb: 3,
+
                   fontFamily: "Inter, sans-serif",
+
                   fontSize: 13,
+
                   fontWeight: 600,
+
                   color: "primary.main",
+
+                  direction: "ltr",
+
+                  textAlign: "right",
                 }}
               >
                 {reason.number}
               </Typography>
 
+              {/* Title */}
+
               <Typography
                 component="h3"
                 sx={{
                   mb: 1.5,
+
                   fontSize: {
                     xs: 20,
                     md: 23,
                   },
+
                   fontWeight: 600,
+
                   color: "text.primary",
+
+                  direction: "rtl",
+
+                  unicodeBidi: "plaintext",
+
+                  textAlign: "left",
                 }}
               >
                 {reason.title}
               </Typography>
 
+              {/* Description */}
+
               <Typography
                 sx={{
                   maxWidth: 480,
+
                   fontSize: {
                     xs: 15,
                     md: 16,
                   },
+
                   lineHeight: 1.9,
+
                   color: "text.secondary",
+
+                  direction: "rtl",
+
+                  unicodeBidi: "plaintext",
+
+                  textAlign: "left",
                 }}
               >
                 {reason.description}

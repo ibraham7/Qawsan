@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   AppBar,
   Box,
@@ -18,6 +19,8 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+
+import ProjectForm from "../common/ProjectForm";
 
 import Logo from "../common/Logo";
 
@@ -49,6 +52,8 @@ function Navbar({
 
   const isMobile = useMediaQuery("(max-width:900px)");
 
+  const isLightMode = mode === "light";
+
   const handleOpenMenu = () => {
     setMobileOpen(true);
   };
@@ -56,27 +61,45 @@ function Navbar({
   const handleCloseMenu = () => {
     setMobileOpen(false);
   };
-
+  const [projectFormOpen, setProjectFormOpen] =
+    useState(false);
   return (
     <>
       <AppBar
         position="sticky"
         elevation={0}
         sx={{
-          backgroundColor:
-            mode === "dark"
-              ? "rgba(11, 15, 14, 0.78)"
-              : "rgba(248, 250, 249, 0.88)",
+          backgroundColor: isLightMode
+            ? "#181C1A"
+            : "rgba(11, 15, 14, 0.82)",
 
           backdropFilter: "blur(16px)",
 
           borderBottom: "1px solid",
-          borderColor: "divider",
 
-          color: "text.primary",
+          borderColor: isLightMode
+            ? "#2B322F"
+            : "divider",
+
+          color: isLightMode
+            ? "#F8FAF9"
+            : "text.primary",
+
+          transition:
+            "background-color 250ms ease, border-color 250ms ease",
         }}
       >
-        <Container maxWidth="xl">
+        <Container
+          maxWidth={false}
+          sx={{
+            maxWidth: 1280,
+
+            px: {
+              xs: 2.5,
+              md: 4,
+            },
+          }}
+        >
           <Toolbar
             disableGutters
             sx={{
@@ -113,65 +136,89 @@ function Navbar({
                   <IconButton
                     onClick={onToggleTheme}
                     aria-label={
-                      mode === "dark"
-                        ? "تفعيل الوضع النهاري"
-                        : "تفعيل الوضع الليلي"
+                      isLightMode
+                        ? "تفعيل الوضع الليلي"
+                        : "تفعيل الوضع النهاري"
                     }
                     sx={{
-                      width: 40,
-                      height: 40,
-
-                      color: "text.primary",
+                      width: 48,
+                      height: 48,
 
                       border: "1px solid",
-                      borderColor: "divider",
+
+                      borderColor: isLightMode
+                        ? "rgba(0, 168, 107, 0.25)"
+                        : "rgba(0, 208, 132, 0.18)",
+
+                      borderRadius: "50%",
+
+                      color: isLightMode
+                        ? "#00A86B"
+                        : "#00D084",
+
+                      backgroundColor: isLightMode
+                        ? "rgba(0, 168, 107, 0.05)"
+                        : "rgba(0, 208, 132, 0.04)",
 
                       transition:
-                        "color 200ms ease, border-color 200ms ease",
+                        "all 250ms ease",
 
                       "&:hover": {
-                        color: "primary.main",
-                        borderColor: "primary.main",
-                        backgroundColor: "transparent",
+                        color: isLightMode
+                          ? "#FFFFFF"
+                          : "#0B0F0E",
+
+                        backgroundColor:
+                          isLightMode
+                            ? "#0E3D2E"
+                            : "#00D084",
+
+                        borderColor:
+                          isLightMode
+                            ? "#0E3D2E"
+                            : "#00D084",
+
+                        transform:
+                          "rotate(15deg)",
                       },
                     }}
                   >
-                    {mode === "dark" ? (
-                      <LightModeRoundedIcon fontSize="small" />
+                    {isLightMode ? (
+                      <DarkModeRoundedIcon
+                        sx={{
+                          fontSize: 21,
+                        }}
+                      />
                     ) : (
-                      <DarkModeRoundedIcon fontSize="small" />
+                      <LightModeRoundedIcon
+                        sx={{
+                          fontSize: 21,
+                        }}
+                      />
                     )}
                   </IconButton>
 
                   {/* CTA */}
 
                   <Button
-                    href="#contact"
+                    onClick={() => setProjectFormOpen(true)}
                     variant="contained"
                     sx={{
                       minHeight: 40,
-
                       px: 2.5,
-
                       borderRadius: "10px",
-
                       backgroundColor: "primary.main",
-
-                      color:
-                        mode === "dark"
-                          ? "#0B0F0E"
-                          : "#FFFFFF",
-
+                      color: isLightMode
+                        ? "#FFFFFF"
+                        : "#0B0F0E",
                       fontSize: "14px",
                       fontWeight: 500,
-
                       transition:
                         "transform 200ms ease, background-color 200ms ease",
 
                       "&:hover": {
                         backgroundColor:
                           "primary.main",
-
                         transform:
                           "translateY(-2px)",
                       },
@@ -209,10 +256,12 @@ function Navbar({
 
                         px: 0,
 
-                        color:
-                          "text.secondary",
+                        color: isLightMode
+                          ? "#D6DCDA"
+                          : "text.secondary",
 
                         fontSize: "15px",
+
                         fontWeight: 500,
 
                         whiteSpace: "nowrap",
@@ -255,38 +304,74 @@ function Navbar({
                   sx={{
                     display: "flex",
                     alignItems: "center",
+
                     gap: 0.5,
                   }}
                 >
-                  {/* Theme */}
+                  {/* Theme Toggle */}
 
                   <IconButton
                     onClick={onToggleTheme}
                     aria-label={
-                      mode === "dark"
-                        ? "تفعيل الوضع النهاري"
-                        : "تفعيل الوضع الليلي"
+                      isLightMode
+                        ? "تفعيل الوضع الليلي"
+                        : "تفعيل الوضع النهاري"
                     }
                     sx={{
                       width: 40,
                       height: 40,
 
-                      color:
-                        "text.primary",
+                      border: "1px solid",
+
+                      borderColor: isLightMode
+                        ? "rgba(0, 168, 107, 0.25)"
+                        : "rgba(0, 208, 132, 0.18)",
+
+                      borderRadius: "50%",
+
+                      color: isLightMode
+                        ? "#00A86B"
+                        : "#00D084",
+
+                      backgroundColor: isLightMode
+                        ? "rgba(0, 168, 107, 0.05)"
+                        : "rgba(0, 208, 132, 0.04)",
+
+                      transition:
+                        "all 250ms ease",
 
                       "&:hover": {
-                        color:
-                          "primary.main",
+                        color: isLightMode
+                          ? "#FFFFFF"
+                          : "#0B0F0E",
 
                         backgroundColor:
-                          "transparent",
+                          isLightMode
+                            ? "#0E3D2E"
+                            : "#00D084",
+
+                        borderColor:
+                          isLightMode
+                            ? "#0E3D2E"
+                            : "#00D084",
+
+                        transform:
+                          "rotate(15deg)",
                       },
                     }}
                   >
-                    {mode === "dark" ? (
-                      <LightModeRoundedIcon />
+                    {isLightMode ? (
+                      <DarkModeRoundedIcon
+                        sx={{
+                          fontSize: 19,
+                        }}
+                      />
                     ) : (
-                      <DarkModeRoundedIcon />
+                      <LightModeRoundedIcon
+                        sx={{
+                          fontSize: 19,
+                        }}
+                      />
                     )}
                   </IconButton>
 
@@ -299,8 +384,9 @@ function Navbar({
                       width: 40,
                       height: 40,
 
-                      color:
-                        "text.primary",
+                      color: isLightMode
+                        ? "#F8FAF9"
+                        : "text.primary",
 
                       "&:hover": {
                         color:
@@ -328,7 +414,7 @@ function Navbar({
       </AppBar>
 
       {/* ==========================================
-          MOBILE DRAWER
+            MOBILE DRAWER
       =========================================== */}
 
       <Drawer
@@ -345,6 +431,7 @@ function Navbar({
             color: "text.primary",
 
             borderLeft: "1px solid",
+
             borderColor: "divider",
           },
         }}
@@ -359,7 +446,9 @@ function Navbar({
           <Box
             sx={{
               display: "flex",
+
               alignItems: "center",
+
               justifyContent:
                 "space-between",
 
@@ -402,9 +491,7 @@ function Navbar({
                 <ListItemButton
                   component="a"
                   href={link.href}
-                  onClick={
-                    handleCloseMenu
-                  }
+                  onClick={handleCloseMenu}
                   sx={{
                     minHeight: 52,
 
@@ -449,9 +536,12 @@ function Navbar({
 
           <Button
             fullWidth
-            href="#contact"
+            onClick={() => {
+              handleCloseMenu();
+              setProjectFormOpen(true);
+            }}
             variant="contained"
-            onClick={handleCloseMenu}
+
             sx={{
               mt: 3,
 
@@ -462,10 +552,9 @@ function Navbar({
               backgroundColor:
                 "primary.main",
 
-              color:
-                mode === "dark"
-                  ? "#0B0F0E"
-                  : "#FFFFFF",
+              color: isLightMode
+                ? "#FFFFFF"
+                : "#0B0F0E",
 
               fontWeight: 500,
 
@@ -479,6 +568,12 @@ function Navbar({
           </Button>
         </Box>
       </Drawer>
+      <ProjectForm
+        open={projectFormOpen}
+        onClose={() =>
+          setProjectFormOpen(false)
+        }
+      />
     </>
   );
 }

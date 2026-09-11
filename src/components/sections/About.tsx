@@ -38,7 +38,11 @@ function About() {
           }}
         >
           {/* Label */}
-          <Box>
+          <Box
+            sx={{
+              textAlign: "left",
+            }}
+          >
             <Typography
               sx={{
                 fontFamily: "Inter, sans-serif",
@@ -47,6 +51,7 @@ function About() {
                 letterSpacing: "0.12em",
                 color: "primary.main",
                 mb: 3,
+                textAlign: "left",
               }}
             >
               {"{ ABOUT QAWSAN }"}
@@ -63,14 +68,19 @@ function About() {
                 fontWeight: 700,
                 lineHeight: 1.2,
                 color: "text.primary",
+                textAlign: "left",
               }}
             >
               نصنع التجارب
+
               <Box
                 component="span"
                 sx={{
                   display: "block",
                   color: "primary.main",
+                  textAlign: "left",
+                  unicodeBidi:
+                    "plaintext",
                 }}
               >
                 التي تستحقها الأفكار.
@@ -79,7 +89,11 @@ function About() {
           </Box>
 
           {/* Content */}
-          <Box>
+          <Box
+            sx={{
+              textAlign: "left",
+            }}
+          >
             <Typography
               sx={{
                 fontSize: {
@@ -89,6 +103,9 @@ function About() {
                 lineHeight: 1.9,
                 color: "text.primary",
                 mb: 3,
+                textAlign: "left",
+                unicodeBidi:
+                  "plaintext",
               }}
             >
               قوسان استوديو رقمي يجمع بين التصميم والتقنية لبناء
@@ -103,6 +120,9 @@ function About() {
                 },
                 lineHeight: 2,
                 color: "text.secondary",
+                textAlign: "left",
+                unicodeBidi:
+                  "plaintext",
               }}
             >
               نؤمن أن التصميم الجيد لا ينفصل عن التقنية، وأن المنتج
@@ -122,6 +142,7 @@ function About() {
                 pt: 4,
                 borderTop: "1px solid",
                 borderColor: "divider",
+                textAlign: "left",
               }}
             >
               <Box>
@@ -132,6 +153,7 @@ function About() {
                     fontWeight: 600,
                     color: "primary.main",
                     mb: 1,
+                    textAlign: "left",
                   }}
                 >
                   DESIGN
@@ -141,6 +163,7 @@ function About() {
                   sx={{
                     fontSize: 15,
                     color: "text.secondary",
+                    textAlign: "left",
                   }}
                 >
                   هوية وتجارب بصرية
@@ -155,6 +178,7 @@ function About() {
                     fontWeight: 600,
                     color: "primary.main",
                     mb: 1,
+                    textAlign: "left",
                   }}
                 >
                   DEVELOPMENT
@@ -164,6 +188,7 @@ function About() {
                   sx={{
                     fontSize: 15,
                     color: "text.secondary",
+                    textAlign: "left",
                   }}
                 >
                   منتجات رقمية متطورة
@@ -178,6 +203,7 @@ function About() {
                     fontWeight: 600,
                     color: "primary.main",
                     mb: 1,
+                    textAlign: "left",
                   }}
                 >
                   EXPERIENCE
@@ -187,6 +213,7 @@ function About() {
                   sx={{
                     fontSize: 15,
                     color: "text.secondary",
+                    textAlign: "left",
                   }}
                 >
                   تجربة واضحة ومتكاملة

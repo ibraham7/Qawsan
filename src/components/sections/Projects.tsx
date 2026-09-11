@@ -2,31 +2,45 @@ import {
     Box,
     Container,
     Typography,
+    Button,
 } from "@mui/material";
+
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 const projects = [
     {
         number: "01",
-        title: "اسم المشروع الأول",
-        category: "UI/UX · Development",
+        title: "ورد لتعليم القرآن الكريم",
+        category:
+            "Branding · UI/UX · Development",
         description:
-            "تجربة رقمية متكاملة صُممت وطُورت لتقديم تجربة واضحة وحديثة.",
+            "منصة رقمية لتعليم القرآن الكريم وعلومه، صُممت لتقديم تجربة تعليمية بسيطة وواضحة تجمع بين الهوية البصرية الهادئة وسهولة الاستخدام.",
+        image: "/images/projects/wird.jpg",
+        link: "https://wird-platform.vercel.app/",
         size: "large",
     },
+
     {
         number: "02",
-        title: "اسم المشروع الثاني",
-        category: "Branding · UI/UX",
+        title: "مركز ربانيون",
+        category:
+            "Development",
         description:
-            "هوية وتجربة بصرية متكاملة لمشروع رقمي.",
+            "تطوير موقع رقمي لمركز ربانيون، مع تنفيذ الواجهة برمجيًا وبناء تجربة عربية متجاوبة تعمل بسلاسة على مختلف أحجام الشاشات.",
+        image: "/images/projects/rabbanioon.jpg",
+        link: "https://rpanyon.com/",
         size: "small",
     },
+
     {
         number: "03",
-        title: "اسم المشروع الثالث",
-        category: "Web Development",
+        title: "ثانوية أبي عبيدة ابن الجراح",
+        category:
+            "Branding · UI/UX · Development",
         description:
-            "واجهة رقمية سريعة ومتجاوبة مبنية لتخدم المستخدم.",
+            "موقع رقمي متكامل تم تنفيذه من الصفر، بدءًا من بناء الهوية البصرية وتصميم الواجهة، وصولًا إلى تطوير الموقع وكتابة الكود.",
+        image: "/images/projects/abi-ubaida.jpg",
+        link: "#",
         size: "small",
     },
 ];
@@ -42,13 +56,17 @@ function Projects() {
                     md: 16,
                 },
 
-                bgcolor: "background.default",
+                bgcolor:
+                    "background.default",
 
                 overflow: "hidden",
             }}
         >
             <Container maxWidth="xl">
-                {/* Section Header */}
+
+                {/* ==========================================
+                    SECTION HEADER
+                =========================================== */}
 
                 <Box
                     sx={{
@@ -56,7 +74,7 @@ function Projects() {
 
                         flexDirection: {
                             xs: "column",
-                            md: "row",
+                            md: "row-reverse",
                         },
 
                         alignItems: {
@@ -75,11 +93,19 @@ function Projects() {
                         },
                     }}
                 >
+
+                    {/* Heading */}
+
                     <Box
                         sx={{
                             maxWidth: 650,
+
+                            direction: "ltr",
+
+                            textAlign: "left",
                         }}
                     >
+
                         <Typography
                             component="span"
                             sx={{
@@ -99,6 +125,8 @@ function Projects() {
 
                                 color:
                                     "primary.main",
+
+                                direction: "ltr",
                             }}
                         >
                             {"{ SELECTED WORK }"}
@@ -124,26 +152,37 @@ function Projects() {
 
                                 color:
                                     "text.primary",
+
+                                direction: "rtl",
+
+                                unicodeBidi:
+                                    "plaintext",
+
+                                textAlign: "right",
                             }}
                         >
-                            أعمال تُترجم
+                            أعمال تُترجم{" "}
+
                             <Box
                                 component="span"
                                 sx={{
-                                    display: {
-                                        xs: "block",
-                                        sm: "inline",
-                                    },
-
                                     color:
                                         "primary.main",
+
+                                    direction:
+                                        "rtl",
+
+                                    unicodeBidi:
+                                        "plaintext",
                                 }}
                             >
-                                {" "}
                                 الأفكار.
                             </Box>
                         </Typography>
+
                     </Box>
+
+                    {/* Description */}
 
                     <Typography
                         component="p"
@@ -161,15 +200,25 @@ function Projects() {
 
                             color:
                                 "text.secondary",
+
+                            direction: "rtl",
+
+                            unicodeBidi:
+                                "plaintext",
+
+                            textAlign: "left",
                         }}
                     >
                         مجموعة من المشاريع التي تعكس
-                        طريقة تفكيرنا في التصميم والتقنية
-                        وبناء التجارب الرقمية.
+                        طريقة تفكيرنا في التصميم
+                        والتقنية وبناء التجارب الرقمية.
                     </Typography>
+
                 </Box>
 
-                {/* Projects */}
+                {/* ==========================================
+                    PROJECTS
+                =========================================== */}
 
                 <Box
                     sx={{
@@ -181,144 +230,55 @@ function Projects() {
                         },
 
                         gap: {
-                            xs: 2,
-                            md: 3,
+                            xs: 4,
+                            md: 5,
                         },
+
+                        direction: "ltr",
                     }}
                 >
-                    {projects.map((project, index) => (
-                        <Box
-                            key={project.number}
-                            sx={{
-                                gridColumn:
-                                    index === 0
-                                        ? {
-                                            xs: "auto",
-                                            md: "span 2",
-                                        }
-                                        : "auto",
 
-                                display: "flex",
-
-                                flexDirection:
-                                    "column",
-
-                                gap: 2,
-
-                                minWidth: 0,
-                            }}
-                        >
-                            {/* Project Image */}
-
+                    {projects.map(
+                        (project, index) => (
                             <Box
+                                key={
+                                    project.number
+                                }
                                 sx={{
-                                    position:
-                                        "relative",
-
-                                    aspectRatio:
+                                    gridColumn:
                                         index === 0
-                                            ? "2.1 / 1"
-                                            : "1.35 / 1",
+                                            ? {
+                                                xs: "auto",
+                                                md: "span 2",
+                                            }
+                                            : "auto",
 
-                                    overflow:
-                                        "hidden",
+                                    minWidth: 0,
 
-                                    borderRadius:
-                                        "16px",
-
-                                    border:
-                                        "1px solid",
-
-                                    borderColor:
-                                        "divider",
-
-                                    bgcolor:
-                                        "background.paper",
-
-                                    transition:
-                                        "border-color 250ms ease",
-
-                                    "&:hover": {
-                                        borderColor:
-                                            "primary.main",
-                                    },
-
-                                    "&::before": {
-                                        content:
-                                            '""',
-
-                                        position:
-                                            "absolute",
-
-                                        inset: 0,
-
-                                        background:
-                                            "linear-gradient(135deg, rgba(0,208,132,0.08), transparent 45%)",
-
-                                        pointerEvents:
-                                            "none",
-                                    },
+                                    direction:
+                                        "ltr",
                                 }}
                             >
-                                {/* Temporary Project Visual */}
+
+                                {/* ==================================
+                                    PROJECT IMAGE
+                                =================================== */}
 
                                 <Box
                                     sx={{
                                         position:
-                                            "absolute",
+                                            "relative",
 
-                                        inset: 0,
+                                        aspectRatio:
+                                            index === 0
+                                                ? "2.1 / 1"
+                                                : "1.35 / 1",
 
-                                        display: "flex",
+                                        overflow:
+                                            "hidden",
 
-                                        alignItems:
-                                            "center",
-
-                                        justifyContent:
-                                            "center",
-
-                                        fontFamily:
-                                            "Inter, sans-serif",
-
-                                        fontSize: {
-                                            xs: 48,
-                                            md:
-                                                index === 0
-                                                    ? 72
-                                                    : 56,
-                                        },
-
-                                        fontWeight: 700,
-
-                                        letterSpacing:
-                                            "-0.05em",
-
-                                        color:
-                                            "primary.main",
-
-                                        opacity: 0.35,
-
-                                        userSelect:
-                                            "none",
-                                    }}
-                                >
-                                    {"{ }"}
-                                </Box>
-
-                                {/* Number */}
-
-                                <Box
-                                    sx={{
-                                        position:
-                                            "absolute",
-
-                                        top: 20,
-
-                                        right: 20,
-
-                                        px: 1.25,
-
-                                        py: 0.6,
+                                        borderRadius:
+                                            "16px",
 
                                         border:
                                             "1px solid",
@@ -326,107 +286,374 @@ function Projects() {
                                         borderColor:
                                             "divider",
 
-                                        borderRadius:
-                                            "8px",
-
                                         bgcolor:
                                             "background.paper",
 
-                                        color:
-                                            "text.secondary",
+                                        transition:
+                                            "border-color 250ms ease, transform 300ms ease",
 
-                                        fontFamily:
-                                            "Inter, sans-serif",
+                                        "&:hover": {
+                                            borderColor:
+                                                "primary.main",
 
-                                        fontSize: 12,
+                                            transform:
+                                                "translateY(-4px)",
+                                        },
 
-                                        fontWeight: 500,
+                                        "&:hover img": {
+                                            transform:
+                                                "scale(1.025)",
+                                        },
+
+                                        "&::after": {
+                                            content:
+                                                '""',
+
+                                            position:
+                                                "absolute",
+
+                                            inset: 0,
+
+                                            background:
+                                                "linear-gradient(135deg, rgba(0,208,132,0.08), transparent 45%)",
+
+                                            pointerEvents:
+                                                "none",
+                                        },
                                     }}
                                 >
-                                    {project.number}
-                                </Box>
-                            </Box>
 
-                            {/* Project Information */}
+                                    {project.image ? (
+                                        <Box
+                                            component="img"
+                                            src={
+                                                project.image
+                                            }
+                                            alt={
+                                                project.title
+                                            }
+                                            sx={{
+                                                width: "100%",
 
-                            <Box
-                                sx={{
-                                    display:
-                                        "flex",
+                                                height: "100%",
 
-                                    flexDirection: {
-                                        xs: "column",
-                                        sm: "row",
-                                    },
+                                                objectFit:
+                                                    "cover",
 
-                                    justifyContent:
-                                        "space-between",
+                                                display:
+                                                    "block",
 
-                                    gap: 2,
-                                }}
-                            >
-                                <Box>
-                                    <Typography
-                                        component="h3"
+                                                transition:
+                                                    "transform 500ms ease",
+                                            }}
+                                        />
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                position:
+                                                    "absolute",
+
+                                                inset: 0,
+
+                                                display:
+                                                    "flex",
+
+                                                alignItems:
+                                                    "center",
+
+                                                justifyContent:
+                                                    "center",
+
+                                                fontFamily:
+                                                    "Inter, sans-serif",
+
+                                                fontSize: {
+                                                    xs: 48,
+                                                    md:
+                                                        index ===
+                                                            0
+                                                            ? 72
+                                                            : 56,
+                                                },
+
+                                                fontWeight:
+                                                    700,
+
+                                                color:
+                                                    "primary.main",
+
+                                                opacity:
+                                                    0.35,
+
+                                                userSelect:
+                                                    "none",
+                                            }}
+                                        >
+                                            {"{ }"}
+                                        </Box>
+                                    )}
+
+                                    {/* Number */}
+
+                                    <Box
                                         sx={{
-                                            m: 0,
+                                            position:
+                                                "absolute",
 
-                                            fontSize: {
-                                                xs: 20,
-                                                md: 24,
-                                            },
+                                            top: 20,
 
-                                            fontWeight: 600,
+                                            left: 20,
+
+                                            px: 1.25,
+
+                                            py: 0.6,
+
+                                            border:
+                                                "1px solid",
+
+                                            borderColor:
+                                                "divider",
+
+                                            borderRadius:
+                                                "8px",
+
+                                            bgcolor:
+                                                "rgba(11, 15, 14, 0.72)",
+
+                                            backdropFilter:
+                                                "blur(10px)",
 
                                             color:
-                                                "text.primary",
-                                        }}
-                                    >
-                                        {project.title}
-                                    </Typography>
-
-                                    <Typography
-                                        sx={{
-                                            mt: 0.5,
+                                                "text.secondary",
 
                                             fontFamily:
                                                 "Inter, sans-serif",
 
                                             fontSize: 12,
 
-                                            fontWeight: 500,
+                                            fontWeight:
+                                                500,
 
-                                            letterSpacing:
-                                                "0.03em",
-
-                                            color:
-                                                "primary.main",
+                                            zIndex: 2,
                                         }}
                                     >
-                                        {project.category}
-                                    </Typography>
+                                        {
+                                            project.number
+                                        }
+                                    </Box>
+
                                 </Box>
 
-                                <Typography
+                                {/* ==================================
+                                    PROJECT INFORMATION
+                                =================================== */}
+
+                                <Box
                                     sx={{
-                                        maxWidth: 400,
+                                        mt: 2,
 
-                                        m: 0,
+                                        display: "flex",
 
-                                        fontSize: 14,
+                                        flexDirection: {
+                                            xs: "column",
+                                            sm: "row",
+                                        },
 
-                                        lineHeight: 1.8,
+                                        justifyContent:
+                                            "space-between",
 
-                                        color:
-                                            "text.secondary",
+                                        alignItems: {
+                                            xs: "flex-start",
+                                            sm: "flex-start",
+                                        },
+
+                                        gap: 2,
+
+                                        direction:
+                                            "ltr",
                                     }}
                                 >
-                                    {project.description}
-                                </Typography>
+
+                                    {/* Project Name */}
+
+                                    <Box
+                                        sx={{
+                                            direction:
+                                                "rtl",
+
+                                            textAlign:
+                                                "right",
+                                        }}
+                                    >
+
+                                        <Typography
+                                            component="h3"
+                                            sx={{
+                                                m: 0,
+
+                                                fontSize: {
+                                                    xs: 20,
+                                                    md: 24,
+                                                },
+
+                                                fontWeight:
+                                                    600,
+
+                                                color:
+                                                    "text.primary",
+
+                                                direction:
+                                                    "rtl",
+
+                                                unicodeBidi:
+                                                    "plaintext",
+                                            }}
+                                        >
+                                            {
+                                                project.title
+                                            }
+                                        </Typography>
+
+                                        <Typography
+                                            sx={{
+                                                mt: 0.5,
+
+                                                fontFamily:
+                                                    "Inter, sans-serif",
+
+                                                fontSize: 12,
+
+                                                fontWeight:
+                                                    500,
+
+                                                letterSpacing:
+                                                    "0.03em",
+
+                                                color:
+                                                    "primary.main",
+
+                                                direction:
+                                                    "ltr",
+
+                                                textAlign:
+                                                    "right",
+                                            }}
+                                        >
+                                            {
+                                                project.category
+                                            }
+                                        </Typography>
+
+                                    </Box>
+
+                                    {/* Description + Link */}
+
+                                    <Box
+                                        sx={{
+                                            display:
+                                                "flex",
+
+                                            flexDirection:
+                                                "column",
+
+                                            alignItems: {
+                                                xs: "flex-start",
+                                                sm: "flex-end",
+                                            },
+
+                                            gap: 1.5,
+
+                                            direction:
+                                                "rtl",
+                                        }}
+                                    >
+
+                                        <Typography
+                                            sx={{
+                                                maxWidth:
+                                                    400,
+
+                                                m: 0,
+
+                                                fontSize: 14,
+
+                                                lineHeight:
+                                                    1.8,
+
+                                                color:
+                                                    "text.secondary",
+
+                                                direction:
+                                                    "rtl",
+
+                                                unicodeBidi:
+                                                    "plaintext",
+
+                                                textAlign:
+                                                    "right",
+                                            }}
+                                        >
+                                            {
+                                                project.description
+                                            }
+                                        </Typography>
+
+                                        {/* Project Link */}
+
+                                        {project.link !==
+                                            "#" && (
+                                                <Button
+                                                    component="a"
+                                                    href={
+                                                        project.link
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    endIcon={
+                                                        <ArrowForwardRoundedIcon />
+                                                    }
+                                                    sx={{
+                                                        px: 0,
+
+                                                        minWidth:
+                                                            "auto",
+
+                                                        fontSize:
+                                                            14,
+
+                                                        fontWeight:
+                                                            500,
+
+                                                        color:
+                                                            "primary.main",
+
+                                                        direction:
+                                                            "ltr",
+
+                                                        "&:hover":
+                                                        {
+                                                            backgroundColor:
+                                                                "transparent",
+
+                                                            color:
+                                                                "primary.main",
+                                                        },
+                                                    }}
+                                                >
+                                                    زيارة المشروع
+                                                </Button>
+                                            )}
+
+                                    </Box>
+
+                                </Box>
+
                             </Box>
-                        </Box>
-                    ))}
+                        )
+                    )}
+
                 </Box>
+
             </Container>
         </Box>
     );
