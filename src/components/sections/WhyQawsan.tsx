@@ -1,29 +1,38 @@
-import { Box, Container, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+} from "@mui/material";
+
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 
 const reasons = [
   {
-    number: "01",
     title: "نبدأ من الفكرة",
     description:
-      "لا تحتاج إلى مشروع جاهز أو تصميم مكتمل. نساعدك على تحويل فكرتك إلى اتجاه واضح قابل للتنفيذ.",
+      "نحوّل فكرتك إلى اتجاه واضح قابل للتنفيذ.",
+    icon: LightbulbOutlinedIcon,
   },
   {
-    number: "02",
-    title: "التصميم والتطوير معًا",
+    title: "التصميم والتطوير",
     description:
-      "من الهوية البصرية وواجهة المستخدم إلى كتابة الكود، نبني التجربة بشكل متكامل.",
+      "نبني التجربة كاملة من التصميم إلى الكود.",
+    icon: DesignServicesOutlinedIcon,
   },
   {
-    number: "03",
-    title: "اهتمام بالتفاصيل",
+    title: "نهتم بالتفاصيل",
     description:
-      "نهتم بالتفاصيل البصرية والتجربة والأداء، حتى يكون المنتج النهائي متناسقًا واحترافيًا.",
+      "نصنع تجربة متناسقة واحترافية في كل جزء.",
+    icon: SearchOutlinedIcon,
   },
   {
-    number: "04",
     title: "نبني للمستخدم",
     description:
-      "كل قرار في التصميم والتطوير هدفه تقديم تجربة واضحة، سهلة، وسريعة للمستخدم.",
+      "نركز على تجربة واضحة، سهلة وسريعة.",
+    icon: GroupsOutlinedIcon,
   },
 ];
 
@@ -33,19 +42,65 @@ function WhyQawsan() {
       component="section"
       id="why-qawsan"
       sx={{
+        position: "relative",
         py: {
           xs: 10,
-          md: 14,
+          md: 16,
         },
-
         bgcolor: "background.default",
+        overflow: "hidden",
       }}
     >
+      {/* ==========================================
+          BACKGROUND GLOW
+      =========================================== */}
+
+      <Box
+        sx={{
+          position: "absolute",
+          width: {
+            xs: 300,
+            md: 500,
+          },
+          height: {
+            xs: 300,
+            md: 500,
+          },
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(0,208,132,0.06) 0%, transparent 70%)",
+          top: "10%",
+          left: "-15%",
+          pointerEvents: "none",
+        }}
+      />
+
+      <Box
+        sx={{
+          position: "absolute",
+          width: {
+            xs: 280,
+            md: 450,
+          },
+          height: {
+            xs: 280,
+            md: 450,
+          },
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(0,208,132,0.04) 0%, transparent 70%)",
+          bottom: "0%",
+          right: "-15%",
+          pointerEvents: "none",
+        }}
+      />
+
       <Container
         maxWidth={false}
         sx={{
-          maxWidth: 1280,
-
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 1100,
           px: {
             xs: 2.5,
             md: 4,
@@ -53,278 +108,276 @@ function WhyQawsan() {
         }}
       >
         {/* ==========================================
-            SECTION HEADER
+            HEADER
         =========================================== */}
 
-        {/* Section Header */}
         <Box
           sx={{
-            width: "100%",
-
+            maxWidth: 760,
+            mx: "auto",
             mb: {
-              xs: 6,
-              md: 8,
+              xs: 7,
+              md: 9,
             },
-
-            display: "flex",
-            justifyContent: "center",
-
             textAlign: "center",
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 720,
+          {/* Label */}
 
-              direction: "rtl",
+          <Typography
+            sx={{
+              mb: 2.5,
+              fontFamily: "Inter, sans-serif",
+              fontSize: {
+                xs: 12,
+                md: 13,
+              },
+              fontWeight: 600,
+              letterSpacing: "0.12em",
+              color: "primary.main",
+              direction: "ltr",
               textAlign: "center",
             }}
           >
-            {/* Label */}
+            {"{ WHY QAWSAN }"}
+          </Typography>
 
-            <Typography
+          {/* Heading */}
+
+          <Typography
+            component="h2"
+            sx={{
+              m: 0,
+              fontSize: {
+                xs: 34,
+                sm: 44,
+                md: 54,
+              },
+              fontWeight: 700,
+              lineHeight: 1.2,
+              color: "text.primary",
+              direction: "rtl",
+              unicodeBidi: "plaintext",
+              textAlign: "center",
+            }}
+          >
+            لأن المنتج الجيد يبدأ
+            <Box
+              component="span"
               sx={{
-                mb: 2,
-
-                fontFamily: "Inter, sans-serif",
-
-                fontSize: {
-                  xs: 12,
-                  md: 13,
+                display: {
+                  xs: "inline",
+                  md: "block",
                 },
-
-                fontWeight: 600,
-
-                letterSpacing: "0.12em",
-
                 color: "primary.main",
-
-                direction: "ltr",
-
-                textAlign: "center",
-              }}
-            >
-              {"{ WHY QAWSAN }"}
-            </Typography>
-
-            {/* Heading */}
-
-            <Typography
-              component="h2"
-              sx={{
-                fontSize: {
-                  xs: 32,
-                  sm: 40,
-                  md: 52,
-                },
-
-                fontWeight: 700,
-
-                lineHeight: 1.15,
-
-                color: "text.primary",
-
-                mb: 2.5,
-
                 direction: "rtl",
-
                 unicodeBidi: "plaintext",
-
-                textAlign: "center",
               }}
             >
-              لأن المنتج الجيد يبدأ
+              {" "}من التفاصيل.
+            </Box>
+          </Typography>
 
-              <Box
-                component="span"
-                sx={{
-                  display: {
-                    xs: "inline",
-                    md: "block",
-                  },
+          {/* Short Description */}
 
-                  direction: "rtl",
-
-                  unicodeBidi: "plaintext",
-                }}
-              >
-                من التفاصيل.
-              </Box>
-            </Typography>
-
-            {/* Description */}
-
-            <Typography
-              sx={{
-                maxWidth: 620,
-
-                mx: "auto",
-
-                fontSize: {
-                  xs: 16,
-                  md: 18,
-                },
-
-                lineHeight: 1.9,
-
-                fontWeight: 400,
-
-                color: "text.secondary",
-
-                direction: "rtl",
-
-                unicodeBidi: "plaintext",
-
-                textAlign: "center",
-              }}
-            >
-              نربط التفكير الإبداعي بالتقنية لنصنع منتجات رقمية
-              واضحة، متناسقة، وقابلة للنمو.
-            </Typography>
-          </Box>
+          <Typography
+            sx={{
+              maxWidth: 540,
+              mx: "auto",
+              mt: 2.5,
+              mb: 0,
+              fontSize: {
+                xs: 15,
+                md: 17,
+              },
+              lineHeight: 1.8,
+              color: "text.secondary",
+              direction: "rtl",
+              unicodeBidi: "plaintext",
+              textAlign: "center",
+            }}
+          >
+            نربط التصميم بالتقنية لنصنع منتجات واضحة،
+            متناسقة، وقابلة للنمو.
+          </Typography>
         </Box>
 
         {/* ==========================================
-            REASONS
+            REASONS GRID
         =========================================== */}
 
         <Box
           sx={{
             display: "grid",
-
             gridTemplateColumns: {
               xs: "1fr",
               sm: "repeat(2, 1fr)",
             },
-
-            borderTop: "1px solid",
-
-            borderColor: "divider",
-
-            direction: "ltr",
+            gap: {
+              xs: 2,
+              md: 2.5,
+            },
           }}
         >
-          {reasons.map((reason) => (
-            <Box
-              key={reason.number}
-              sx={{
-                position: "relative",
+          {reasons.map((reason) => {
+            const Icon = reason.icon;
 
-                py: {
-                  xs: 4,
-                  md: 5,
-                },
-
-                px: {
-                  xs: 0,
-                  sm: 3,
-                  md: 4,
-                },
-
-                borderBottom: "1px solid",
-
-                borderColor: "divider",
-
-                /*
-                 * Vertical divider
-                 * Always stays in the center
-                 */
-                "&:nth-of-type(odd)": {
-                  borderRight: {
-                    xs: "none",
-                    sm: "1px solid",
+            return (
+              <Box
+                key={reason.title}
+                sx={{
+                  position: "relative",
+                  minHeight: {
+                    xs: 220,
+                    md: 245,
                   },
 
+                  p: {
+                    xs: 3.5,
+                    md: 4,
+                  },
+
+                  border: "1px solid",
                   borderColor: "divider",
-                },
 
-                transition:
-                  "background-color 250ms ease",
+                  borderRadius: {
+                    xs: 3,
+                    md: 3.5,
+                  },
 
-                "&:hover": {
-                  bgcolor: "action.hover",
-                },
+                  bgcolor: "background.paper",
 
-                direction: "ltr",
-
-                textAlign: "left",
-              }}
-            >
-              {/* Number */}
-
-              <Typography
-                sx={{
-                  mb: 3,
-
-                  fontFamily: "Inter, sans-serif",
-
-                  fontSize: 13,
-
-                  fontWeight: 600,
-
-                  color: "primary.main",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: {
+                    xs: 2.5,
+                    md: 3,
+                  },
 
                   direction: "ltr",
 
-                  textAlign: "right",
-                }}
-              >
-                {reason.number}
-              </Typography>
+                  transition:
+                    "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
 
-              {/* Title */}
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    borderColor:
+                      "rgba(0, 208, 132, 0.3)",
+                    boxShadow:
+                      "0 20px 50px rgba(0, 208, 132, 0.06)",
 
-              <Typography
-                component="h3"
-                sx={{
-                  mb: 1.5,
-
-                  fontSize: {
-                    xs: 20,
-                    md: 23,
+                    "& .reason-icon": {
+                      backgroundColor:
+                        "rgba(0, 208, 132, 0.12)",
+                      borderColor:
+                        "rgba(0, 208, 132, 0.35)",
+                    },
                   },
-
-                  fontWeight: 600,
-
-                  color: "text.primary",
-
-                  direction: "rtl",
-
-                  unicodeBidi: "plaintext",
-
-                  textAlign: "left",
                 }}
               >
-                {reason.title}
-              </Typography>
+                {/* Icon */}
 
-              {/* Description */}
+                <Box
+                  className="reason-icon"
+                  sx={{
+                    flexShrink: 0,
 
-              <Typography
-                sx={{
-                  maxWidth: 480,
+                    width: {
+                      xs: 58,
+                      md: 64,
+                    },
 
-                  fontSize: {
-                    xs: 15,
-                    md: 16,
-                  },
+                    height: {
+                      xs: 58,
+                      md: 64,
+                    },
 
-                  lineHeight: 1.9,
+                    borderRadius: 2.5,
 
-                  color: "text.secondary",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
 
-                  direction: "rtl",
+                    backgroundColor:
+                      "rgba(0, 208, 132, 0.05)",
 
-                  unicodeBidi: "plaintext",
+                    border: "1px solid",
+                    borderColor:
+                      "rgba(0, 208, 132, 0.18)",
 
-                  textAlign: "left",
-                }}
-              >
-                {reason.description}
-              </Typography>
-            </Box>
-          ))}
+                    color: "primary.main",
+
+                    transition:
+                      "all 300ms ease",
+                  }}
+                >
+                  <Icon
+                    sx={{
+                      fontSize: {
+                        xs: 27,
+                        md: 30,
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* Content */}
+
+                <Box
+                  sx={{
+                    pt: 0.5,
+                    direction: "rtl",
+                    textAlign: "left",
+                  }}
+                >
+                  <Typography
+                    component="h3"
+                    sx={{
+                      m: 0,
+                      mb: 1,
+
+                      fontSize: {
+                        xs: 19,
+                        md: 21,
+                      },
+
+                      fontWeight: 600,
+                      lineHeight: 1.4,
+
+                      color: "text.primary",
+
+                      direction: "rtl",
+                      unicodeBidi: "plaintext",
+                      textAlign: "left",
+                    }}
+                  >
+                    {reason.title}
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      m: 0,
+
+                      fontSize: {
+                        xs: 14,
+                        md: 15,
+                      },
+
+                      lineHeight: 1.8,
+
+                      color: "text.secondary",
+
+                      direction: "rtl",
+                      unicodeBidi: "plaintext",
+                      textAlign: "left",
+                    }}
+                  >
+                    {reason.description}
+                  </Typography>
+                </Box>
+              </Box>
+            );
+          })}
         </Box>
       </Container>
     </Box>

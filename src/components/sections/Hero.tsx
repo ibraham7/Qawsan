@@ -539,7 +539,7 @@ function Hero() {
                   sx={{
                     color: isDark
                       ? "#F8FAF9"
-                      : "#0B1713",
+                      : "#3A6B5A",
 
                     transform:
                       "translateX(-14px)",

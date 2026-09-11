@@ -363,14 +363,8 @@ function IdeaToProduct() {
 
                                     overflow:
                                         "hidden",
-
-                                    border:
-                                        "1px solid",
-
-                                    borderColor:
-                                        step.featured
-                                            ? "primary.main"
-                                            : "divider",
+                                    border: "1px solid",
+                                    borderColor: "divider",
 
                                     borderRadius:
                                         "16px",

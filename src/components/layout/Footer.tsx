@@ -54,10 +54,18 @@ function Footer() {
           }}
         >
           {/* Brand */}
+          {/* Brand */}
           <Box>
-            <Logo
-              size="medium"
-              showEnglish
+            <Box
+              component="img"
+              src="/logo/logo.png"
+              alt="قوسان"
+              sx={{
+                width: 150,
+                height: "auto",
+                display: "block",
+                objectFit: "contain",
+              }}
             />
 
             <Typography

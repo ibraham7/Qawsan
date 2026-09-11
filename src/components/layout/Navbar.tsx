@@ -22,8 +22,6 @@ import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 
 import ProjectForm from "../common/ProjectForm";
 
-import Logo from "../common/Logo";
-
 interface NavbarProps {
   mode: "light" | "dark";
   onToggleTheme: () => void;
@@ -49,9 +47,10 @@ function Navbar({
   onToggleTheme,
 }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [projectFormOpen, setProjectFormOpen] =
+    useState(false);
 
   const isMobile = useMediaQuery("(max-width:900px)");
-
   const isLightMode = mode === "light";
 
   const handleOpenMenu = () => {
@@ -61,8 +60,7 @@ function Navbar({
   const handleCloseMenu = () => {
     setMobileOpen(false);
   };
-  const [projectFormOpen, setProjectFormOpen] =
-    useState(false);
+
   return (
     <>
       <AppBar
@@ -70,7 +68,7 @@ function Navbar({
         elevation={0}
         sx={{
           backgroundColor: isLightMode
-            ? "#181C1A"
+            ? "#00B878"
             : "rgba(11, 15, 14, 0.82)",
 
           backdropFilter: "blur(16px)",
@@ -78,11 +76,11 @@ function Navbar({
           borderBottom: "1px solid",
 
           borderColor: isLightMode
-            ? "#2B322F"
+            ? "rgba(255, 255, 255, 0.18)"
             : "divider",
 
           color: isLightMode
-            ? "#F8FAF9"
+            ? "#FFFFFF"
             : "text.primary",
 
           transition:
@@ -147,17 +145,17 @@ function Navbar({
                       border: "1px solid",
 
                       borderColor: isLightMode
-                        ? "rgba(0, 168, 107, 0.25)"
+                        ? "rgba(255, 255, 255, 0.25)"
                         : "rgba(0, 208, 132, 0.18)",
 
                       borderRadius: "50%",
 
                       color: isLightMode
-                        ? "#00A86B"
+                        ? "#FFFFFF"
                         : "#00D084",
 
                       backgroundColor: isLightMode
-                        ? "rgba(0, 168, 107, 0.05)"
+                        ? "rgba(255, 255, 255, 0.05)"
                         : "rgba(0, 208, 132, 0.04)",
 
                       transition:
@@ -165,17 +163,17 @@ function Navbar({
 
                       "&:hover": {
                         color: isLightMode
-                          ? "#FFFFFF"
+                          ? "#00B878"
                           : "#0B0F0E",
 
                         backgroundColor:
                           isLightMode
-                            ? "#0E3D2E"
+                            ? "#FFFFFF"
                             : "#00D084",
 
                         borderColor:
                           isLightMode
-                            ? "#0E3D2E"
+                            ? "#FFFFFF"
                             : "#00D084",
 
                         transform:
@@ -201,24 +199,38 @@ function Navbar({
                   {/* CTA */}
 
                   <Button
-                    onClick={() => setProjectFormOpen(true)}
+                    onClick={() =>
+                      setProjectFormOpen(true)
+                    }
                     variant="contained"
                     sx={{
                       minHeight: 40,
+
                       px: 2.5,
+
                       borderRadius: "10px",
-                      backgroundColor: "primary.main",
-                      color: isLightMode
+
+                      backgroundColor: isLightMode
                         ? "#FFFFFF"
+                        : "primary.main",
+
+                      color: isLightMode
+                        ? "#00A86B"
                         : "#0B0F0E",
+
                       fontSize: "14px",
+
                       fontWeight: 500,
+
                       transition:
                         "transform 200ms ease, background-color 200ms ease",
 
                       "&:hover": {
                         backgroundColor:
-                          "primary.main",
+                          isLightMode
+                            ? "#FFFFFF"
+                            : "primary.main",
+
                         transform:
                           "translateY(-2px)",
                       },
@@ -257,7 +269,7 @@ function Navbar({
                         px: 0,
 
                         color: isLightMode
-                          ? "#D6DCDA"
+                          ? "#FFFFFF"
                           : "text.secondary",
 
                         fontSize: "15px",
@@ -270,11 +282,16 @@ function Navbar({
                           "color 200ms ease",
 
                         "&:hover": {
-                          color:
-                            "primary.main",
+                          color: isLightMode
+                            ? "#FFFFFF"
+                            : "primary.main",
 
                           backgroundColor:
                             "transparent",
+
+                          opacity: isLightMode
+                            ? 0.8
+                            : 1,
                         },
                       }}
                     >
@@ -285,10 +302,37 @@ function Navbar({
 
                 {/* RIGHT SIDE — LOGO */}
 
-                <Logo
-                  size="medium"
-                  showEnglish={false}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+
+                    alignItems: "center",
+
+                    ...(isLightMode && {
+                      color: "#FFFFFF",
+
+                      "& *": {
+                        color:
+                          "#FFFFFF !important",
+                      },
+                    }),
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/logo/logo.png"
+                    alt="قوسان"
+                    sx={{
+                      width: {
+                        xs: 90,
+                        md: 80,
+                      },
+                      height: "auto",
+                      display: "block",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
               </>
             )}
 
@@ -324,17 +368,17 @@ function Navbar({
                       border: "1px solid",
 
                       borderColor: isLightMode
-                        ? "rgba(0, 168, 107, 0.25)"
+                        ? "rgba(255, 255, 255, 0.25)"
                         : "rgba(0, 208, 132, 0.18)",
 
                       borderRadius: "50%",
 
                       color: isLightMode
-                        ? "#00A86B"
+                        ? "#FFFFFF"
                         : "#00D084",
 
                       backgroundColor: isLightMode
-                        ? "rgba(0, 168, 107, 0.05)"
+                        ? "rgba(255, 255, 255, 0.05)"
                         : "rgba(0, 208, 132, 0.04)",
 
                       transition:
@@ -342,17 +386,17 @@ function Navbar({
 
                       "&:hover": {
                         color: isLightMode
-                          ? "#FFFFFF"
+                          ? "#00B878"
                           : "#0B0F0E",
 
                         backgroundColor:
                           isLightMode
-                            ? "#0E3D2E"
+                            ? "#FFFFFF"
                             : "#00D084",
 
                         borderColor:
                           isLightMode
-                            ? "#0E3D2E"
+                            ? "#FFFFFF"
                             : "#00D084",
 
                         transform:
@@ -385,12 +429,13 @@ function Navbar({
                       height: 40,
 
                       color: isLightMode
-                        ? "#F8FAF9"
+                        ? "#FFFFFF"
                         : "text.primary",
 
                       "&:hover": {
-                        color:
-                          "primary.main",
+                        color: isLightMode
+                          ? "#FFFFFF"
+                          : "primary.main",
 
                         backgroundColor:
                           "transparent",
@@ -403,10 +448,37 @@ function Navbar({
 
                 {/* RIGHT SIDE — LOGO */}
 
-                <Logo
-                  size="medium"
-                  showEnglish={false}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+
+                    alignItems: "center",
+
+                    ...(isLightMode && {
+                      color: "#FFFFFF",
+
+                      "& *": {
+                        color:
+                          "#FFFFFF !important",
+                      },
+                    }),
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/logo/logo.png"
+                    alt="قوسان"
+                    sx={{
+                      width: {
+                        xs: 110,
+                        md: 135,
+                      },
+                      height: "auto",
+                      display: "block",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
               </>
             )}
           </Toolbar>
@@ -425,14 +497,9 @@ function Navbar({
           paper: {
             sx: {
               width: "min(320px, 85vw)",
-
-              backgroundColor:
-                "background.default",
-
+              backgroundColor: "background.default",
               color: "text.primary",
-
               borderLeft: "1px solid",
-
               borderColor: "divider",
             },
           },
@@ -448,33 +515,23 @@ function Navbar({
           <Box
             sx={{
               display: "flex",
-
               alignItems: "center",
-
-              justifyContent:
-                "space-between",
-
+              justifyContent: "space-between",
               mb: 4,
             }}
           >
-            <Logo
-              size="small"
-              showEnglish={false}
-            />
+
+
 
             <IconButton
               onClick={handleCloseMenu}
               aria-label="إغلاق القائمة"
               sx={{
-                color:
-                  "text.primary",
+                color: "text.primary",
 
                 "&:hover": {
-                  color:
-                    "primary.main",
-
-                  backgroundColor:
-                    "transparent",
+                  color: "primary.main",
+                  backgroundColor: "transparent",
                 },
               }}
             >
@@ -496,26 +553,18 @@ function Navbar({
                   onClick={handleCloseMenu}
                   sx={{
                     minHeight: 52,
-
                     mb: 1,
-
                     px: 2,
                     py: 1.5,
-
                     borderRadius: "10px",
-
-                    color:
-                      "text.primary",
+                    color: "text.primary",
 
                     transition:
                       "color 200ms ease, background-color 200ms ease",
 
                     "&:hover": {
-                      color:
-                        "primary.main",
-
-                      backgroundColor:
-                        "action.hover",
+                      color: "primary.main",
+                      backgroundColor: "action.hover",
                     },
                   }}
                 >
@@ -543,26 +592,18 @@ function Navbar({
               setProjectFormOpen(true);
             }}
             variant="contained"
-
             sx={{
               mt: 3,
-
               py: 1.4,
-
               borderRadius: "10px",
-
-              backgroundColor:
-                "primary.main",
-
+              backgroundColor: "primary.main",
               color: isLightMode
                 ? "#FFFFFF"
                 : "#0B0F0E",
-
               fontWeight: 500,
 
               "&:hover": {
-                backgroundColor:
-                  "primary.main",
+                backgroundColor: "primary.main",
               },
             }}
           >
@@ -570,6 +611,7 @@ function Navbar({
           </Button>
         </Box>
       </Drawer>
+
       <ProjectForm
         open={projectFormOpen}
         onClose={() =>
