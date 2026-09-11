@@ -421,18 +421,20 @@ function Navbar({
         anchor="right"
         open={mobileOpen}
         onClose={handleCloseMenu}
-        PaperProps={{
-          sx: {
-            width: "min(320px, 85vw)",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "min(320px, 85vw)",
 
-            backgroundColor:
-              "background.default",
+              backgroundColor:
+                "background.default",
 
-            color: "text.primary",
+              color: "text.primary",
 
-            borderLeft: "1px solid",
+              borderLeft: "1px solid",
 
-            borderColor: "divider",
+              borderColor: "divider",
+            },
           },
         }}
       >

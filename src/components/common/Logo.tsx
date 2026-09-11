@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface LogoProps {
   showEnglish?: boolean;
@@ -30,15 +30,17 @@ function Logo({
   const currentSize = sizes[size];
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={1}
+    <Box
       sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
         cursor: "pointer",
         userSelect: "none",
       }}
     >
+      {/* Left Brace */}
+
       <Box
         component="span"
         sx={{
@@ -52,7 +54,15 @@ function Logo({
         {"{"}
       </Box>
 
-      <Stack spacing={0} alignItems="flex-start">
+      {/* Logo Text */}
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
         <Typography
           sx={{
             fontSize: currentSize.arabic,
@@ -79,7 +89,9 @@ function Logo({
             QAWSAN
           </Typography>
         )}
-      </Stack>
+      </Box>
+
+      {/* Right Brace */}
 
       <Box
         component="span"
@@ -93,7 +105,7 @@ function Logo({
       >
         {"}"}
       </Box>
-    </Stack>
+    </Box>
   );
 }
 

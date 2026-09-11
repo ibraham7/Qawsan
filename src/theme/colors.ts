@@ -13,8 +13,7 @@ export const darkColors = {
 };
 
 export const lightColors = {
-    backgroundColor: "rgba(255, 255, 255, 0.72)",
-    backdropFilter: "blur(18px)",
+    background: "#F8FAF9",
     surface: "#FFFFFF",
     surfaceSecondary: "#F0F5F2",
 
@@ -24,5 +23,5 @@ export const lightColors = {
     textPrimary: "#0B1713",
     textSecondary: "#5F6B66",
 
-    borderColor: "#DCE6E1"
+    border: "#DCE6E1",
 };
