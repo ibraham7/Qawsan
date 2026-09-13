@@ -1,5 +1,4 @@
 import { Box, Container, Typography } from "@mui/material";
-import Logo from "../common/Logo";
 
 const navigationLinks = [
   { label: "الرئيسية", href: "#hero" },
@@ -54,7 +53,6 @@ function Footer() {
           }}
         >
           {/* Brand */}
-          {/* Brand */}
           <Box>
             <Box
               component="img"
@@ -68,25 +66,13 @@ function Footer() {
               }}
             />
 
-            <Typography
-              sx={{
-                mt: 3,
-                maxWidth: 340,
-                fontSize: 15,
-                lineHeight: 1.9,
-                color: "text.secondary",
-              }}
-            >
-              نبني تجارب ومنتجات رقمية تبدأ من الفكرة
-              وتصل إلى منتج حقيقي.
-            </Typography>
-
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
                 mt: 4,
+                transform: "translateX(-15px)",
               }}
             >
               <Typography
@@ -95,6 +81,7 @@ function Footer() {
                   fontSize: 12,
                   fontWeight: 600,
                   color: "primary.main",
+                  textAlign: "left",
                 }}
               >
                 {"{ }"}
@@ -104,6 +91,8 @@ function Footer() {
                 sx={{
                   fontSize: 13,
                   color: "text.secondary",
+                  textAlign: "left",
+                  unicodeBidi: "plaintext",
                 }}
               >
                 من الفكرة إلى المنتج.
@@ -141,10 +130,20 @@ function Footer() {
                     width: "fit-content",
                     fontSize: 14,
                     color: "text.secondary",
+                    textDecoration: "none",
+                    outline: "none",
                     transition: "color 200ms ease",
 
                     "&:hover": {
                       color: "primary.main",
+                    },
+
+                    "&:focus": {
+                      outline: "none",
+                    },
+
+                    "&:focus-visible": {
+                      outline: "none",
                     },
                   }}
                 >
@@ -183,10 +182,20 @@ function Footer() {
                     width: "fit-content",
                     fontSize: 14,
                     color: "text.secondary",
+                    textDecoration: "none",
+                    outline: "none",
                     transition: "color 200ms ease",
 
                     "&:hover": {
                       color: "primary.main",
+                    },
+
+                    "&:focus": {
+                      outline: "none",
+                    },
+
+                    "&:focus-visible": {
+                      outline: "none",
                     },
                   }}
                 >
@@ -259,12 +268,22 @@ function Footer() {
                 color: "#06130E",
                 fontSize: 14,
                 fontWeight: 500,
+                textDecoration: "none",
+                outline: "none",
                 transition:
                   "transform 200ms ease, opacity 200ms ease",
 
                 "&:hover": {
                   opacity: 0.9,
                   transform: "translateY(-2px)",
+                },
+
+                "&:focus": {
+                  outline: "none",
+                },
+
+                "&:focus-visible": {
+                  outline: "none",
                 },
               }}
             >
@@ -306,6 +325,7 @@ function Footer() {
             sx={{
               fontSize: 12,
               color: "text.secondary",
+              unicodeBidi: "plaintext",
             }}
           >
             نصنع الأفكار. نبني التجارب.

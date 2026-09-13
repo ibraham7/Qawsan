@@ -1,9 +1,10 @@
 import {
-    ReactNode,
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
+
+import type { ReactNode } from "react";
 
 import { Box } from "@mui/material";
 

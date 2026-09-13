@@ -246,15 +246,13 @@ function WhyQawsan() {
                   },
 
                   bgcolor: "background.paper",
-
                   display: "flex",
-                  alignItems: "flex-start",
-                  gap: {
-                    xs: 2.5,
-                    md: 3,
-                  },
-
-                  direction: "ltr",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 2.5,
+                  direction: "rtl",
+                  textAlign: "center",
 
                   transition:
                     "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
@@ -325,9 +323,8 @@ function WhyQawsan() {
 
                 <Box
                   sx={{
-                    pt: 0.5,
                     direction: "rtl",
-                    textAlign: "left",
+                    textAlign: "center",
                   }}
                 >
                   <Typography
@@ -348,7 +345,7 @@ function WhyQawsan() {
 
                       direction: "rtl",
                       unicodeBidi: "plaintext",
-                      textAlign: "left",
+                      textAlign: "center",
                     }}
                   >
                     {reason.title}

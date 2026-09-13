@@ -68,7 +68,7 @@ function IdeaToProduct() {
     return (
         <Box
             component="section"
-            id="process"
+            id="services"
             sx={{
                 position: "relative",
 

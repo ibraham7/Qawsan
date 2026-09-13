@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   Box,
   Button,
@@ -22,6 +24,75 @@ function ProjectForm({
   open,
   onClose,
 }: ProjectFormProps) {
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
+  const [success, setSuccess] =
+    useState(false);
+
+  const [error, setError] =
+    useState(false);
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+    setSuccess(false);
+    setError(false);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    formData.append(
+      "access_key",
+      "50ad71db-9a09-43f1-b435-cee6b07de324"
+    );
+
+    formData.append(
+      "subject",
+      "طلب مشروع جديد — قوسان"
+    );
+
+    formData.append(
+      "from_name",
+      "Qawsan Project Form"
+    );
+
+    try {
+      const response = await fetch(
+        "https://api.web3forms.com/submit",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message || "حدث خطأ أثناء الإرسال"
+        );
+      }
+
+      setSuccess(true);
+
+      form.reset();
+
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 1800);
+    } catch (error) {
+      console.error(error);
+      setError(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -166,9 +237,7 @@ function ProjectForm({
 
         <Box
           component="form"
-          onSubmit={(event) => {
-            event.preventDefault();
-          }}
+          onSubmit={handleSubmit}
           sx={{
             display: "grid",
 
@@ -188,6 +257,7 @@ function ProjectForm({
             fullWidth
             label="الاسم"
             placeholder="اكتب اسمك"
+            name="name"
             required
             variant="outlined"
           />
@@ -198,6 +268,7 @@ function ProjectForm({
             fullWidth
             label="وسيلة التواصل"
             placeholder="البريد الإلكتروني أو رقم واتساب"
+            name="contact"
             required
             variant="outlined"
           />
@@ -208,6 +279,7 @@ function ProjectForm({
             fullWidth
             label="اسم المشروع"
             placeholder="اسم مشروعك"
+            name="project_name"
             variant="outlined"
           />
 
@@ -217,6 +289,7 @@ function ProjectForm({
             select
             fullWidth
             label="نوع المشروع"
+            name="project_type"
             defaultValue=""
             required
             variant="outlined"
@@ -225,23 +298,23 @@ function ProjectForm({
               اختر نوع المشروع
             </MenuItem>
 
-            <MenuItem value="branding">
+            <MenuItem value="الهوية البصرية">
               الهوية البصرية
             </MenuItem>
 
-            <MenuItem value="uiux">
+            <MenuItem value="UI / UX">
               UI / UX
             </MenuItem>
 
-            <MenuItem value="development">
+            <MenuItem value="تطوير موقع">
               تطوير موقع
             </MenuItem>
 
-            <MenuItem value="digital-product">
+            <MenuItem value="منتج رقمي">
               منتج رقمي
             </MenuItem>
 
-            <MenuItem value="full-project">
+            <MenuItem value="مشروع متكامل">
               مشروع متكامل
             </MenuItem>
           </TextField>
@@ -252,6 +325,7 @@ function ProjectForm({
             select
             fullWidth
             label="هل لديك تصميم جاهز؟"
+            name="has_design"
             defaultValue=""
             variant="outlined"
           >
@@ -259,15 +333,15 @@ function ProjectForm({
               اختر إجابتك
             </MenuItem>
 
-            <MenuItem value="yes">
+            <MenuItem value="نعم، لدي تصميم جاهز">
               نعم، لدي تصميم جاهز
             </MenuItem>
 
-            <MenuItem value="no">
+            <MenuItem value="لا، أحتاج إلى التصميم">
               لا، أحتاج إلى التصميم
             </MenuItem>
 
-            <MenuItem value="not-sure">
+            <MenuItem value="غير متأكد">
               غير متأكد
             </MenuItem>
           </TextField>
@@ -278,6 +352,7 @@ function ProjectForm({
             select
             fullWidth
             label="الميزانية التقريبية"
+            name="budget"
             defaultValue=""
             variant="outlined"
           >
@@ -285,23 +360,23 @@ function ProjectForm({
               اختر الميزانية
             </MenuItem>
 
-            <MenuItem value="under-500">
+            <MenuItem value="أقل من 500$">
               أقل من 500$
             </MenuItem>
 
-            <MenuItem value="500-1000">
+            <MenuItem value="500$ – 1,000$">
               500$ – 1,000$
             </MenuItem>
 
-            <MenuItem value="1000-2500">
+            <MenuItem value="1,000$ – 2,500$">
               1,000$ – 2,500$
             </MenuItem>
 
-            <MenuItem value="2500-plus">
+            <MenuItem value="أكثر من 2,500$">
               أكثر من 2,500$
             </MenuItem>
 
-            <MenuItem value="not-sure">
+            <MenuItem value="غير محددة بعد">
               غير محددة بعد
             </MenuItem>
           </TextField>
@@ -314,6 +389,7 @@ function ProjectForm({
             minRows={5}
             label="حدثنا عن فكرتك"
             placeholder="ما الذي تريد بناءه؟ وما الهدف من المشروع؟"
+            name="project_details"
             required
             variant="outlined"
             sx={{
@@ -323,6 +399,74 @@ function ProjectForm({
               },
             }}
           />
+
+          {/* Success */}
+
+          {success && (
+            <Box
+              sx={{
+                gridColumn: {
+                  xs: "auto",
+                  sm: "1 / -1",
+                },
+
+                p: 2,
+
+                borderRadius: 2,
+
+                backgroundColor:
+                  "rgba(0, 208, 132, 0.08)",
+
+                border: "1px solid",
+
+                borderColor: "primary.main",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "primary.main",
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                تم إرسال طلبك بنجاح، سنتواصل معك قريبًا.
+              </Typography>
+            </Box>
+          )}
+
+          {/* Error */}
+
+          {error && (
+            <Box
+              sx={{
+                gridColumn: {
+                  xs: "auto",
+                  sm: "1 / -1",
+                },
+
+                p: 2,
+
+                borderRadius: 2,
+
+                backgroundColor:
+                  "rgba(220, 50, 50, 0.08)",
+
+                border: "1px solid",
+
+                borderColor: "error.main",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "error.main",
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                حدث خطأ أثناء الإرسال. حاول مرة أخرى.
+              </Typography>
+            </Box>
+          )}
 
           {/* Submit */}
 
@@ -344,6 +488,7 @@ function ProjectForm({
               type="submit"
               variant="contained"
               size="large"
+              disabled={isSubmitting}
               endIcon={
                 <ArrowOutwardRoundedIcon />
               }
@@ -372,11 +517,20 @@ function ProjectForm({
                     "translateY(-2px)",
                 },
 
+                "&:disabled": {
+                  backgroundColor:
+                    "primary.main",
+
+                  opacity: 0.6,
+                },
+
                 transition:
                   "transform 200ms ease",
               }}
             >
-              إرسال طلب المشروع
+              {isSubmitting
+                ? "جاري الإرسال..."
+                : "إرسال طلب المشروع"}
             </Button>
           </Box>
         </Box>
