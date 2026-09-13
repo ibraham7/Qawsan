@@ -1,4 +1,8 @@
-import { Box, Container, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+} from "@mui/material";
 
 const navigationLinks = [
   { label: "الرئيسية", href: "#hero" },
@@ -22,6 +26,7 @@ function Footer() {
         borderTop: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
+        overflow: "hidden",
       }}
     >
       <Container
@@ -30,38 +35,74 @@ function Footer() {
           maxWidth: 1280,
           px: {
             xs: 2.5,
+            sm: 3,
             md: 4,
           },
         }}
       >
-        {/* Main Footer */}
+        {/* ==========================================
+            MAIN FOOTER
+        =========================================== */}
+
         <Box
           sx={{
             display: "grid",
+
             gridTemplateColumns: {
               xs: "1fr",
-              md: "1.5fr 1fr 1fr 1fr",
+              sm: "repeat(2, 1fr)",
+              lg: "1.5fr 1fr 1fr 1fr",
             },
+
             gap: {
-              xs: 6,
+              xs: 5,
+              sm: 6,
               md: 4,
             },
+
             py: {
-              xs: 8,
+              xs: 7,
+              sm: 8,
               md: 10,
             },
           }}
         >
-          {/* Brand */}
-          <Box>
+          {/* ==========================================
+              BRAND
+          =========================================== */}
+
+          <Box
+            sx={{
+              display: "flex",
+
+              flexDirection: "column",
+
+              alignItems: {
+                xs: "center",
+                md: "flex-start",
+              },
+
+              textAlign: {
+                xs: "center",
+                md: "left",
+              },
+            }}
+          >
             <Box
               component="img"
               src="/logo/logo.png"
               alt="قوسان"
               sx={{
-                width: 150,
+                width: {
+                  xs: 110,
+                  sm: 125,
+                  md: 150,
+                },
+
                 height: "auto",
+
                 display: "block",
+
                 objectFit: "contain",
               }}
             />
@@ -69,19 +110,47 @@ function Footer() {
             <Box
               sx={{
                 display: "flex",
+
                 alignItems: "center",
-                gap: 1,
-                mt: 4,
-                transform: "translateX(-15px)",
+
+                justifyContent: {
+                  xs: "center",
+                  md: "flex-start",
+                },
+
+                gap: {
+                  xs: 0.8,
+                  md: 1,
+                },
+
+                mt: {
+                  xs: 2.5,
+                  sm: 3,
+                  md: 4,
+                },
+
+                transform: {
+                  xs: "none",
+                  md: "translateX(-15px)",
+                },
               }}
             >
               <Typography
                 sx={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: 12,
+                  fontFamily:
+                    "Inter, sans-serif",
+
+                  fontSize: {
+                    xs: 11,
+                    md: 12,
+                  },
+
                   fontWeight: 600,
-                  color: "primary.main",
-                  textAlign: "left",
+
+                  color:
+                    "primary.main",
+
+                  textAlign: "center",
                 }}
               >
                 {"{ }"}
@@ -89,10 +158,21 @@ function Footer() {
 
               <Typography
                 sx={{
-                  fontSize: 13,
-                  color: "text.secondary",
-                  textAlign: "left",
-                  unicodeBidi: "plaintext",
+                  fontSize: {
+                    xs: 12,
+                    md: 13,
+                  },
+
+                  color:
+                    "text.secondary",
+
+                  textAlign: {
+                    xs: "center",
+                    md: "left",
+                  },
+
+                  unicodeBidi:
+                    "plaintext",
                 }}
               >
                 من الفكرة إلى المنتج.
@@ -100,14 +180,48 @@ function Footer() {
             </Box>
           </Box>
 
-          {/* Navigation */}
-          <Box>
+          {/* ==========================================
+              NAVIGATION
+          =========================================== */}
+
+          <Box
+            sx={{
+              display: "flex",
+
+              flexDirection: "column",
+
+              alignItems: {
+                xs: "center",
+                md: "flex-start",
+              },
+
+              textAlign: {
+                xs: "center",
+                md: "left",
+              },
+            }}
+          >
             <Typography
               sx={{
-                mb: 3,
-                fontSize: 14,
+                mb: {
+                  xs: 2,
+                  md: 3,
+                },
+
+                fontSize: {
+                  xs: 13,
+                  md: 14,
+                },
+
                 fontWeight: 600,
-                color: "text.primary",
+
+                color:
+                  "text.primary",
+
+                textAlign: {
+                  xs: "center",
+                  md: "left",
+                },
               }}
             >
               روابط
@@ -117,50 +231,115 @@ function Footer() {
               component="nav"
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                gap: 1.5,
+
+                flexDirection:
+                  "column",
+
+                alignItems: {
+                  xs: "center",
+                  md: "flex-start",
+                },
+
+                gap: {
+                  xs: 1.2,
+                  md: 1.5,
+                },
               }}
             >
-              {navigationLinks.map((link) => (
-                <Box
-                  key={link.label}
-                  component="a"
-                  href={link.href}
-                  sx={{
-                    width: "fit-content",
-                    fontSize: 14,
-                    color: "text.secondary",
-                    textDecoration: "none",
-                    outline: "none",
-                    transition: "color 200ms ease",
+              {navigationLinks.map(
+                (link) => (
+                  <Box
+                    key={link.label}
+                    component="a"
+                    href={link.href}
+                    sx={{
+                      width:
+                        "fit-content",
 
-                    "&:hover": {
-                      color: "primary.main",
-                    },
+                      fontSize: {
+                        xs: 13,
+                        md: 14,
+                      },
 
-                    "&:focus": {
+                      color:
+                        "text.secondary",
+
+                      textDecoration:
+                        "none",
+
                       outline: "none",
-                    },
 
-                    "&:focus-visible": {
-                      outline: "none",
-                    },
-                  }}
-                >
-                  {link.label}
-                </Box>
-              ))}
+                      transition:
+                        "color 200ms ease",
+
+                      textAlign:
+                        "center",
+
+                      "&:hover": {
+                        color:
+                          "primary.main",
+                      },
+
+                      "&:focus": {
+                        outline:
+                          "none",
+                      },
+
+                      "&:focus-visible": {
+                        outline:
+                          "none",
+                      },
+                    }}
+                  >
+                    {link.label}
+                  </Box>
+                )
+              )}
             </Box>
           </Box>
 
-          {/* Services */}
-          <Box>
+          {/* ==========================================
+              SERVICES
+          =========================================== */}
+
+          <Box
+            sx={{
+              display: "flex",
+
+              flexDirection: "column",
+
+              alignItems: {
+                xs: "center",
+                md: "flex-start",
+              },
+
+              textAlign: {
+                xs: "center",
+                md: "left",
+              },
+            }}
+          >
             <Typography
               sx={{
-                mb: 3,
-                fontSize: 14,
+                mb: {
+                  xs: 2,
+                  md: 3,
+                },
+
+                fontSize: {
+                  xs: 13,
+                  md: 14,
+                },
+
                 fontWeight: 600,
-                color: "text.primary",
+
+                color:
+                  "text.primary",
+
+                textAlign: {
+                  xs: "center",
+                  md: "left",
+                },
               }}
             >
               خدماتنا
@@ -169,50 +348,115 @@ function Footer() {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                gap: 1.5,
+
+                flexDirection:
+                  "column",
+
+                alignItems: {
+                  xs: "center",
+                  md: "flex-start",
+                },
+
+                gap: {
+                  xs: 1.2,
+                  md: 1.5,
+                },
               }}
             >
-              {serviceLinks.map((service) => (
-                <Box
-                  key={service.label}
-                  component="a"
-                  href={service.href}
-                  sx={{
-                    width: "fit-content",
-                    fontSize: 14,
-                    color: "text.secondary",
-                    textDecoration: "none",
-                    outline: "none",
-                    transition: "color 200ms ease",
+              {serviceLinks.map(
+                (service) => (
+                  <Box
+                    key={service.label}
+                    component="a"
+                    href={service.href}
+                    sx={{
+                      width:
+                        "fit-content",
 
-                    "&:hover": {
-                      color: "primary.main",
-                    },
+                      fontSize: {
+                        xs: 13,
+                        md: 14,
+                      },
 
-                    "&:focus": {
+                      color:
+                        "text.secondary",
+
+                      textDecoration:
+                        "none",
+
                       outline: "none",
-                    },
 
-                    "&:focus-visible": {
-                      outline: "none",
-                    },
-                  }}
-                >
-                  {service.label}
-                </Box>
-              ))}
+                      transition:
+                        "color 200ms ease",
+
+                      textAlign:
+                        "center",
+
+                      "&:hover": {
+                        color:
+                          "primary.main",
+                      },
+
+                      "&:focus": {
+                        outline:
+                          "none",
+                      },
+
+                      "&:focus-visible": {
+                        outline:
+                          "none",
+                      },
+                    }}
+                  >
+                    {service.label}
+                  </Box>
+                )
+              )}
             </Box>
           </Box>
 
-          {/* Contact */}
-          <Box>
+          {/* ==========================================
+              CONTACT
+          =========================================== */}
+
+          <Box
+            sx={{
+              display: "flex",
+
+              flexDirection: "column",
+
+              alignItems: {
+                xs: "center",
+                md: "flex-start",
+              },
+
+              textAlign: {
+                xs: "center",
+                md: "left",
+              },
+            }}
+          >
             <Typography
               sx={{
-                mb: 3,
-                fontSize: 14,
+                mb: {
+                  xs: 2,
+                  md: 3,
+                },
+
+                fontSize: {
+                  xs: 13,
+                  md: 14,
+                },
+
                 fontWeight: 600,
-                color: "text.primary",
+
+                color:
+                  "text.primary",
+
+                textAlign: {
+                  xs: "center",
+                  md: "left",
+                },
               }}
             >
               تواصل معنا
@@ -221,14 +465,33 @@ function Footer() {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                gap: 1.5,
+
+                flexDirection:
+                  "column",
+
+                alignItems: {
+                  xs: "center",
+                  md: "flex-start",
+                },
+
+                gap: {
+                  xs: 1.2,
+                  md: 1.5,
+                },
               }}
             >
               <Typography
                 sx={{
-                  fontSize: 14,
-                  color: "text.secondary",
+                  fontSize: {
+                    xs: 13,
+                    md: 14,
+                  },
+
+                  color:
+                    "text.secondary",
+
+                  textAlign:
+                    "center",
                 }}
               >
                 Instagram
@@ -236,8 +499,16 @@ function Footer() {
 
               <Typography
                 sx={{
-                  fontSize: 14,
-                  color: "text.secondary",
+                  fontSize: {
+                    xs: 13,
+                    md: 14,
+                  },
+
+                  color:
+                    "text.secondary",
+
+                  textAlign:
+                    "center",
                 }}
               >
                 LinkedIn
@@ -245,8 +516,16 @@ function Footer() {
 
               <Typography
                 sx={{
-                  fontSize: 14,
-                  color: "text.secondary",
+                  fontSize: {
+                    xs: 13,
+                    md: 14,
+                  },
+
+                  color:
+                    "text.secondary",
+
+                  textAlign:
+                    "center",
                 }}
               >
                 Email
@@ -257,33 +536,68 @@ function Footer() {
               component="a"
               href="#contact"
               sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mt: 3,
-                px: 2.5,
-                minHeight: 42,
+                display:
+                  "inline-flex",
+
+                alignItems:
+                  "center",
+
+                justifyContent:
+                  "center",
+
+                mt: {
+                  xs: 2.5,
+                  md: 3,
+                },
+
+                px: {
+                  xs: 2.2,
+                  md: 2.5,
+                },
+
+                minHeight: {
+                  xs: 40,
+                  md: 42,
+                },
+
                 borderRadius: 2,
-                bgcolor: "primary.main",
-                color: "#06130E",
-                fontSize: 14,
+
+                bgcolor:
+                  "primary.main",
+
+                color:
+                  "#06130E",
+
+                fontSize: {
+                  xs: 13,
+                  md: 14,
+                },
+
                 fontWeight: 500,
-                textDecoration: "none",
+
+                textDecoration:
+                  "none",
+
                 outline: "none",
+
                 transition:
                   "transform 200ms ease, opacity 200ms ease",
 
                 "&:hover": {
                   opacity: 0.9,
-                  transform: "translateY(-2px)",
+
+                  transform:
+                    "translateY(-2px)",
                 },
 
                 "&:focus": {
-                  outline: "none",
+                  outline:
+                    "none",
                 },
 
                 "&:focus-visible": {
-                  outline: "none",
+                  outline:
+                    "none",
                 },
               }}
             >
@@ -292,40 +606,82 @@ function Footer() {
           </Box>
         </Box>
 
-        {/* Bottom */}
+        {/* ==========================================
+            BOTTOM
+        =========================================== */}
+
         <Box
           sx={{
             display: "flex",
+
             flexDirection: {
               xs: "column",
               sm: "row",
             },
+
             alignItems: {
-              xs: "flex-start",
+              xs: "center",
               sm: "center",
             },
-            justifyContent: "space-between",
-            gap: 2,
-            py: 3,
+
+            justifyContent:
+              "space-between",
+
+            gap: {
+              xs: 1.5,
+              sm: 2,
+            },
+
+            py: {
+              xs: 2.5,
+              sm: 3,
+            },
+
             borderTop: "1px solid",
-            borderColor: "divider",
+
+            borderColor:
+              "divider",
+
+            textAlign: "center",
           }}
         >
           <Typography
             sx={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: 12,
-              color: "text.secondary",
+              fontFamily:
+                "Inter, sans-serif",
+
+              fontSize: {
+                xs: 10,
+                sm: 11,
+                md: 12,
+              },
+
+              color:
+                "text.secondary",
+
+              textAlign:
+                "center",
             }}
           >
-            © {new Date().getFullYear()} QAWSAN. All rights reserved.
+            © {new Date().getFullYear()} QAWSAN.
+            All rights reserved.
           </Typography>
 
           <Typography
             sx={{
-              fontSize: 12,
-              color: "text.secondary",
-              unicodeBidi: "plaintext",
+              fontSize: {
+                xs: 11,
+                sm: 12,
+              },
+
+              color:
+                "text.secondary",
+
+              unicodeBidi:
+                "plaintext",
+
+              textAlign:
+                "center",
             }}
           >
             نصنع الأفكار. نبني التجارب.

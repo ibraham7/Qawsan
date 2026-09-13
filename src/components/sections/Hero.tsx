@@ -1,4 +1,8 @@
 import {
+  ArrowBackRounded,
+} from "@mui/icons-material";
+
+import {
   Box,
   Button,
   Container,
@@ -6,12 +10,11 @@ import {
   useTheme,
 } from "@mui/material";
 
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-
 function Hero() {
   const theme = useTheme();
 
-  const isDark = theme.palette.mode === "dark";
+  const isDark =
+    theme.palette.mode === "dark";
 
   return (
     <Box
@@ -21,11 +24,12 @@ function Hero() {
         position: "relative",
 
         minHeight: {
-          xs: "calc(100vh - 68px)",
+          xs: "auto",
           md: "calc(100vh - 76px)",
         },
 
         display: "flex",
+
         alignItems: "center",
 
         overflow: "hidden",
@@ -46,7 +50,9 @@ function Hero() {
 
           inset: 0,
 
-          opacity: isDark ? 0.035 : 0.045,
+          opacity: isDark
+            ? 0.035
+            : 0.045,
 
           backgroundImage: `
             linear-gradient(
@@ -67,7 +73,8 @@ function Hero() {
           `,
 
           backgroundSize: {
-            xs: "60px 60px",
+            xs: "55px 55px",
+            sm: "65px 65px",
             md: "80px 80px",
           },
 
@@ -87,12 +94,14 @@ function Hero() {
           position: "absolute",
 
           width: {
-            xs: 320,
+            xs: 280,
+            sm: 380,
             md: 620,
           },
 
           height: {
-            xs: 320,
+            xs: 280,
+            sm: 380,
             md: 620,
           },
 
@@ -102,7 +111,10 @@ function Hero() {
             ? "radial-gradient(circle, rgba(0,208,132,0.13) 0%, rgba(0,208,132,0.04) 35%, transparent 70%)"
             : "radial-gradient(circle, rgba(0,168,107,0.10) 0%, rgba(0,168,107,0.035) 35%, transparent 70%)",
 
-          top: "50%",
+          top: {
+            xs: "30%",
+            md: "50%",
+          },
 
           left: {
             xs: "50%",
@@ -120,11 +132,14 @@ function Hero() {
           "@keyframes heroGlowIn": {
             from: {
               opacity: 0,
+
               transform:
                 "translate(-50%, -50%) scale(0.75)",
             },
+
             to: {
               opacity: 1,
+
               transform:
                 "translate(-50%, -50%) scale(1)",
             },
@@ -138,10 +153,12 @@ function Hero() {
           maxWidth: 1280,
 
           position: "relative",
+
           zIndex: 1,
 
           px: {
             xs: 2.5,
+            sm: 3,
             md: 4,
           },
         }}
@@ -158,18 +175,20 @@ function Hero() {
             alignItems: "center",
 
             gap: {
-              xs: 6,
+              xs: 4,
+              sm: 5,
               md: 4,
               lg: 8,
             },
 
             minHeight: {
-              xs: "calc(100vh - 68px)",
+              xs: "auto",
               md: "calc(100vh - 76px)",
             },
 
             py: {
-              xs: 8,
+              xs: 7,
+              sm: 8,
               md: 10,
             },
           }}
@@ -183,8 +202,8 @@ function Hero() {
               position: "relative",
 
               minHeight: {
-                xs: 260,
-                sm: 320,
+                xs: 230,
+                sm: 300,
                 md: 500,
               },
 
@@ -192,8 +211,7 @@ function Hero() {
 
               alignItems: "center",
 
-              justifyContent:
-                "center",
+              justifyContent: "center",
 
               order: {
                 xs: -1,
@@ -206,11 +224,14 @@ function Hero() {
               "@keyframes heroVisualIn": {
                 from: {
                   opacity: 0,
+
                   transform:
                     "translateX(-70px) scale(0.92)",
                 },
+
                 to: {
                   opacity: 1,
+
                   transform:
                     "translateX(0) scale(1)",
                 },
@@ -224,12 +245,14 @@ function Hero() {
                 position: "absolute",
 
                 width: {
-                  xs: 230,
+                  xs: 190,
+                  sm: 260,
                   md: 440,
                 },
 
                 height: {
-                  xs: 230,
+                  xs: 190,
+                  sm: 260,
                   md: 440,
                 },
 
@@ -247,38 +270,47 @@ function Hero() {
                 "@keyframes visualGlowPulse": {
                   "0%, 100%": {
                     opacity: 0.7,
-                    transform: "scale(0.96)",
+
+                    transform:
+                      "scale(0.96)",
                   },
+
                   "50%": {
                     opacity: 1,
-                    transform: "scale(1.04)",
+
+                    transform:
+                      "scale(1.04)",
                   },
                 },
               }}
             />
 
             {/* ==========================================
-    QAWSAN VISUAL
-=========================================== */}
+                QAWSAN VISUAL
+            =========================================== */}
 
             <Box
               sx={{
                 position: "relative",
 
                 width: {
-                  xs: 300,
-                  sm: 380,
+                  xs: 260,
+                  sm: 340,
                   md: 500,
                 },
 
                 height: {
-                  xs: 300,
-                  sm: 380,
+                  xs: 260,
+                  sm: 340,
                   md: 500,
                 },
 
+                maxWidth: "100%",
+
                 display: "flex",
+
                 alignItems: "center",
+
                 justifyContent: "center",
 
                 animation:
@@ -287,11 +319,14 @@ function Hero() {
                 "@keyframes qawsanVisualIn": {
                   from: {
                     opacity: 0,
+
                     transform:
                       "translateX(-60px) scale(0.88)",
                   },
+
                   to: {
                     opacity: 1,
+
                     transform:
                       "translateX(0) scale(1)",
                   },
@@ -299,22 +334,28 @@ function Hero() {
               }}
             >
               {/* ==========================================
-      OUTER TECH CIRCLE
-  =========================================== */}
+                  OUTER TECH CIRCLE
+              =========================================== */}
 
               <Box
                 sx={{
                   position: "absolute",
 
                   width: {
-                    xs: 230,
+                    xs: 200,
+                    sm: 250,
                     md: 390,
                   },
 
                   height: {
-                    xs: 230,
+                    xs: 200,
+                    sm: 250,
                     md: 390,
                   },
+
+                  maxWidth: "100%",
+
+                  maxHeight: "100%",
 
                   borderRadius: "50%",
 
@@ -331,10 +372,13 @@ function Hero() {
 
                   "@keyframes circleRotate": {
                     from: {
-                      transform: "rotate(0deg)",
+                      transform:
+                        "rotate(0deg)",
                     },
+
                     to: {
-                      transform: "rotate(360deg)",
+                      transform:
+                        "rotate(360deg)",
                     },
                   },
 
@@ -343,7 +387,11 @@ function Hero() {
 
                     position: "absolute",
 
-                    inset: 18,
+                    inset: {
+                      xs: 12,
+                      sm: 15,
+                      md: 18,
+                    },
 
                     borderRadius: "50%",
 
@@ -357,8 +405,8 @@ function Hero() {
               />
 
               {/* ==========================================
-      VERTICAL LIGHT AXIS
-  =========================================== */}
+                  VERTICAL LIGHT AXIS
+              =========================================== */}
 
               <Box
                 sx={{
@@ -367,9 +415,12 @@ function Hero() {
                   width: "1px",
 
                   height: {
-                    xs: 190,
+                    xs: 160,
+                    sm: 220,
                     md: 330,
                   },
+
+                  maxHeight: "80%",
 
                   background:
                     "linear-gradient(to bottom, transparent, rgba(0,208,132,0.5), transparent)",
@@ -379,15 +430,22 @@ function Hero() {
               />
 
               {/* ==========================================
-      CENTER POINT
-  =========================================== */}
+                  CENTER POINT
+              =========================================== */}
 
               <Box
                 sx={{
                   position: "absolute",
 
-                  width: 10,
-                  height: 10,
+                  width: {
+                    xs: 8,
+                    md: 10,
+                  },
+
+                  height: {
+                    xs: 8,
+                    md: 10,
+                  },
 
                   borderRadius: "50%",
 
@@ -402,11 +460,16 @@ function Hero() {
 
                   "@keyframes centerPulse": {
                     "0%, 100%": {
-                      transform: "scale(0.8)",
+                      transform:
+                        "scale(0.8)",
+
                       opacity: 0.7,
                     },
+
                     "50%": {
-                      transform: "scale(1.15)",
+                      transform:
+                        "scale(1.15)",
+
                       opacity: 1,
                     },
                   },
@@ -414,8 +477,8 @@ function Hero() {
               />
 
               {/* ==========================================
-      DECORATIVE DOTS
-  =========================================== */}
+                  DECORATIVE DOTS
+              =========================================== */}
 
               {[
                 {
@@ -423,16 +486,19 @@ function Hero() {
                   left: "16%",
                   size: 6,
                 },
+
                 {
                   top: "27%",
                   right: "13%",
                   size: 4,
                 },
+
                 {
                   bottom: "22%",
                   left: "18%",
                   size: 4,
                 },
+
                 {
                   bottom: "18%",
                   right: "16%",
@@ -449,8 +515,17 @@ function Hero() {
                     right: dot.right,
                     bottom: dot.bottom,
 
-                    width: dot.size,
-                    height: dot.size,
+                    width: {
+                      xs: dot.size * 0.8,
+                      sm: dot.size,
+                    },
+
+                    height: {
+                      xs: dot.size * 0.8,
+                      sm: dot.size,
+                    },
+
+                    borderRadius: "50%",
 
                     backgroundColor:
                       "primary.main",
@@ -467,11 +542,16 @@ function Hero() {
                     "@keyframes dotPulse": {
                       "0%, 100%": {
                         opacity: 0.3,
-                        transform: "scale(0.8)",
+
+                        transform:
+                          "scale(0.8)",
                       },
+
                       "50%": {
                         opacity: 0.9,
-                        transform: "scale(1.2)",
+
+                        transform:
+                          "scale(1.2)",
                       },
                     },
                   }}
@@ -479,8 +559,8 @@ function Hero() {
               ))}
 
               {/* ==========================================
-      BRACES
-  =========================================== */}
+                  BRACES
+              =========================================== */}
 
               <Box
                 sx={{
@@ -500,8 +580,8 @@ function Hero() {
                     "Inter, sans-serif",
 
                   fontSize: {
-                    xs: "145px",
-                    sm: "185px",
+                    xs: "120px",
+                    sm: "165px",
                     md: "250px",
                     lg: "285px",
                   },
@@ -542,7 +622,7 @@ function Hero() {
                       : "#3A6B5A",
 
                     transform:
-                      "translateX(-14px)",
+                      "translateX(-12px)",
                   }}
                 >
                   {"{"}
@@ -554,8 +634,8 @@ function Hero() {
                   component="span"
                   sx={{
                     width: {
-                      xs: 28,
-                      sm: 40,
+                      xs: 22,
+                      sm: 32,
                       md: 58,
                     },
 
@@ -572,7 +652,7 @@ function Hero() {
                       "primary.main",
 
                     transform:
-                      "translateX(14px)",
+                      "translateX(12px)",
                   }}
                 >
                   {"}"}
@@ -588,21 +668,23 @@ function Hero() {
 
                 bottom: {
                   xs: 0,
+                  sm: 10,
                   md: 35,
                 },
 
                 right: {
-                  xs: "8%",
+                  xs: "3%",
+                  sm: "6%",
                   md: "5%",
                 },
 
                 px: 1.5,
+
                 py: 0.75,
 
                 border: "1px solid",
 
-                borderColor:
-                  "divider",
+                borderColor: "divider",
 
                 borderRadius: "8px",
 
@@ -615,10 +697,16 @@ function Hero() {
                 fontFamily:
                   "Inter, sans-serif",
 
-                fontSize: 11,
+                fontSize: {
+                  xs: 9,
+                  sm: 10,
+                  md: 11,
+                },
 
                 letterSpacing:
                   "0.12em",
+
+                whiteSpace: "nowrap",
 
                 transition:
                   "background-color 250ms ease",
@@ -629,11 +717,14 @@ function Hero() {
                 "@keyframes labelIn": {
                   from: {
                     opacity: 0,
+
                     transform:
                       "translateY(15px)",
                   },
+
                   to: {
                     opacity: 1,
+
                     transform:
                       "translateY(0)",
                   },
@@ -657,6 +748,8 @@ function Hero() {
 
               maxWidth: 680,
 
+              width: "100%",
+
               justifySelf: {
                 xs: "center",
                 md: "end",
@@ -673,11 +766,14 @@ function Hero() {
               "@keyframes heroContentIn": {
                 from: {
                   opacity: 0,
+
                   transform:
                     "translateX(70px)",
                 },
+
                 to: {
                   opacity: 1,
+
                   transform:
                     "translateX(0)",
                 },
@@ -694,18 +790,21 @@ function Hero() {
 
                 gap: 1,
 
-                mb: 3,
+                mb: {
+                  xs: 2,
+                  sm: 2.5,
+                  md: 3,
+                },
 
                 px: 1.5,
+
                 py: 0.75,
 
                 border: "1px solid",
 
-                borderColor:
-                  "divider",
+                borderColor: "divider",
 
-                borderRadius:
-                  "999px",
+                borderRadius: "999px",
 
                 color:
                   "text.secondary",
@@ -719,6 +818,7 @@ function Hero() {
                 component="span"
                 sx={{
                   width: 7,
+
                   height: 7,
 
                   flexShrink: 0,
@@ -738,7 +838,8 @@ function Hero() {
                 component="span"
                 sx={{
                   fontSize: {
-                    xs: 13,
+                    xs: 12,
+                    sm: 13,
                     md: 14,
                   },
 
@@ -760,17 +861,21 @@ function Hero() {
                 m: 0,
 
                 fontSize: {
-                  xs: "40px",
-                  sm: "48px",
+                  xs: "34px",
+                  sm: "44px",
                   md: "58px",
                   lg: "64px",
                 },
 
                 lineHeight: {
-                  xs: 1.25,
+                  xs: 1.3,
+                  sm: 1.25,
                   md: 1.2,
                 },
-                unicodeBidi: "plaintext",
+
+                unicodeBidi:
+                  "plaintext",
+
                 fontWeight: 700,
 
                 letterSpacing:
@@ -815,22 +920,32 @@ function Hero() {
               sx={{
                 m: 0,
 
-                mt: 3,
+                mt: {
+                  xs: 2.5,
+                  md: 3,
+                },
 
                 maxWidth: 580,
 
                 fontSize: {
-                  xs: 16,
+                  xs: 15,
+                  sm: 16,
                   md: 18,
                 },
 
-                lineHeight: 1.9,
+                lineHeight: {
+                  xs: 1.85,
+                  md: 1.9,
+                },
 
                 fontWeight: 400,
 
                 color:
                   "text.secondary",
-                unicodeBidi: "plaintext",
+
+                unicodeBidi:
+                  "plaintext",
+
                 mx: {
                   xs: "auto",
                   md: 0,
@@ -858,9 +973,15 @@ function Hero() {
 
                 flexWrap: "wrap",
 
-                gap: 1.5,
+                gap: {
+                  xs: 1,
+                  sm: 1.5,
+                },
 
-                mt: 4,
+                mt: {
+                  xs: 3,
+                  md: 4,
+                },
               }}
             >
               {/* Primary Button */}
@@ -869,7 +990,7 @@ function Hero() {
                 href="#contact"
                 variant="contained"
                 endIcon={
-                  <ArrowBackRoundedIcon
+                  <ArrowBackRounded
                     sx={{
                       transform:
                         "rotate(180deg)",
@@ -877,9 +998,15 @@ function Hero() {
                   />
                 }
                 sx={{
-                  minHeight: 50,
+                  minHeight: {
+                    xs: 48,
+                    md: 50,
+                  },
 
-                  px: 3,
+                  px: {
+                    xs: 2.5,
+                    md: 3,
+                  },
 
                   borderRadius: "10px",
 
@@ -890,7 +1017,10 @@ function Hero() {
                     ? "#0B0F0E"
                     : "#FFFFFF",
 
-                  fontSize: 15,
+                  fontSize: {
+                    xs: 14,
+                    md: 15,
+                  },
 
                   fontWeight: 500,
 
@@ -915,9 +1045,15 @@ function Hero() {
                 href="#projects"
                 variant="outlined"
                 sx={{
-                  minHeight: 50,
+                  minHeight: {
+                    xs: 48,
+                    md: 50,
+                  },
 
-                  px: 3,
+                  px: {
+                    xs: 2.5,
+                    md: 3,
+                  },
 
                   borderRadius: "10px",
 
@@ -927,7 +1063,10 @@ function Hero() {
                   color:
                     "text.primary",
 
-                  fontSize: 15,
+                  fontSize: {
+                    xs: 14,
+                    md: 15,
+                  },
 
                   fontWeight: 500,
 

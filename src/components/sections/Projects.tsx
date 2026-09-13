@@ -1,8 +1,8 @@
 import {
     Box,
+    Button,
     Container,
     Typography,
-    Button,
 } from "@mui/material";
 
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -23,8 +23,7 @@ const projects = [
     {
         number: "02",
         title: "مركز ربانيون",
-        category:
-            "Development",
+        category: "Development",
         description:
             "تطوير موقع رقمي لمركز ربانيون، مع تنفيذ الواجهة برمجيًا وبناء تجربة عربية متجاوبة تعمل بسلاسة على مختلف أحجام الشاشات.",
         image: "/images/projects/rabbanioon.jpg",
@@ -52,7 +51,8 @@ function Projects() {
             id="projects"
             sx={{
                 py: {
-                    xs: 10,
+                    xs: 8,
+                    sm: 10,
                     md: 16,
                 },
 
@@ -62,61 +62,86 @@ function Projects() {
                 overflow: "hidden",
             }}
         >
-            <Container maxWidth="xl">
+            <Container
+                maxWidth={false}
+                sx={{
+                    maxWidth: 1280,
+
+                    px: {
+                        xs: 2.5,
+                        sm: 3,
+                        md: 4,
+                    },
+                }}
+            >
+
 
                 {/* ==========================================
-                    SECTION HEADER
-                =========================================== */}
+    SECTION HEADER
+========================================== */}
 
                 <Box
                     sx={{
                         display: "flex",
 
-                        flexDirection: {
-                            xs: "column",
-                            md: "row-reverse",
+                        flexDirection: "column",
+
+                        alignItems: "center",
+
+                        justifyContent: "center",
+
+                        gap: {
+                            xs: 2,
+                            sm: 2.5,
+                            md: 3,
                         },
-
-                        alignItems: {
-                            xs: "flex-start",
-                            md: "flex-end",
-                        },
-
-                        justifyContent:
-                            "space-between",
-
-                        gap: 4,
 
                         mb: {
-                            xs: 6,
+                            xs: 5,
+                            sm: 6,
                             md: 8,
                         },
+
+                        width: "100%",
+
+                        textAlign: "center",
                     }}
                 >
-
                     {/* Heading */}
 
                     <Box
                         sx={{
-                            maxWidth: 650,
+                            width: "100%",
 
-                            direction: "ltr",
+                            maxWidth: {
+                                xs: "100%",
+                                sm: 700,
+                                md: 800,
+                            },
 
-                            textAlign: "left",
+                            direction: "rtl",
+
+                            textAlign: "center",
                         }}
                     >
-
                         <Typography
                             component="span"
                             sx={{
                                 display: "block",
 
-                                mb: 2,
+                                mb: {
+                                    xs: 1.5,
+                                    md: 2,
+                                },
 
                                 fontFamily:
                                     "Inter, sans-serif",
 
-                                fontSize: 13,
+                                fontSize: {
+                                    xs: 11,
+                                    sm: 12,
+                                    md: 13,
+                                },
 
                                 fontWeight: 500,
 
@@ -127,6 +152,8 @@ function Projects() {
                                     "primary.main",
 
                                 direction: "ltr",
+
+                                textAlign: "center",
                             }}
                         >
                             {"{ SELECTED WORK }"}
@@ -138,12 +165,15 @@ function Projects() {
                                 m: 0,
 
                                 fontSize: {
-                                    xs: 36,
-                                    sm: 44,
+                                    xs: 30,
+                                    sm: 40,
                                     md: 52,
                                 },
 
-                                lineHeight: 1.2,
+                                lineHeight: {
+                                    xs: 1.3,
+                                    md: 1.2,
+                                },
 
                                 fontWeight: 700,
 
@@ -158,7 +188,7 @@ function Projects() {
                                 unicodeBidi:
                                     "plaintext",
 
-                                textAlign: "right",
+                                textAlign: "center",
                             }}
                         >
                             أعمال تُترجم{" "}
@@ -179,7 +209,6 @@ function Projects() {
                                 الأفكار.
                             </Box>
                         </Typography>
-
                     </Box>
 
                     {/* Description */}
@@ -189,10 +218,17 @@ function Projects() {
                         sx={{
                             m: 0,
 
-                            maxWidth: 430,
+                            width: "100%",
+
+                            maxWidth: {
+                                xs: 340,
+                                sm: 560,
+                                md: 620,
+                            },
 
                             fontSize: {
-                                xs: 15,
+                                xs: 14,
+                                sm: 15,
                                 md: 17,
                             },
 
@@ -206,19 +242,17 @@ function Projects() {
                             unicodeBidi:
                                 "plaintext",
 
-                            textAlign: "left",
+                            textAlign: "center",
                         }}
                     >
                         مجموعة من المشاريع التي تعكس
                         طريقة تفكيرنا في التصميم
                         والتقنية وبناء التجارب الرقمية.
                     </Typography>
-
                 </Box>
-
                 {/* ==========================================
-                    PROJECTS
-                =========================================== */}
+            PROJECTS
+        =========================================== */}
 
                 <Box
                     sx={{
@@ -231,19 +265,17 @@ function Projects() {
 
                         gap: {
                             xs: 4,
+                            sm: 4.5,
                             md: 5,
                         },
 
                         direction: "ltr",
                     }}
                 >
-
                     {projects.map(
                         (project, index) => (
                             <Box
-                                key={
-                                    project.number
-                                }
+                                key={project.number}
                                 sx={{
                                     gridColumn:
                                         index === 0
@@ -255,33 +287,45 @@ function Projects() {
 
                                     minWidth: 0,
 
-                                    direction:
-                                        "ltr",
+                                    width: "100%",
+
+                                    direction: "ltr",
                                 }}
                             >
-
                                 {/* ==================================
-                                    PROJECT IMAGE
-                                =================================== */}
+                    PROJECT IMAGE CARD
+                =================================== */}
 
                                 <Box
                                     sx={{
                                         position:
                                             "relative",
 
+                                        width: "100%",
+
                                         aspectRatio:
                                             index === 0
-                                                ? "2.1 / 1"
-                                                : "1.35 / 1",
+                                                ? {
+                                                    xs: "1.55 / 1",
+                                                    sm: "1.85 / 1",
+                                                    md: "2.1 / 1",
+                                                }
+                                                : {
+                                                    xs: "1.5 / 1",
+                                                    sm: "1.65 / 1",
+                                                    md: "1.55 / 1",
+                                                },
 
                                         overflow:
                                             "hidden",
 
-                                        borderRadius:
-                                            "16px",
+                                        borderRadius: {
+                                            xs: "12px",
+                                            sm: "14px",
+                                            md: "16px",
+                                        },
 
-                                        border:
-                                            "1px solid",
+                                        border: "1px solid",
 
                                         borderColor:
                                             "divider",
@@ -290,7 +334,7 @@ function Projects() {
                                             "background.paper",
 
                                         transition:
-                                            "border-color 250ms ease, transform 300ms ease",
+                                            "border-color 250ms ease, transform 300ms ease, box-shadow 300ms ease",
 
                                         "&:hover": {
                                             borderColor:
@@ -298,6 +342,9 @@ function Projects() {
 
                                             transform:
                                                 "translateY(-4px)",
+
+                                            boxShadow:
+                                                "0 20px 50px rgba(0, 208, 132, 0.06)",
                                         },
 
                                         "&:hover img": {
@@ -306,8 +353,7 @@ function Projects() {
                                         },
 
                                         "&::after": {
-                                            content:
-                                                '""',
+                                            content: '""',
 
                                             position:
                                                 "absolute",
@@ -319,100 +365,82 @@ function Projects() {
 
                                             pointerEvents:
                                                 "none",
+
+                                            zIndex: 1,
                                         },
                                     }}
                                 >
+                                    {/* PROJECT IMAGE */}
 
-                                    {project.image ? (
-                                        <Box
-                                            component="img"
-                                            src={
-                                                project.image
-                                            }
-                                            alt={
-                                                project.title
-                                            }
-                                            sx={{
-                                                width: "100%",
+                                    <Box
+                                        component="img"
+                                        src={project.image}
+                                        alt={project.title}
+                                        loading={
+                                            index === 0
+                                                ? "eager"
+                                                : "lazy"
+                                        }
+                                        decoding="async"
+                                        sx={{
+                                            position:
+                                                "absolute",
 
-                                                height: "100%",
+                                            inset: 0,
 
-                                                objectFit:
-                                                    "cover",
+                                            width: "100%",
 
-                                                display:
-                                                    "block",
+                                            height: "100%",
 
-                                                transition:
-                                                    "transform 500ms ease",
-                                            }}
-                                        />
-                                    ) : (
-                                        <Box
-                                            sx={{
-                                                position:
-                                                    "absolute",
+                                            display:
+                                                "block",
 
-                                                inset: 0,
+                                            objectFit:
+                                                "cover",
 
-                                                display:
-                                                    "flex",
+                                            objectPosition:
+                                                "center center",
 
-                                                alignItems:
-                                                    "center",
+                                            maxWidth: "none",
 
-                                                justifyContent:
-                                                    "center",
+                                            transition:
+                                                "transform 500ms ease",
 
-                                                fontFamily:
-                                                    "Inter, sans-serif",
+                                            userSelect:
+                                                "none",
+                                        }}
+                                    />
 
-                                                fontSize: {
-                                                    xs: 48,
-                                                    md:
-                                                        index ===
-                                                            0
-                                                            ? 72
-                                                            : 56,
-                                                },
-
-                                                fontWeight:
-                                                    700,
-
-                                                color:
-                                                    "primary.main",
-
-                                                opacity:
-                                                    0.35,
-
-                                                userSelect:
-                                                    "none",
-                                            }}
-                                        >
-                                            {"{ }"}
-                                        </Box>
-                                    )}
-
-                                    {/* Number */}
+                                    {/* NUMBER */}
 
                                     <Box
                                         sx={{
                                             position:
                                                 "absolute",
 
-                                            top: 20,
+                                            top: {
+                                                xs: 12,
+                                                sm: 16,
+                                                md: 20,
+                                            },
 
-                                            left: 20,
+                                            left: {
+                                                xs: 12,
+                                                sm: 16,
+                                                md: 20,
+                                            },
 
-                                            px: 1.25,
+                                            px: {
+                                                xs: 1,
+                                                md: 1.25,
+                                            },
 
                                             py: 0.6,
 
-                                            border:
-                                                "1px solid",
+                                            border: "1px solid",
 
                                             borderColor:
-                                                "divider",
+                                                "rgba(255,255,255,0.18)",
 
                                             borderRadius:
                                                 "8px",
@@ -424,33 +452,36 @@ function Projects() {
                                                 "blur(10px)",
 
                                             color:
-                                                "text.secondary",
+                                                "#F8FAF9",
 
                                             fontFamily:
                                                 "Inter, sans-serif",
 
-                                            fontSize: 12,
+                                            fontSize: {
+                                                xs: 10,
+                                                sm: 11,
+                                                md: 12,
+                                            },
 
-                                            fontWeight:
-                                                500,
+                                            fontWeight: 500,
 
-                                            zIndex: 2,
+                                            zIndex: 3,
                                         }}
                                     >
-                                        {
-                                            project.number
-                                        }
+                                        {project.number}
                                     </Box>
-
                                 </Box>
 
                                 {/* ==================================
-                                    PROJECT INFORMATION
-                                =================================== */}
+                    PROJECT INFORMATION
+                =================================== */}
 
                                 <Box
                                     sx={{
-                                        mt: 2,
+                                        mt: {
+                                            xs: 1.5,
+                                            sm: 2,
+                                        },
 
                                         display: "flex",
 
@@ -463,17 +494,23 @@ function Projects() {
                                             "space-between",
 
                                         alignItems: {
-                                            xs: "flex-start",
+                                            xs: "center",
                                             sm: "flex-start",
                                         },
 
-                                        gap: 2,
+                                        gap: {
+                                            xs: 2,
+                                            sm: 3,
+                                        },
 
-                                        direction:
-                                            "ltr",
+                                        direction: {
+                                            xs: "rtl",
+                                            sm: "ltr",
+                                        },
+
+                                        width: "100%",
                                     }}
                                 >
-
                                     {/* Project Name */}
 
                                     <Box
@@ -481,23 +518,37 @@ function Projects() {
                                             direction:
                                                 "rtl",
 
-                                            textAlign:
-                                                "right",
+                                            textAlign: {
+                                                xs: "center",
+                                                sm: "right",
+                                            },
+
+                                            minWidth: 0,
+
+                                            width: {
+                                                xs: "100%",
+                                                sm: "auto",
+                                            },
+
+                                            flex: {
+                                                sm: "0 1 auto",
+                                            },
                                         }}
                                     >
-
                                         <Typography
                                             component="h3"
                                             sx={{
                                                 m: 0,
 
                                                 fontSize: {
-                                                    xs: 20,
+                                                    xs: 18,
+                                                    sm: 20,
                                                     md: 24,
                                                 },
 
-                                                fontWeight:
-                                                    600,
+                                                lineHeight: 1.4,
+
+                                                fontWeight: 600,
 
                                                 color:
                                                     "text.primary",
@@ -507,11 +558,14 @@ function Projects() {
 
                                                 unicodeBidi:
                                                     "plaintext",
+
+                                                textAlign: {
+                                                    xs: "center",
+                                                    sm: "right",
+                                                },
                                             }}
                                         >
-                                            {
-                                                project.title
-                                            }
+                                            {project.title}
                                         </Typography>
 
                                         <Typography
@@ -521,10 +575,13 @@ function Projects() {
                                                 fontFamily:
                                                     "Inter, sans-serif",
 
-                                                fontSize: 12,
+                                                fontSize: {
+                                                    xs: 10,
+                                                    sm: 11,
+                                                    md: 12,
+                                                },
 
-                                                fontWeight:
-                                                    500,
+                                                fontWeight: 500,
 
                                                 letterSpacing:
                                                     "0.03em",
@@ -535,50 +592,63 @@ function Projects() {
                                                 direction:
                                                     "ltr",
 
-                                                textAlign:
-                                                    "right",
+                                                textAlign: {
+                                                    xs: "center",
+                                                    sm: "right",
+                                                },
+
+                                                lineHeight: 1.6,
                                             }}
                                         >
-                                            {
-                                                project.category
-                                            }
+                                            {project.category}
                                         </Typography>
-
                                     </Box>
 
                                     {/* Description + Link */}
 
                                     <Box
                                         sx={{
-                                            display:
-                                                "flex",
+                                            display: "flex",
 
                                             flexDirection:
                                                 "column",
 
                                             alignItems: {
-                                                xs: "flex-start",
+                                                xs: "center",
                                                 sm: "flex-end",
                                             },
 
-                                            gap: 1.5,
+                                            gap: {
+                                                xs: 1,
+                                                md: 1.5,
+                                            },
 
                                             direction:
                                                 "rtl",
+
+                                            width: {
+                                                xs: "100%",
+                                                sm: "auto",
+                                            },
                                         }}
                                     >
-
                                         <Typography
                                             sx={{
-                                                maxWidth:
-                                                    400,
+                                                width: "100%",
+
+                                                maxWidth: {
+                                                    xs: 340,
+                                                    sm: 400,
+                                                },
 
                                                 m: 0,
 
-                                                fontSize: 14,
+                                                fontSize: {
+                                                    xs: 13,
+                                                    sm: 14,
+                                                },
 
-                                                lineHeight:
-                                                    1.8,
+                                                lineHeight: 1.8,
 
                                                 color:
                                                     "text.secondary",
@@ -589,13 +659,13 @@ function Projects() {
                                                 unicodeBidi:
                                                     "plaintext",
 
-                                                textAlign:
-                                                    "right",
+                                                textAlign: {
+                                                    xs: "center",
+                                                    sm: "left",
+                                                },
                                             }}
                                         >
-                                            {
-                                                project.description
-                                            }
+                                            {project.description}
                                         </Typography>
 
                                         {/* Project Link */}
@@ -618,11 +688,12 @@ function Projects() {
                                                         minWidth:
                                                             "auto",
 
-                                                        fontSize:
-                                                            14,
+                                                        fontSize: {
+                                                            xs: 13,
+                                                            sm: 14,
+                                                        },
 
-                                                        fontWeight:
-                                                            500,
+                                                        fontWeight: 500,
 
                                                         color:
                                                             "primary.main",
@@ -630,8 +701,12 @@ function Projects() {
                                                         direction:
                                                             "ltr",
 
-                                                        "&:hover":
-                                                        {
+                                                        alignSelf: {
+                                                            xs: "center",
+                                                            sm: "flex-end",
+                                                        },
+
+                                                        "&:hover": {
                                                             backgroundColor:
                                                                 "transparent",
 
@@ -643,17 +718,12 @@ function Projects() {
                                                     زيارة المشروع
                                                 </Button>
                                             )}
-
                                     </Box>
-
                                 </Box>
-
                             </Box>
                         )
                     )}
-
                 </Box>
-
             </Container>
         </Box>
     );

@@ -73,12 +73,12 @@ function IdeaToProduct() {
                 position: "relative",
 
                 py: {
-                    xs: 10,
+                    xs: 8,
+                    sm: 10,
                     md: 16,
                 },
 
-                bgcolor:
-                    "background.default",
+                bgcolor: "background.default",
 
                 overflow: "hidden",
 
@@ -86,54 +86,65 @@ function IdeaToProduct() {
             }}
         >
             {/* ==========================================
-                BACKGROUND GLOW
-            =========================================== */}
+          BACKGROUND GLOW
+      =========================================== */}
 
             <Box
                 sx={{
                     position: "absolute",
 
                     top: {
-                        xs: -180,
+                        xs: -160,
+                        sm: -200,
                         md: -280,
                     },
 
                     left: {
                         xs: -180,
+                        sm: -220,
                         md: -260,
                     },
 
                     width: {
-                        xs: 420,
+                        xs: 360,
+                        sm: 500,
                         md: 680,
                     },
 
                     height: {
-                        xs: 420,
+                        xs: 360,
+                        sm: 500,
                         md: 680,
                     },
 
                     borderRadius: "50%",
 
+                    background:
+                        "radial-gradient(circle, rgba(0,208,132,0.07) 0%, rgba(0,208,132,0.025) 40%, transparent 70%)",
 
-
-                    pointerEvents:
-                        "none",
+                    pointerEvents: "none",
                 }}
             />
 
             <Container
-                maxWidth="xl"
+                maxWidth={false}
                 sx={{
-                    position:
-                        "relative",
+                    maxWidth: 1280,
+
+                    position: "relative",
 
                     zIndex: 1,
+
+                    px: {
+                        xs: 2.5,
+                        sm: 3,
+                        md: 4,
+                    },
                 }}
             >
                 {/* ==========================================
-                    SECTION HEADER
-                =========================================== */}
+            SECTION HEADER
+        =========================================== */}
 
                 <Box
                     sx={{
@@ -141,19 +152,23 @@ function IdeaToProduct() {
 
                         display: "flex",
 
-                        flexDirection:
-                            "column",
+                        flexDirection: "column",
 
-                        alignItems:
-                            "flex-end",
+                        alignItems: {
+                            xs: "center",
+                            md: "flex-end",
+                        },
 
                         mb: {
-                            xs: 6,
+                            xs: 5,
+                            sm: 6,
                             md: 8,
                         },
 
-                        textAlign:
-                            "right",
+                        textAlign: {
+                            xs: "center",
+                            md: "right",
+                        },
 
                         direction: "rtl",
                     }}
@@ -163,12 +178,19 @@ function IdeaToProduct() {
                     <Typography
                         component="span"
                         sx={{
-                            mb: 2,
+                            mb: {
+                                xs: 1.5,
+                                md: 2,
+                            },
 
                             fontFamily:
                                 "Inter, sans-serif",
 
-                            fontSize: 12,
+                            fontSize: {
+                                xs: 10,
+                                sm: 11,
+                                md: 12,
+                            },
 
                             fontWeight: 500,
 
@@ -183,8 +205,10 @@ function IdeaToProduct() {
                             unicodeBidi:
                                 "plaintext",
 
-                            textAlign:
-                                "right",
+                            textAlign: {
+                                xs: "center",
+                                md: "right",
+                            },
                         }}
                     >
                         {"{ OUR PROCESS }"}
@@ -197,15 +221,25 @@ function IdeaToProduct() {
                         sx={{
                             m: 0,
 
-                            maxWidth: 720,
+                            width: "100%",
+
+                            maxWidth: {
+                                xs: "100%",
+                                sm: 650,
+                                md: 720,
+                            },
 
                             fontSize: {
-                                xs: 38,
-                                sm: 48,
+                                xs: 30,
+                                sm: 40,
                                 md: 58,
                             },
 
-                            lineHeight: 1.2,
+                            lineHeight: {
+                                xs: 1.3,
+                                sm: 1.25,
+                                md: 1.2,
+                            },
 
                             fontWeight: 700,
 
@@ -221,8 +255,10 @@ function IdeaToProduct() {
                             unicodeBidi:
                                 "plaintext",
 
-                            textAlign:
-                                "right",
+                            textAlign: {
+                                xs: "center",
+                                md: "left",
+                            },
                         }}
                     >
                         لديك فكرة؟
@@ -233,15 +269,25 @@ function IdeaToProduct() {
                         sx={{
                             m: 0,
 
-                            maxWidth: 720,
+                            width: "100%",
+
+                            maxWidth: {
+                                xs: "100%",
+                                sm: 650,
+                                md: 720,
+                            },
 
                             fontSize: {
-                                xs: 38,
-                                sm: 48,
+                                xs: 30,
+                                sm: 40,
                                 md: 58,
                             },
 
-                            lineHeight: 1.2,
+                            lineHeight: {
+                                xs: 1.3,
+                                sm: 1.25,
+                                md: 1.2,
+                            },
 
                             fontWeight: 700,
 
@@ -257,8 +303,10 @@ function IdeaToProduct() {
                             unicodeBidi:
                                 "plaintext",
 
-                            textAlign:
-                                "right",
+                            textAlign: {
+                                xs: "center",
+                                md: "left",
+                            },
                         }}
                     >
                         نحن نبني ما بعدها.
@@ -271,12 +319,22 @@ function IdeaToProduct() {
                         sx={{
                             m: 0,
 
-                            mt: 2.5,
+                            mt: {
+                                xs: 2,
+                                sm: 2.5,
+                            },
 
-                            maxWidth: 570,
+                            width: "100%",
+
+                            maxWidth: {
+                                xs: 340,
+                                sm: 540,
+                                md: 570,
+                            },
 
                             fontSize: {
-                                xs: 15,
+                                xs: 14,
+                                sm: 15,
                                 md: 17,
                             },
 
@@ -293,8 +351,10 @@ function IdeaToProduct() {
                             unicodeBidi:
                                 "plaintext",
 
-                            textAlign:
-                                "left",
+                            textAlign: {
+                                xs: "center",
+                                md: "left",
+                            },
                         }}
                     >
                         لا تحتاج إلى تصميم جاهز أو
@@ -305,13 +365,12 @@ function IdeaToProduct() {
                 </Box>
 
                 {/* ==========================================
-                    PROCESS GRID
-                =========================================== */}
+            PROCESS GRID
+        =========================================== */}
 
                 <Box
                     sx={{
-                        position:
-                            "relative",
+                        position: "relative",
 
                         display: "grid",
 
@@ -323,6 +382,7 @@ function IdeaToProduct() {
 
                         gap: {
                             xs: 2,
+                            sm: 2.5,
                             md: 3,
                         },
 
@@ -330,30 +390,28 @@ function IdeaToProduct() {
                     }}
                 >
                     {steps.map((step) => {
-                        const Icon =
-                            step.icon;
+                        const Icon = step.icon;
 
                         return (
                             <Box
-                                key={
-                                    step.number
-                                }
+                                key={step.number}
                                 sx={{
                                     position:
                                         "relative",
 
                                     minHeight: {
-                                        xs: 280,
+                                        xs: 250,
+                                        sm: 270,
                                         md: 245,
                                     },
 
                                     p: {
-                                        xs: 3,
+                                        xs: 2.5,
+                                        sm: 3,
                                         md: 4,
                                     },
 
-                                    display:
-                                        "flex",
+                                    display: "flex",
 
                                     flexDirection:
                                         "column",
@@ -361,22 +419,28 @@ function IdeaToProduct() {
                                     justifyContent:
                                         "space-between",
 
-                                    overflow:
-                                        "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
+                                    overflow: "hidden",
 
-                                    borderRadius:
-                                        "16px",
+                                    border: "1px solid",
+
+                                    borderColor:
+                                        "divider",
+
+                                    borderRadius: {
+                                        xs: "12px",
+                                        sm: "14px",
+                                        md: "16px",
+                                    },
 
                                     bgcolor:
                                         "background.paper",
 
-                                    direction:
-                                        "ltr",
+                                    direction: "ltr",
 
-                                    textAlign:
-                                        "left",
+                                    textAlign: {
+                                        xs: "center",
+                                        md: "left",
+                                    },
 
                                     transition:
                                         "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
@@ -394,28 +458,35 @@ function IdeaToProduct() {
                                 }}
                             >
                                 {/* ==================================
-                                    CARD BACKGROUND CIRCLE
-                                =================================== */}
+                    CARD BACKGROUND CIRCLE
+                =================================== */}
 
                                 <Box
                                     sx={{
                                         position:
                                             "absolute",
 
-                                        right:
-                                            -80,
+                                        right: {
+                                            xs: -100,
+                                            md: -80,
+                                        },
 
-                                        bottom:
-                                            -100,
+                                        bottom: {
+                                            xs: -120,
+                                            md: -100,
+                                        },
 
-                                        width:
-                                            250,
+                                        width: {
+                                            xs: 220,
+                                            md: 250,
+                                        },
 
-                                        height:
-                                            250,
+                                        height: {
+                                            xs: 220,
+                                            md: 250,
+                                        },
 
-                                        borderRadius:
-                                            "50%",
+                                        borderRadius: "50%",
 
                                         background:
                                             "radial-gradient(circle, rgba(0,208,132,0.09) 0%, rgba(0,208,132,0.025) 45%, transparent 70%)",
@@ -426,8 +497,8 @@ function IdeaToProduct() {
                                 />
 
                                 {/* ==================================
-                                    SUBTLE DOT GRID
-                                =================================== */}
+                    SUBTLE DOT GRID
+                =================================== */}
 
                                 <Box
                                     sx={{
@@ -438,14 +509,17 @@ function IdeaToProduct() {
 
                                         bottom: 0,
 
-                                        width:
-                                            130,
+                                        width: {
+                                            xs: 110,
+                                            md: 130,
+                                        },
 
-                                        height:
-                                            100,
+                                        height: {
+                                            xs: 85,
+                                            md: 100,
+                                        },
 
-                                        opacity:
-                                            0.12,
+                                        opacity: 0.12,
 
                                         backgroundImage:
                                             "radial-gradient(rgba(0,208,132,0.55) 1px, transparent 1px)",
@@ -462,8 +536,8 @@ function IdeaToProduct() {
                                 />
 
                                 {/* ==================================
-                                    NUMBER
-                                =================================== */}
+                    NUMBER
+                =================================== */}
 
                                 <Typography
                                     sx={{
@@ -472,13 +546,19 @@ function IdeaToProduct() {
 
                                         zIndex: 2,
 
-                                        alignSelf:
-                                            "flex-end",
+                                        alignSelf: {
+                                            xs: "flex-start",
+                                            md: "flex-end",
+                                        },
 
                                         fontFamily:
                                             "Inter, sans-serif",
 
-                                        fontSize: 13,
+                                        fontSize: {
+                                            xs: 11,
+                                            sm: 12,
+                                            md: 13,
+                                        },
 
                                         fontWeight: 500,
 
@@ -488,18 +568,15 @@ function IdeaToProduct() {
                                         color:
                                             "text.secondary",
 
-                                        direction:
-                                            "ltr",
+                                        direction: "ltr",
                                     }}
                                 >
-                                    {
-                                        step.number
-                                    }
+                                    {step.number}
                                 </Typography>
 
                                 {/* ==================================
-                                    ICON
-                                =================================== */}
+                    ICON
+                =================================== */}
 
                                 <Box
                                     sx={{
@@ -507,16 +584,26 @@ function IdeaToProduct() {
                                             "relative",
 
                                         zIndex: 2,
+
                                         mb: {
-                                            xs: 3,
+                                            xs: 2.5,
+                                            sm: 3,
                                             md: 4,
                                         },
-                                        width: 56,
 
-                                        height: 56,
+                                        width: {
+                                            xs: 50,
+                                            sm: 54,
+                                            md: 56,
+                                        },
 
-                                        display:
-                                            "flex",
+                                        height: {
+                                            xs: 50,
+                                            sm: 54,
+                                            md: 56,
+                                        },
+
+                                        display: "flex",
 
                                         alignItems:
                                             "center",
@@ -524,16 +611,22 @@ function IdeaToProduct() {
                                         justifyContent:
                                             "center",
 
-                                        border:
-                                            "1px solid",
+                                        alignSelf: {
+                                            xs: "center",
+                                            md: "flex-start",
+                                        },
+
+                                        border: "1px solid",
 
                                         borderColor:
                                             step.featured
                                                 ? "rgba(0,208,132,0.45)"
                                                 : "rgba(0,208,132,0.25)",
 
-                                        borderRadius:
-                                            "14px",
+                                        borderRadius: {
+                                            xs: "12px",
+                                            md: "14px",
+                                        },
 
                                         background:
                                             "linear-gradient(145deg, rgba(0,208,132,0.13), rgba(0,208,132,0.025))",
@@ -561,14 +654,18 @@ function IdeaToProduct() {
                                 >
                                     <Icon
                                         sx={{
-                                            fontSize: 28,
+                                            fontSize: {
+                                                xs: 24,
+                                                sm: 26,
+                                                md: 28,
+                                            },
                                         }}
                                     />
                                 </Box>
 
                                 {/* ==================================
-                                    CONTENT
-                                =================================== */}
+                    CONTENT
+                =================================== */}
 
                                 <Box
                                     sx={{
@@ -577,14 +674,15 @@ function IdeaToProduct() {
 
                                         zIndex: 2,
 
-                                        width:
-                                            "100%",
+                                        width: "100%",
 
                                         direction:
-                                            "ltr",
+                                            "rtl",
 
-                                        textAlign:
-                                            "left",
+                                        textAlign: {
+                                            xs: "center",
+                                            md: "left",
+                                        },
                                     }}
                                 >
                                     {/* Title */}
@@ -598,12 +696,12 @@ function IdeaToProduct() {
                                                 "Inter, sans-serif",
 
                                             fontSize: {
-                                                xs: 21,
+                                                xs: 19,
+                                                sm: 20,
                                                 md: 23,
                                             },
 
-                                            fontWeight:
-                                                700,
+                                            fontWeight: 700,
 
                                             letterSpacing:
                                                 "-0.02em",
@@ -614,13 +712,13 @@ function IdeaToProduct() {
                                             direction:
                                                 "ltr",
 
-                                            textAlign:
-                                                "left",
+                                            textAlign: {
+                                                xs: "center",
+                                                md: "left",
+                                            },
                                         }}
                                     >
-                                        {
-                                            step.title
-                                        }
+                                        {step.title}
                                     </Typography>
 
                                     {/* Description */}
@@ -630,15 +728,29 @@ function IdeaToProduct() {
                                         sx={{
                                             m: 0,
 
-                                            mt: 0.8,
+                                            mt: {
+                                                xs: 0.8,
+                                                md: 0.8,
+                                            },
 
-                                            maxWidth:
-                                                300,
+                                            width: "100%",
 
-                                            fontSize: 14,
+                                            maxWidth: {
+                                                xs: 280,
+                                                sm: 300,
+                                            },
 
-                                            lineHeight:
-                                                1.8,
+                                            mx: {
+                                                xs: "auto",
+                                                md: 0,
+                                            },
+
+                                            fontSize: {
+                                                xs: 13,
+                                                sm: 14,
+                                            },
+
+                                            lineHeight: 1.8,
 
                                             color:
                                                 "text.secondary",
@@ -649,19 +761,19 @@ function IdeaToProduct() {
                                             unicodeBidi:
                                                 "plaintext",
 
-                                            textAlign:
-                                                "left",
+                                            textAlign: {
+                                                xs: "center",
+                                                md: "left",
+                                            },
                                         }}
                                     >
-                                        {
-                                            step.description
-                                        }
+                                        {step.description}
                                     </Typography>
                                 </Box>
 
                                 {/* ==================================
-                                    ARROW
-                                =================================== */}
+                    ARROW
+                =================================== */}
 
                                 <IconButton
                                     aria-label={`الانتقال إلى ${step.title}`}
@@ -670,19 +782,29 @@ function IdeaToProduct() {
                                             "relative",
 
                                         zIndex: 2,
+
                                         mt: {
-                                            xs: 2,
+                                            xs: 1.5,
+                                            sm: 2,
                                             md: 3,
                                         },
-                                        alignSelf:
-                                            "flex-start",
 
-                                        width: 38,
+                                        alignSelf: {
+                                            xs: "center",
+                                            md: "flex-start",
+                                        },
 
-                                        height: 38,
+                                        width: {
+                                            xs: 36,
+                                            md: 38,
+                                        },
 
-                                        border:
-                                            "1px solid",
+                                        height: {
+                                            xs: 36,
+                                            md: 38,
+                                        },
+
+                                        border: "1px solid",
 
                                         borderColor:
                                             "primary.main",
@@ -710,14 +832,17 @@ function IdeaToProduct() {
                                 >
                                     <ArrowForwardRoundedIcon
                                         sx={{
-                                            fontSize: 18,
+                                            fontSize: {
+                                                xs: 16,
+                                                md: 18,
+                                            },
                                         }}
                                     />
                                 </IconButton>
 
                                 {/* ==================================
-                                    LARGE BACKGROUND NUMBER
-                                =================================== */}
+                    LARGE BACKGROUND NUMBER
+                =================================== */}
 
                                 <Typography
                                     aria-hidden="true"
@@ -725,32 +850,34 @@ function IdeaToProduct() {
                                         position:
                                             "absolute",
 
-                                        right:
-                                            18,
+                                        right: {
+                                            xs: 12,
+                                            md: 18,
+                                        },
 
-                                        bottom:
-                                            -18,
+                                        bottom: {
+                                            xs: -14,
+                                            md: -18,
+                                        },
 
                                         fontFamily:
                                             "Inter, sans-serif",
 
-                                        fontSize:
-                                            86,
+                                        fontSize: {
+                                            xs: 70,
+                                            md: 86,
+                                        },
 
-                                        fontWeight:
-                                            400,
+                                        fontWeight: 400,
 
-                                        lineHeight:
-                                            1,
+                                        lineHeight: 1,
 
                                         color:
                                             "primary.main",
 
-                                        opacity:
-                                            0.035,
+                                        opacity: 0.035,
 
-                                        direction:
-                                            "ltr",
+                                        direction: "ltr",
 
                                         userSelect:
                                             "none",
@@ -759,9 +886,7 @@ function IdeaToProduct() {
                                             "none",
                                     }}
                                 >
-                                    {
-                                        step.number
-                                    }
+                                    {step.number}
                                 </Typography>
                             </Box>
                         );

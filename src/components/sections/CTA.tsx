@@ -1,8 +1,6 @@
 import { useState } from "react";
 
-import {
-  ArrowOutward,
-} from "@mui/icons-material";
+import { ArrowOutward } from "@mui/icons-material";
 
 import {
   Box,
@@ -24,11 +22,14 @@ function CTA() {
         id="contact"
         sx={{
           py: {
-            xs: 10,
+            xs: 8,
+            sm: 10,
             md: 16,
           },
 
           bgcolor: "background.default",
+
+          overflow: "hidden",
         }}
       >
         <Container
@@ -37,7 +38,8 @@ function CTA() {
             maxWidth: 1280,
 
             px: {
-              xs: 2.5,
+              xs: 2,
+              sm: 3,
               md: 4,
             },
           }}
@@ -54,16 +56,29 @@ function CTA() {
 
               borderRadius: {
                 xs: 3,
+                sm: 3.5,
                 md: 4,
               },
 
               p: {
-                xs: 4,
-                sm: 6,
+                xs: 3.5,
+                sm: 5,
                 md: 9,
               },
 
               bgcolor: "background.paper",
+
+              minHeight: {
+                xs: 420,
+                sm: 440,
+                md: 500,
+              },
+
+              display: "flex",
+
+              alignItems: "center",
+
+              justifyContent: "center",
             }}
           >
             {/* ==========================================
@@ -75,12 +90,14 @@ function CTA() {
                 position: "absolute",
 
                 top: {
-                  xs: 20,
+                  xs: 10,
+                  sm: 20,
                   md: 30,
                 },
 
                 left: {
-                  xs: 20,
+                  xs: 8,
+                  sm: 20,
                   md: 40,
                 },
 
@@ -88,7 +105,8 @@ function CTA() {
                   "Inter, sans-serif",
 
                 fontSize: {
-                  xs: 90,
+                  xs: 70,
+                  sm: 100,
                   md: 150,
                 },
 
@@ -101,6 +119,8 @@ function CTA() {
                 opacity: 0.08,
 
                 userSelect: "none",
+
+                pointerEvents: "none",
               }}
             >
               {"{"}
@@ -111,12 +131,14 @@ function CTA() {
                 position: "absolute",
 
                 right: {
-                  xs: 20,
+                  xs: 8,
+                  sm: 20,
                   md: 40,
                 },
 
                 bottom: {
-                  xs: -10,
+                  xs: -5,
+                  sm: -10,
                   md: -25,
                 },
 
@@ -124,7 +146,8 @@ function CTA() {
                   "Inter, sans-serif",
 
                 fontSize: {
-                  xs: 90,
+                  xs: 70,
+                  sm: 100,
                   md: 150,
                 },
 
@@ -137,6 +160,8 @@ function CTA() {
                 opacity: 0.08,
 
                 userSelect: "none",
+
+                pointerEvents: "none",
               }}
             >
               {"}"}
@@ -152,23 +177,40 @@ function CTA() {
 
                 zIndex: 1,
 
+                width: "100%",
+
                 maxWidth: 800,
 
                 mx: "auto",
 
                 textAlign: "center",
+
+                display: "flex",
+
+                flexDirection: "column",
+
+                alignItems: "center",
+
+                justifyContent: "center",
               }}
             >
               {/* Label */}
 
               <Typography
                 sx={{
-                  mb: 2.5,
+                  mb: {
+                    xs: 2,
+                    md: 2.5,
+                  },
 
                   fontFamily:
                     "Inter, sans-serif",
 
-                  fontSize: 13,
+                  fontSize: {
+                    xs: 11,
+                    sm: 12,
+                    md: 13,
+                  },
 
                   fontWeight: 600,
 
@@ -189,19 +231,31 @@ function CTA() {
               <Typography
                 component="h2"
                 sx={{
+                  width: "100%",
+
+                  m: 0,
+
                   fontSize: {
-                    xs: 34,
-                    sm: 44,
+                    xs: 30,
+                    sm: 42,
                     md: 60,
                   },
 
                   fontWeight: 700,
 
-                  lineHeight: 1.15,
+                  lineHeight: {
+                    xs: 1.3,
+                    sm: 1.2,
+                    md: 1.15,
+                  },
 
                   color: "text.primary",
 
-                  mb: 3,
+                  mb: {
+                    xs: 2.5,
+                    sm: 3,
+                    md: 3,
+                  },
 
                   direction: "rtl",
 
@@ -217,6 +271,8 @@ function CTA() {
                   component="span"
                   sx={{
                     display: "block",
+
+                    width: "100%",
 
                     color: "primary.main",
 
@@ -236,20 +292,34 @@ function CTA() {
 
               <Typography
                 sx={{
-                  maxWidth: 650,
+                  width: "100%",
+
+                  maxWidth: {
+                    xs: 320,
+                    sm: 500,
+                    md: 650,
+                  },
 
                   mx: "auto",
 
                   fontSize: {
-                    xs: 16,
+                    xs: 14,
+                    sm: 16,
                     md: 18,
                   },
 
-                  lineHeight: 1.9,
+                  lineHeight: {
+                    xs: 1.9,
+                    md: 1.9,
+                  },
 
                   color: "text.secondary",
 
-                  mb: 4,
+                  mb: {
+                    xs: 3,
+                    sm: 3.5,
+                    md: 4,
+                  },
 
                   direction: "rtl",
 
@@ -277,13 +347,24 @@ function CTA() {
                   <ArrowOutward />
                 }
                 sx={{
-                  minHeight: 52,
+                  minHeight: {
+                    xs: 48,
+                    sm: 50,
+                    md: 52,
+                  },
 
-                  px: 3.5,
+                  px: {
+                    xs: 3,
+                    sm: 3.5,
+                  },
 
                   borderRadius: 2,
 
-                  fontSize: 16,
+                  fontSize: {
+                    xs: 14,
+                    sm: 15,
+                    md: 16,
+                  },
 
                   fontWeight: 500,
 
@@ -294,6 +375,8 @@ function CTA() {
 
                   color:
                     "background.default",
+
+                  whiteSpace: "nowrap",
 
                   transition:
                     "transform 200ms ease, background-color 200ms ease",
