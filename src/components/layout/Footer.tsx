@@ -1,8 +1,4 @@
-import {
-  Box,
-  Container,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 
 const navigationLinks = [
   { label: "الرئيسية", href: "#hero" },
@@ -16,6 +12,21 @@ const serviceLinks = [
   { label: "UI / UX", href: "#services" },
   { label: "التطوير", href: "#services" },
   { label: "المنتجات الرقمية", href: "#services" },
+];
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/qawsa.n?stkn=ZXVsbnZqdzY1NWN6",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/ibrahimajanji/",
+  },
+  {
+    label: "Email",
+    href: "mailto:ibrahim.dev.pr@gmail.com",
+  },
 ];
 
 function Footer() {
@@ -137,8 +148,7 @@ function Footer() {
             >
               <Typography
                 sx={{
-                  fontFamily:
-                    "Inter, sans-serif",
+                  fontFamily: "Inter, sans-serif",
 
                   fontSize: {
                     xs: 11,
@@ -147,8 +157,7 @@ function Footer() {
 
                   fontWeight: 600,
 
-                  color:
-                    "primary.main",
+                  color: "primary.main",
 
                   textAlign: "center",
                 }}
@@ -163,16 +172,14 @@ function Footer() {
                     md: 13,
                   },
 
-                  color:
-                    "text.secondary",
+                  color: "text.secondary",
 
                   textAlign: {
                     xs: "center",
                     md: "left",
                   },
 
-                  unicodeBidi:
-                    "plaintext",
+                  unicodeBidi: "plaintext",
                 }}
               >
                 من الفكرة إلى المنتج.
@@ -215,8 +222,7 @@ function Footer() {
 
                 fontWeight: 600,
 
-                color:
-                  "text.primary",
+                color: "text.primary",
 
                 textAlign: {
                   xs: "center",
@@ -232,8 +238,7 @@ function Footer() {
               sx={{
                 display: "flex",
 
-                flexDirection:
-                  "column",
+                flexDirection: "column",
 
                 alignItems: {
                   xs: "center",
@@ -246,55 +251,45 @@ function Footer() {
                 },
               }}
             >
-              {navigationLinks.map(
-                (link) => (
-                  <Box
-                    key={link.label}
-                    component="a"
-                    href={link.href}
-                    sx={{
-                      width:
-                        "fit-content",
+              {navigationLinks.map((link) => (
+                <Box
+                  key={link.label}
+                  component="a"
+                  href={link.href}
+                  sx={{
+                    width: "fit-content",
 
-                      fontSize: {
-                        xs: 13,
-                        md: 14,
-                      },
+                    fontSize: {
+                      xs: 13,
+                      md: 14,
+                    },
 
-                      color:
-                        "text.secondary",
+                    color: "text.secondary",
 
-                      textDecoration:
-                        "none",
+                    textDecoration: "none",
 
+                    outline: "none",
+
+                    transition: "color 200ms ease",
+
+                    textAlign: "center",
+
+                    "&:hover": {
+                      color: "primary.main",
+                    },
+
+                    "&:focus": {
                       outline: "none",
+                    },
 
-                      transition:
-                        "color 200ms ease",
-
-                      textAlign:
-                        "center",
-
-                      "&:hover": {
-                        color:
-                          "primary.main",
-                      },
-
-                      "&:focus": {
-                        outline:
-                          "none",
-                      },
-
-                      "&:focus-visible": {
-                        outline:
-                          "none",
-                      },
-                    }}
-                  >
-                    {link.label}
-                  </Box>
-                )
-              )}
+                    "&:focus-visible": {
+                      outline: "none",
+                    },
+                  }}
+                >
+                  {link.label}
+                </Box>
+              ))}
             </Box>
           </Box>
 
@@ -333,8 +328,7 @@ function Footer() {
 
                 fontWeight: 600,
 
-                color:
-                  "text.primary",
+                color: "text.primary",
 
                 textAlign: {
                   xs: "center",
@@ -349,8 +343,7 @@ function Footer() {
               sx={{
                 display: "flex",
 
-                flexDirection:
-                  "column",
+                flexDirection: "column",
 
                 alignItems: {
                   xs: "center",
@@ -363,55 +356,45 @@ function Footer() {
                 },
               }}
             >
-              {serviceLinks.map(
-                (service) => (
-                  <Box
-                    key={service.label}
-                    component="a"
-                    href={service.href}
-                    sx={{
-                      width:
-                        "fit-content",
+              {serviceLinks.map((service) => (
+                <Box
+                  key={service.label}
+                  component="a"
+                  href={service.href}
+                  sx={{
+                    width: "fit-content",
 
-                      fontSize: {
-                        xs: 13,
-                        md: 14,
-                      },
+                    fontSize: {
+                      xs: 13,
+                      md: 14,
+                    },
 
-                      color:
-                        "text.secondary",
+                    color: "text.secondary",
 
-                      textDecoration:
-                        "none",
+                    textDecoration: "none",
 
+                    outline: "none",
+
+                    transition: "color 200ms ease",
+
+                    textAlign: "center",
+
+                    "&:hover": {
+                      color: "primary.main",
+                    },
+
+                    "&:focus": {
                       outline: "none",
+                    },
 
-                      transition:
-                        "color 200ms ease",
-
-                      textAlign:
-                        "center",
-
-                      "&:hover": {
-                        color:
-                          "primary.main",
-                      },
-
-                      "&:focus": {
-                        outline:
-                          "none",
-                      },
-
-                      "&:focus-visible": {
-                        outline:
-                          "none",
-                      },
-                    }}
-                  >
-                    {service.label}
-                  </Box>
-                )
-              )}
+                    "&:focus-visible": {
+                      outline: "none",
+                    },
+                  }}
+                >
+                  {service.label}
+                </Box>
+              ))}
             </Box>
           </Box>
 
@@ -450,8 +433,7 @@ function Footer() {
 
                 fontWeight: 600,
 
-                color:
-                  "text.primary",
+                color: "text.primary",
 
                 textAlign: {
                   xs: "center",
@@ -466,8 +448,7 @@ function Footer() {
               sx={{
                 display: "flex",
 
-                flexDirection:
-                  "column",
+                flexDirection: "column",
 
                 alignItems: {
                   xs: "center",
@@ -480,70 +461,66 @@ function Footer() {
                 },
               }}
             >
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: 13,
-                    md: 14,
-                  },
+              {socialLinks.map((social) => (
+                <Box
+                  key={social.label}
+                  component="a"
+                  href={social.href}
+                  target={
+                    social.label === "Email"
+                      ? undefined
+                      : "_blank"
+                  }
+                  rel={
+                    social.label === "Email"
+                      ? undefined
+                      : "noopener noreferrer"
+                  }
+                  sx={{
+                    width: "fit-content",
 
-                  color:
-                    "text.secondary",
+                    fontSize: {
+                      xs: 13,
+                      md: 14,
+                    },
 
-                  textAlign:
-                    "center",
-                }}
-              >
-                Instagram
-              </Typography>
+                    color: "text.secondary",
 
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: 13,
-                    md: 14,
-                  },
+                    textDecoration: "none",
 
-                  color:
-                    "text.secondary",
+                    outline: "none",
 
-                  textAlign:
-                    "center",
-                }}
-              >
-                LinkedIn
-              </Typography>
+                    transition: "color 200ms ease",
 
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: 13,
-                    md: 14,
-                  },
+                    textAlign: "center",
 
-                  color:
-                    "text.secondary",
+                    "&:hover": {
+                      color: "primary.main",
+                    },
 
-                  textAlign:
-                    "center",
-                }}
-              >
-                Email
-              </Typography>
+                    "&:focus": {
+                      outline: "none",
+                    },
+
+                    "&:focus-visible": {
+                      outline: "none",
+                    },
+                  }}
+                >
+                  {social.label}
+                </Box>
+              ))}
             </Box>
 
             <Box
               component="a"
               href="#contact"
               sx={{
-                display:
-                  "inline-flex",
+                display: "inline-flex",
 
-                alignItems:
-                  "center",
+                alignItems: "center",
 
-                justifyContent:
-                  "center",
+                justifyContent: "center",
 
                 mt: {
                   xs: 2.5,
@@ -562,11 +539,9 @@ function Footer() {
 
                 borderRadius: 2,
 
-                bgcolor:
-                  "primary.main",
+                bgcolor: "primary.main",
 
-                color:
-                  "#06130E",
+                color: "#06130E",
 
                 fontSize: {
                   xs: 13,
@@ -575,8 +550,7 @@ function Footer() {
 
                 fontWeight: 500,
 
-                textDecoration:
-                  "none",
+                textDecoration: "none",
 
                 outline: "none",
 
@@ -586,18 +560,15 @@ function Footer() {
                 "&:hover": {
                   opacity: 0.9,
 
-                  transform:
-                    "translateY(-2px)",
+                  transform: "translateY(-2px)",
                 },
 
                 "&:focus": {
-                  outline:
-                    "none",
+                  outline: "none",
                 },
 
                 "&:focus-visible": {
-                  outline:
-                    "none",
+                  outline: "none",
                 },
               }}
             >
@@ -624,8 +595,7 @@ function Footer() {
               sm: "center",
             },
 
-            justifyContent:
-              "space-between",
+            justifyContent: "space-between",
 
             gap: {
               xs: 1.5,
@@ -639,16 +609,14 @@ function Footer() {
 
             borderTop: "1px solid",
 
-            borderColor:
-              "divider",
+            borderColor: "divider",
 
             textAlign: "center",
           }}
         >
           <Typography
             sx={{
-              fontFamily:
-                "Inter, sans-serif",
+              fontFamily: "Inter, sans-serif",
 
               fontSize: {
                 xs: 10,
@@ -656,11 +624,9 @@ function Footer() {
                 md: 12,
               },
 
-              color:
-                "text.secondary",
+              color: "text.secondary",
 
-              textAlign:
-                "center",
+              textAlign: "center",
             }}
           >
             © {new Date().getFullYear()} QAWSAN.
@@ -674,14 +640,11 @@ function Footer() {
                 sm: 12,
               },
 
-              color:
-                "text.secondary",
+              color: "text.secondary",
 
-              unicodeBidi:
-                "plaintext",
+              unicodeBidi: "plaintext",
 
-              textAlign:
-                "center",
+              textAlign: "center",
             }}
           >
             نصنع الأفكار. نبني التجارب.
