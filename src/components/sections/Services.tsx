@@ -2,7 +2,6 @@ import {
     Box,
     Container,
     Typography,
-    IconButton,
 } from "@mui/material";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
@@ -11,7 +10,6 @@ import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlin
 import CodeOutlinedIcon from "@mui/icons-material/CodeOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 const steps = [
     {
@@ -19,6 +17,7 @@ const steps = [
         title: "IDEA",
         description:
             "نفهم فكرتك ونحدد هدف مشروعك.",
+        label: "DEFINE",
         icon: LightbulbOutlinedIcon,
         featured: true,
     },
@@ -27,6 +26,7 @@ const steps = [
         title: "BRAND",
         description:
             "نبني الهوية والاتجاه البصري.",
+        label: "IDENTITY",
         icon: BrandingWatermarkOutlinedIcon,
         featured: false,
     },
@@ -35,6 +35,7 @@ const steps = [
         title: "UI / UX",
         description:
             "نصمم تجربة واضحة وسهلة الاستخدام.",
+        label: "EXPERIENCE",
         icon: DesignServicesOutlinedIcon,
         featured: false,
     },
@@ -43,6 +44,7 @@ const steps = [
         title: "CODE",
         description:
             "نحوّل التصميم إلى منتج رقمي فعلي.",
+        label: "BUILD",
         icon: CodeOutlinedIcon,
         featured: false,
     },
@@ -51,6 +53,7 @@ const steps = [
         title: "TEST",
         description:
             "نختبر ونحسن كل التفاصيل.",
+        label: "REFINE",
         icon: CheckCircleOutlineOutlinedIcon,
         featured: false,
     },
@@ -59,6 +62,7 @@ const steps = [
         title: "LAUNCH",
         description:
             "نطلق المنتج ليصل إلى مستخدميه.",
+        label: "SHIP",
         icon: RocketLaunchOutlinedIcon,
         featured: false,
     },
@@ -664,25 +668,16 @@ function IdeaToProduct() {
                                 </Box>
 
                                 {/* ==================================
-                    CONTENT
-                =================================== */}
+    CONTENT
+=================================== */}
 
                                 <Box
                                     sx={{
-                                        position:
-                                            "relative",
-
+                                        position: "relative",
                                         zIndex: 2,
-
                                         width: "100%",
-
-                                        direction:
-                                            "rtl",
-
-                                        textAlign: {
-                                            xs: "center",
-                                            md: "left",
-                                        },
+                                        direction: "rtl",
+                                        textAlign: "right",
                                     }}
                                 >
                                     {/* Title */}
@@ -692,8 +687,7 @@ function IdeaToProduct() {
                                         sx={{
                                             m: 0,
 
-                                            fontFamily:
-                                                "Inter, sans-serif",
+                                            fontFamily: "Inter, sans-serif",
 
                                             fontSize: {
                                                 xs: 19,
@@ -703,19 +697,13 @@ function IdeaToProduct() {
 
                                             fontWeight: 700,
 
-                                            letterSpacing:
-                                                "-0.02em",
+                                            letterSpacing: "-0.02em",
 
-                                            color:
-                                                "text.primary",
+                                            color: "text.primary",
 
-                                            direction:
-                                                "ltr",
+                                            direction: "ltr",
 
-                                            textAlign: {
-                                                xs: "center",
-                                                md: "left",
-                                            },
+                                            textAlign: "left",
                                         }}
                                     >
                                         {step.title}
@@ -728,22 +716,11 @@ function IdeaToProduct() {
                                         sx={{
                                             m: 0,
 
-                                            mt: {
-                                                xs: 0.8,
-                                                md: 0.8,
-                                            },
+                                            mt: 0.5,
 
                                             width: "100%",
 
-                                            maxWidth: {
-                                                xs: 280,
-                                                sm: 300,
-                                            },
-
-                                            mx: {
-                                                xs: "auto",
-                                                md: 0,
-                                            },
+                                            maxWidth: 300,
 
                                             fontSize: {
                                                 xs: 13,
@@ -752,18 +729,17 @@ function IdeaToProduct() {
 
                                             lineHeight: 1.8,
 
-                                            color:
-                                                "text.secondary",
+                                            color: "text.secondary",
 
-                                            direction:
-                                                "rtl",
+                                            direction: "rtl",
 
-                                            unicodeBidi:
-                                                "plaintext",
+                                            unicodeBidi: "plaintext",
 
-                                            textAlign: {
-                                                xs: "center",
-                                                md: "left",
+                                            textAlign: "left",
+
+                                            transform: {
+                                                xs: "none",
+                                                md: "translateX(-23px)",
                                             },
                                         }}
                                     >
@@ -772,20 +748,17 @@ function IdeaToProduct() {
                                 </Box>
 
                                 {/* ==================================
-                    ARROW
-                =================================== */}
+    STEP LABEL
+=================================== */}
 
-                                <IconButton
-                                    aria-label={`الانتقال إلى ${step.title}`}
+                                <Typography
                                     sx={{
-                                        position:
-                                            "relative",
-
+                                        position: "relative",
                                         zIndex: 2,
 
                                         mt: {
-                                            xs: 1.5,
-                                            sm: 2,
+                                            xs: 2,
+                                            sm: 2.5,
                                             md: 3,
                                         },
 
@@ -794,51 +767,35 @@ function IdeaToProduct() {
                                             md: "flex-start",
                                         },
 
-                                        width: {
-                                            xs: 36,
-                                            md: 38,
+                                        fontFamily: "Inter, sans-serif",
+
+                                        fontSize: {
+                                            xs: 10,
+                                            sm: 10.5,
+                                            md: 11,
                                         },
 
-                                        height: {
-                                            xs: 36,
-                                            md: 38,
-                                        },
+                                        fontWeight: 500,
 
-                                        border: "1px solid",
+                                        letterSpacing: "0.16em",
 
-                                        borderColor:
-                                            "primary.main",
+                                        color: "primary.main",
 
-                                        color:
-                                            "primary.main",
+                                        opacity: 0.7,
 
-                                        backgroundColor:
-                                            "transparent",
+                                        direction: "ltr",
 
-                                        transition:
-                                            "all 250ms ease",
+                                        textTransform: "uppercase",
 
-                                        "&:hover": {
-                                            color:
-                                                "#0B0F0E",
+                                        transition: "opacity 250ms ease",
 
-                                            backgroundColor:
-                                                "primary.main",
-
-                                            transform:
-                                                "translateX(4px)",
+                                        ".MuiBox-root:hover &": {
+                                            opacity: 1,
                                         },
                                     }}
                                 >
-                                    <ArrowForwardRoundedIcon
-                                        sx={{
-                                            fontSize: {
-                                                xs: 16,
-                                                md: 18,
-                                            },
-                                        }}
-                                    />
-                                </IconButton>
+                                    {step.label}
+                                </Typography>
 
                                 {/* ==================================
                     LARGE BACKGROUND NUMBER
