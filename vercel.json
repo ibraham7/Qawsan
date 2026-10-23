@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/start-project", "destination": "/index.html" },
-    { "source": "/projects", "destination": "/index.html" }
+    { "source": "/admin", "destination": "/index.html" }
   ],
   "headers": [
     {
