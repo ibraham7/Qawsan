@@ -10,7 +10,7 @@ import { createQawsanTheme } from "./theme/theme";
 import "./index.css";
 
 const StartProject = lazy(() => import("./pages/StartProject"));
-const AllProjects = lazy(() => import("./pages/AllProjects"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 export function Root() {
   const [mode, setMode] = useState<"light" | "dark">(() => {
@@ -39,16 +39,16 @@ export function Root() {
 
   const path = window.location.pathname.replace(/\/+$/, "");
   const isStartProject = path === "/start-project";
-  const isAllProjects = path === "/projects";
+  const isAdmin = path === "/admin";
 
   return (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
 
-        {isAllProjects ? (
+        {isAdmin ? (
           <Suspense fallback={null}>
-            <AllProjects mode={mode} onToggleTheme={handleToggleTheme} />
+            <Admin />
           </Suspense>
         ) : isStartProject ? (
           <Suspense fallback={null}>
