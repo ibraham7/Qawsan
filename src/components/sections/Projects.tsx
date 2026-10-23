@@ -28,7 +28,7 @@ const featuredProjects: Project[] = [
         description:
             "نظام متكامل لإدارة العيادات: المواعيد، ملفات المرضى، والتقارير في تجربة واحدة سلسة وسهلة الاستخدام.",
         image: "/images/projects/clinova.png",
-        link: "#",
+        link: "https://clinova.novanoai.online/",
     },
     {
         number: "02",
@@ -37,7 +37,7 @@ const featuredProjects: Project[] = [
         description:
             "منصة لإدارة المبيعات والعملاء، تمنح الفرق رؤية واضحة للأداء وتختصر الوقت في المهام اليومية.",
         image: "/images/projects/novasales.png",
-        link: "#",
+        link: "https://sales.novanoai.online/",
     },
     {
         number: "03",
@@ -46,7 +46,7 @@ const featuredProjects: Project[] = [
         description:
             "نظام جامعي شامل لإدارة الطلاب والمقررات والأقسام، مبني بمعمارية قابلة للتوسع.",
         image: "/images/projects/university-system.png",
-        link: "#",
+        link: "https://uni.novanoai.online/",
     },
 ];
 
