@@ -54,7 +54,8 @@ function ProjectSlide({
                         "0 28px 70px -20px rgba(0, 208, 132, 0.28), 0 0 0 1px rgba(0, 208, 132, 0.25)",
                 },
                 "&:hover .project-image": { transform: "scale(1.04)" },
-                "&:hover .project-link svg": { transform: "translateX(-4px)" },
+                // stylis-plugin-rtl mirrors this, so +4px ends up moving the arrow left (its pointing direction)
+                "&:hover .project-link svg": { transform: "translateX(4px)" },
                 "@media (prefers-reduced-motion: reduce)": {
                     animation: "none",
                     "&:hover": { transform: "none" },
