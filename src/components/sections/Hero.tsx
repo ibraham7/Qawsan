@@ -987,7 +987,7 @@ function Hero() {
               {/* Primary Button */}
 
               <Button
-                href="#contact"
+                href="/start-project"
                 variant="contained"
                 endIcon={
                   <ArrowBackRounded
@@ -1042,7 +1042,7 @@ function Hero() {
               {/* Secondary Button */}
 
               <Button
-                href="#projects"
+                href="/#projects"
                 variant="outlined"
                 sx={{
                   minHeight: {

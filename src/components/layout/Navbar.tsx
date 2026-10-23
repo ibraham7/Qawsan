@@ -20,7 +20,6 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 
-import ProjectForm from "../common/ProjectForm";
 
 interface NavbarProps {
   mode: "light" | "dark";
@@ -30,15 +29,15 @@ interface NavbarProps {
 const navLinks = [
   {
     label: "الخدمات",
-    href: "#services",
+    href: "/#services",
   },
   {
     label: "أعمالنا",
-    href: "#projects",
+    href: "/#projects",
   },
   {
     label: "من نحن",
-    href: "#about",
+    href: "/#about",
   },
 ];
 
@@ -47,8 +46,6 @@ function Navbar({
   onToggleTheme,
 }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [projectFormOpen, setProjectFormOpen] =
-    useState(false);
 
   const isMobile = useMediaQuery("(max-width:900px)");
   const isLightMode = mode === "light";
@@ -199,9 +196,8 @@ function Navbar({
                   {/* CTA */}
 
                   <Button
-                    onClick={() =>
-                      setProjectFormOpen(true)
-                    }
+                    component="a"
+                    href="/start-project"
                     variant="contained"
                     sx={{
                       minHeight: 40,
@@ -587,10 +583,9 @@ function Navbar({
 
           <Button
             fullWidth
-            onClick={() => {
-              handleCloseMenu();
-              setProjectFormOpen(true);
-            }}
+            component="a"
+            href="/start-project"
+            onClick={handleCloseMenu}
             variant="contained"
             sx={{
               mt: 3,
@@ -612,12 +607,6 @@ function Navbar({
         </Box>
       </Drawer>
 
-      <ProjectForm
-        open={projectFormOpen}
-        onClose={() =>
-          setProjectFormOpen(false)
-        }
-      />
     </>
   );
 }

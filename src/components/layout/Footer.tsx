@@ -1,17 +1,17 @@
 import { Box, Container, Typography } from "@mui/material";
 
 const navigationLinks = [
-  { label: "الرئيسية", href: "#hero" },
-  { label: "أعمالنا", href: "#projects" },
-  { label: "الخدمات", href: "#services" },
-  { label: "من نحن", href: "#about" },
+  { label: "الرئيسية", href: "/#hero" },
+  { label: "أعمالنا", href: "/#projects" },
+  { label: "الخدمات", href: "/#services" },
+  { label: "من نحن", href: "/#about" },
 ];
 
 const serviceLinks = [
-  { label: "الهوية البصرية", href: "#services" },
-  { label: "UI / UX", href: "#services" },
-  { label: "التطوير", href: "#services" },
-  { label: "المنتجات الرقمية", href: "#services" },
+  { label: "الهوية البصرية", href: "/#services" },
+  { label: "UI / UX", href: "/#services" },
+  { label: "التطوير", href: "/#services" },
+  { label: "المنتجات الرقمية", href: "/#services" },
 ];
 
 const socialLinks = [
@@ -514,7 +514,7 @@ function Footer() {
 
             <Box
               component="a"
-              href="#contact"
+              href="/start-project"
               sx={{
                 display: "inline-flex",
 

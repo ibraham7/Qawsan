@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { ArrowOutward } from "@mui/icons-material";
 
 import {
@@ -9,11 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 
-import ProjectForm from "../common/ProjectForm";
 
 function CTA() {
-  const [projectFormOpen, setProjectFormOpen] =
-    useState(false);
 
   return (
     <>
@@ -338,9 +333,8 @@ function CTA() {
               {/* Start Project Button */}
 
               <Button
-                onClick={() =>
-                  setProjectFormOpen(true)
-                }
+                component="a"
+                href="/start-project"
                 variant="contained"
                 size="large"
                 endIcon={
@@ -397,16 +391,6 @@ function CTA() {
         </Container>
       </Box>
 
-      {/* ==========================================
-          PROJECT FORM
-      =========================================== */}
-
-      <ProjectForm
-        open={projectFormOpen}
-        onClose={() =>
-          setProjectFormOpen(false)
-        }
-      />
     </>
   );
 }
