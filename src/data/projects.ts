@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { PROJECTS_TABLE, supabase } from "../lib/supabase";
+declare global {
+    interface Window {
+        __QAWSAN_PROJECTS__?: Project[];
+    }
+}
 
 export interface Project {
     id: string;
@@ -48,7 +52,25 @@ export const fallbackProjects: Project[] = [
     },
 ];
 
+/* the prerender seeds the list it fetched at build time; the built page then
+   carries the same list in window.__QAWSAN_PROJECTS__ so the first render matches */
+let seeded: Project[] | null = null;
+
+export function seedProjects(rows: Project[]) {
+    seeded = rows;
+}
+
+function initialProjects(): Project[] {
+    if (seeded?.length) return seeded;
+    if (typeof window !== "undefined" && window.__QAWSAN_PROJECTS__?.length) {
+        return window.__QAWSAN_PROJECTS__;
+    }
+    return fallbackProjects;
+}
+
 export async function fetchProjects(): Promise<Project[]> {
+    // loaded on demand so the Supabase client stays out of the main bundle
+    const { PROJECTS_TABLE, supabase } = await import("../lib/supabase");
     const { data, error } = await supabase
         .from(PROJECTS_TABLE)
         .select("id, title, category, description, link, images, sort_order")
@@ -60,7 +82,7 @@ export async function fetchProjects(): Promise<Project[]> {
 }
 
 export function useProjects() {
-    const [projects, setProjects] = useState<Project[]>(fallbackProjects);
+    const [projects, setProjects] = useState<Project[]>(initialProjects);
 
     useEffect(() => {
         let active = true;
