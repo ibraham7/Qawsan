@@ -24,6 +24,8 @@ import {
 
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
+import { useI18n } from "../i18n";
+
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 
@@ -79,6 +81,10 @@ const card = {
 } as const;
 
 function StartProject({ mode, onToggleTheme }: Props) {
+  const { t, to, locale } = useI18n();
+  // validation returns codes; show them in the page language
+  const message = (code?: string) => (code ? t.form.errors[code] ?? code : undefined);
+  const option = (o: { value: string; label: string }) => t.form.options[o.value] ?? o.label;
   const [values, setValues] = useState<StartProjectPayload>(EMPTY);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
@@ -89,9 +95,9 @@ function StartProject({ mode, onToggleTheme }: Props) {
   const successRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "ابدأ مشروعك | قوسان — Qawsan Studio";
+    document.title = t.meta.startTitle;
     startedAt.current = Date.now();
-  }, []);
+  }, [t.meta.startTitle]);
 
   useEffect(() => {
     if (status === "success") successRef.current?.focus();
@@ -126,6 +132,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
         body: JSON.stringify({
           ...values,
           elapsed: Date.now() - startedAt.current,
+          lang: locale,
         }),
       });
       const data = (await res.json().catch(() => null)) as {
@@ -160,7 +167,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
       value={values[key]}
       onChange={(e) => set(key, e.target.value)}
       error={!!errors[key]}
-      helperText={errors[key]}
+      helperText={message(errors[key])}
       fullWidth
       slotProps={{ htmlInput: { maxLength: LIMITS[key] } }}
       {...extra}
@@ -179,7 +186,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
       value={values[key]}
       onChange={(e) => set(key, e.target.value)}
       error={!!errors[key]}
-      helperText={errors[key] ?? `${values[key].length} / ${LIMITS[key]}`}
+      helperText={message(errors[key]) ?? `${values[key].length} / ${LIMITS[key]}`}
       required={required}
       multiline
       minRows={rows}
@@ -200,13 +207,13 @@ function StartProject({ mode, onToggleTheme }: Props) {
       value={values[key]}
       onChange={(e) => set(key, e.target.value)}
       error={!!errors[key]}
-      helperText={errors[key]}
+      helperText={message(errors[key])}
       required
       fullWidth
     >
       {list.map((i) => (
         <MenuItem key={i.value} value={i.value}>
-          {i.label}
+          {option(i)}
         </MenuItem>
       ))}
     </TextField>
@@ -231,11 +238,11 @@ function StartProject({ mode, onToggleTheme }: Props) {
               mb: 2,
             }}
           >
-            لنبنِ{" "}
+            {t.form.title1}{" "}
             <Box component="span" sx={{ color: "primary.main" }}>
-              شيئًا عظيمًا
+              {t.form.title2}
             </Box>{" "}
-            معًا
+            {t.form.title3}
           </Typography>
           <Typography
             sx={{
@@ -246,8 +253,9 @@ function StartProject({ mode, onToggleTheme }: Props) {
               lineHeight: 1.9,
             }}
           >
-            أخبرنا عن فكرتك، وسنساعدك على تحويلها إلى تجربة رقمية ذات معنى.
+            {t.form.lead}
           </Typography>
+          {t.form.showEnglishLine && (
           <Typography
             lang="en"
             dir="ltr"
@@ -255,6 +263,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
           >
             Let&apos;s Build Something Great.
           </Typography>
+          )}
         </Box>
 
         {status === "success" ? (
@@ -279,10 +288,10 @@ function StartProject({ mode, onToggleTheme }: Props) {
               sx={{ fontSize: 56, color: "primary.main", mb: 2 }}
             />
             <Typography component="h2" sx={{ fontWeight: 700, fontSize: 24, mb: 1.5 }}>
-              شكرًا لك! استلمنا طلب مشروعك
+              {t.form.successTitle}
             </Typography>
             <Typography sx={{ color: "text.secondary", lineHeight: 1.9, mb: 1 }}>
-              سنعاود التواصل معك في أقرب وقت ممكن.
+              {t.form.successText}
             </Typography>
             {ref && (
               <Typography
@@ -292,8 +301,8 @@ function StartProject({ mode, onToggleTheme }: Props) {
                 Ref: {ref}
               </Typography>
             )}
-            <Button component="a" href="/" variant="outlined">
-              العودة للرئيسية
+            <Button component="a" href={to("/")} variant="outlined">
+              {t.form.backHome}
             </Button>
           </Box>
         ) : (
@@ -324,7 +333,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
 
             <Box sx={card}>
               <Typography component="h2" sx={sectionTitle}>
-                بياناتك
+                {t.form.sectionYou}
               </Typography>
               <Box
                 sx={{
@@ -333,14 +342,14 @@ function StartProject({ mode, onToggleTheme }: Props) {
                   gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
                 }}
               >
-                {text("name", "الاسم الكامل", {
+                {text("name", t.form.name, {
                   required: true,
                   autoComplete: "name",
                 })}
-                {text("company", "اسم الشركة أو المؤسسة (اختياري)", {
+                {text("company", t.form.company, {
                   autoComplete: "organization",
                 })}
-                {text("email", "البريد الإلكتروني", {
+                {text("email", t.form.email, {
                   required: true,
                   type: "email",
                   autoComplete: "email",
@@ -348,11 +357,11 @@ function StartProject({ mode, onToggleTheme }: Props) {
                     htmlInput: { maxLength: LIMITS.email, dir: "ltr", inputMode: "email" },
                   },
                 })}
-                {text("whatsapp", "رقم واتساب مع رمز الدولة", {
+                {text("whatsapp", t.form.whatsapp, {
                   required: true,
                   type: "tel",
                   autoComplete: "tel",
-                  placeholder: "+962 79 123 4567",
+                  placeholder: t.form.whatsappPlaceholder,
                   slotProps: {
                     htmlInput: { maxLength: LIMITS.whatsapp, dir: "ltr", inputMode: "tel" },
                   },
@@ -362,19 +371,19 @@ function StartProject({ mode, onToggleTheme }: Props) {
 
             <Box sx={card}>
               <Typography component="h2" sx={sectionTitle}>
-                مشروعك
+                {t.form.sectionProject}
               </Typography>
               <Box sx={{ display: "grid", gap: 2 }}>
-                {select("projectType", "نوع المشروع", PROJECT_TYPES)}
-                {area("description", "وصف المشروع", 4, true)}
-                {area("features", "الميزات المطلوبة (اختياري)", 2)}
-                {area("references", "روابط أو أمثلة مشابهة (اختياري)", 2)}
+                {select("projectType", t.form.projectType, PROJECT_TYPES)}
+                {area("description", t.form.description, 4, true)}
+                {area("features", t.form.features, 2)}
+                {area("references", t.form.references, 2)}
               </Box>
             </Box>
 
             <Box sx={card}>
               <Typography component="h2" sx={sectionTitle}>
-                الميزانية والمدة
+                {t.form.sectionBudget}
               </Typography>
               <Box
                 sx={{
@@ -383,12 +392,12 @@ function StartProject({ mode, onToggleTheme }: Props) {
                   gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
                 }}
               >
-                {select("budget", "الميزانية التقريبية", BUDGETS)}
-                {select("timeline", "المدة المطلوبة", TIMELINES)}
+                {select("budget", t.form.budget, BUDGETS)}
+                {select("timeline", t.form.timeline, TIMELINES)}
               </Box>
 
               <FormControl error={!!errors.contactMethod} sx={{ mt: 3 }}>
-                <FormLabel id="sp-contact-label">كيف تفضّل أن نتواصل معك؟</FormLabel>
+                <FormLabel id="sp-contact-label">{t.form.contactMethod}</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="sp-contact-label"
@@ -400,12 +409,12 @@ function StartProject({ mode, onToggleTheme }: Props) {
                       key={c.value}
                       value={c.value}
                       control={<Radio />}
-                      label={c.label}
+                      label={option(c)}
                     />
                   ))}
                 </RadioGroup>
                 {errors.contactMethod && (
-                  <FormHelperText>{errors.contactMethod}</FormHelperText>
+                  <FormHelperText>{message(errors.contactMethod)}</FormHelperText>
                 )}
               </FormControl>
             </Box>
@@ -421,7 +430,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
                 }
                 label={
                   <Typography sx={{ fontSize: 14, lineHeight: 1.8 }}>
-                    أوافق على استخدام بياناتي للتواصل معي بخصوص هذا الطلب، وقد قرأت{" "}
+                    {t.form.consentBefore}
                     <Box
                       component="button"
                       type="button"
@@ -436,19 +445,19 @@ function StartProject({ mode, onToggleTheme }: Props) {
                         textDecoration: "underline",
                       }}
                     >
-                      سياسة الخصوصية
+                      {t.form.consentLink}
                     </Box>
-                    .
+                    {t.form.consentAfter}
                   </Typography>
                 }
               />
-              {errors.consent && <FormHelperText>{errors.consent}</FormHelperText>}
+              {errors.consent && <FormHelperText>{message(errors.consent)}</FormHelperText>}
             </FormControl>
 
             {status === "error" && (
               <Alert severity="error" role="alert">
-                تعذّر إرسال طلبك الآن. تحقق من البيانات وحاول مرة أخرى، أو راسلنا مباشرة على
-                ibrahim.dev.pr@gmail.com.
+                {t.form.sendError}{" "}
+                <bdi>ibrahim.dev.pr@gmail.com</bdi>
               </Alert>
             )}
 
@@ -473,11 +482,11 @@ function StartProject({ mode, onToggleTheme }: Props) {
             >
               {status === "sending" ? (
                 <>
-                  <CircularProgress size={20} color="inherit" sx={{ ml: 1.5 }} />
-                  جارٍ الإرسال...
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1.5 }} />
+                  {t.form.sending}
                 </>
               ) : (
-                "إرسال طلب المشروع"
+                t.form.submit
               )}
             </Button>
           </Box>
@@ -493,23 +502,24 @@ function StartProject({ mode, onToggleTheme }: Props) {
         fullWidth
         aria-labelledby="sp-privacy-title"
       >
-        <DialogTitle id="sp-privacy-title">سياسة الخصوصية</DialogTitle>
+        <DialogTitle id="sp-privacy-title">{t.form.privacyTitle}</DialogTitle>
         <DialogContent>
           <Typography sx={{ lineHeight: 2, fontSize: 15 }}>
-            نجمع في هذا النموذج بياناتك (الاسم، الشركة، البريد، رقم واتساب، وتفاصيل
-            المشروع) لغرض واحد: دراسة طلبك والتواصل معك بخصوصه.
-            <br />
-            • تُحفظ البيانات في سجل خاص بقوسان، ولا يصل إليه إلا فريق قوسان المخوّل.
-            <br />
-            • لا نبيع بياناتك ولا نشاركها مع أي جهة إعلانية، ولا نرسلها إلى أدوات التحليلات.
-            <br />
-            • نحتفظ بالطلب للمدة اللازمة للتواصل معك ولمتابعة المشروع.
-            <br />
-            • يمكنك طلب الاطلاع على بياناتك أو تصحيحها أو حذفها في أي وقت بمراسلتنا على
-            ibrahim.dev.pr@gmail.com.
+            {t.form.privacyIntro}
+            {t.form.privacyPoints.map((point, i) => (
+              <span key={i}>
+                <br />• {point}
+                {i === t.form.privacyPoints.length - 1 && (
+                  <>
+                    {" "}
+                    <bdi>ibrahim.dev.pr@gmail.com</bdi>.
+                  </>
+                )}
+              </span>
+            ))}
           </Typography>
-          <Box sx={{ textAlign: "left", mt: 2 }}>
-            <Button onClick={() => setPrivacyOpen(false)}>إغلاق</Button>
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button onClick={() => setPrivacyOpen(false)}>{t.form.close}</Button>
           </Box>
         </DialogContent>
       </Dialog>

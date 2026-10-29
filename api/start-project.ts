@@ -174,6 +174,7 @@ async function notify(p: StartProjectPayload, ref: string) {
     ["الوصف", p.description],
     ["الميزات", p.features || "-"],
     ["روابط/أمثلة", p.references || "-"],
+    ["لغة الموقع", ({ ar: "العربية", en: "English", tr: "Türkçe" } as Record<string, string>)[p.lang ?? "ar"] ?? "العربية"],
   ];
   const html = `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7"><h2>طلب مشروع جديد (${esc(ref)})</h2>${rows
     .map(([k, v]) => `<p><b>${k}:</b><br>${esc(v.trim()).replace(/\n/g, "<br>")}</p>`)

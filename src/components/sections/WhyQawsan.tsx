@@ -4,39 +4,24 @@ import {
   Typography,
 } from "@mui/material";
 
+import { useI18n } from "../../i18n";
+
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 
-const reasons = [
-  {
-    title: "نبدأ من الفكرة",
-    description:
-      "نحوّل فكرتك إلى اتجاه واضح قابل للتنفيذ.",
-    icon: LightbulbOutlinedIcon,
-  },
-  {
-    title: "التصميم والتطوير",
-    description:
-      "نبني التجربة كاملة من التصميم إلى الكود.",
-    icon: DesignServicesOutlinedIcon,
-  },
-  {
-    title: "نهتم بالتفاصيل",
-    description:
-      "نصنع تجربة متناسقة واحترافية في كل جزء.",
-    icon: SearchOutlinedIcon,
-  },
-  {
-    title: "نبني للمستخدم",
-    description:
-      "نركز على تجربة واضحة، سهلة وسريعة.",
-    icon: GroupsOutlinedIcon,
-  },
+// titles and texts come from t.why.items, in this order
+const reasonIcons = [
+  LightbulbOutlinedIcon,
+  DesignServicesOutlinedIcon,
+  SearchOutlinedIcon,
+  GroupsOutlinedIcon,
 ];
 
 function WhyQawsan() {
+  const { t } = useI18n();
+
   return (
     <Box
       component="section"
@@ -161,7 +146,7 @@ function WhyQawsan() {
               textAlign: "center",
             }}
           >
-            لأن المنتج الجيد يبدأ
+            {t.why.title1}
             <Box
               component="span"
               sx={{
@@ -174,7 +159,7 @@ function WhyQawsan() {
                 unicodeBidi: "plaintext",
               }}
             >
-              {" "}من التفاصيل.
+              {" "}{t.why.title2}
             </Box>
           </Typography>
 
@@ -197,8 +182,7 @@ function WhyQawsan() {
               textAlign: "center",
             }}
           >
-            نربط التصميم بالتقنية لنصنع منتجات واضحة،
-            متناسقة، وقابلة للنمو.
+            {t.why.lead}
           </Typography>
         </Box>
 
@@ -219,8 +203,8 @@ function WhyQawsan() {
             },
           }}
         >
-          {reasons.map((reason) => {
-            const Icon = reason.icon;
+          {t.why.items.map((reason, i) => {
+            const Icon = reasonIcons[i];
 
             return (
               <Box
@@ -254,22 +238,51 @@ function WhyQawsan() {
                   direction: "rtl",
                   textAlign: "center",
 
+                  overflow: "hidden",
+
                   transition:
-                    "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
+                    "transform 450ms cubic-bezier(.2,.7,.2,1), border-color 300ms ease, box-shadow 450ms ease",
+
+                  // soft green wash rising from the bottom on hover
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "radial-gradient(120% 80% at 50% 120%, rgba(0,208,132,0.14), transparent 60%)",
+                    opacity: 0,
+                    transition: "opacity 400ms ease",
+                    pointerEvents: "none",
+                  },
+
+                  "& > *": { position: "relative" },
 
                   "&:hover": {
-                    transform: "translateY(-5px)",
+                    transform: "translateY(-8px)",
                     borderColor:
-                      "rgba(0, 208, 132, 0.3)",
+                      "rgba(0, 208, 132, 0.45)",
                     boxShadow:
-                      "0 20px 50px rgba(0, 208, 132, 0.06)",
+                      "0 28px 60px -26px rgba(0, 208, 132, 0.35)",
+
+                    "&::before": { opacity: 1 },
 
                     "& .reason-icon": {
+                      transform: "translateY(-4px) scale(1.08)",
                       backgroundColor:
-                        "rgba(0, 208, 132, 0.12)",
+                        "primary.main",
                       borderColor:
-                        "rgba(0, 208, 132, 0.35)",
+                        "primary.main",
+                      color: "background.default",
+                      boxShadow: "0 16px 36px -12px rgba(0,208,132,0.7)",
                     },
+
+                    "& .reason-icon svg": {
+                      transform: "rotate(-10deg)",
+                    },
+                  },
+
+                  "@media (prefers-reduced-motion: reduce)": {
+                    "&:hover, &:hover .reason-icon, &:hover .reason-icon svg": { transform: "none" },
                   },
                 }}
               >
@@ -306,11 +319,13 @@ function WhyQawsan() {
                     color: "primary.main",
 
                     transition:
-                      "all 300ms ease",
+                      "transform 450ms cubic-bezier(.2,.7,.2,1), background-color 300ms ease, border-color 300ms ease, color 300ms ease, box-shadow 400ms ease",
                   }}
                 >
                   <Icon
                     sx={{
+                      transition: "transform 450ms cubic-bezier(.2,.7,.2,1)",
+
                       fontSize: {
                         xs: 27,
                         md: 30,
@@ -369,7 +384,7 @@ function WhyQawsan() {
                       textAlign: "left",
                     }}
                   >
-                    {reason.description}
+                    {reason.text}
                   </Typography>
                 </Box>
               </Box>

@@ -1,10 +1,11 @@
-import { Suspense, lazy, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { CacheProvider } from "@emotion/react";
 import type { EmotionCache } from "@emotion/cache";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 
 import App from "./App";
-import { rtlCache } from "./theme/rtl";
+import { I18nProvider, LOCALE_META, splitLocale } from "./i18n";
+import { cacheFor } from "./theme/rtl";
 import { createQawsanTheme } from "./theme/theme";
 
 const StartProject = lazy(() => import("./pages/StartProject"));
@@ -18,7 +19,10 @@ interface RootProps {
   cache?: EmotionCache;
 }
 
-function Root({ path, cache = rtlCache }: RootProps) {
+function Root({ path, cache }: RootProps) {
+  const { locale, path: route } = splitLocale(path);
+  const dir = LOCALE_META[locale].dir;
+
   const [mode, setMode] = useState<"light" | "dark">(() => {
     try {
       const saved = localStorage.getItem("qawsan-mode");
@@ -29,7 +33,13 @@ function Root({ path, cache = rtlCache }: RootProps) {
     return "dark";
   });
 
-  const theme = useMemo(() => createQawsanTheme(mode), [mode]);
+  const theme = useMemo(() => createQawsanTheme(mode, dir), [mode, dir]);
+
+  // the prerendered HTML already carries these; keep them right after client-side changes too
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.documentElement.dir = dir;
+  }, [locale, dir]);
 
   const handleToggleTheme = () => {
     setMode((current) => {
@@ -43,38 +53,39 @@ function Root({ path, cache = rtlCache }: RootProps) {
     });
   };
 
-  const route = path.replace(/\/+$/, "");
   const isStartProject = route === "/start-project";
   const isAdmin = route === "/admin";
   const isBlog = route === "/blog";
   const postSlug = route.startsWith("/blog/") ? route.slice("/blog/".length) : null;
 
   return (
-    <CacheProvider value={cache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <I18nProvider locale={locale} path={route}>
+      <CacheProvider value={cache ?? cacheFor(locale)}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
 
-        {isAdmin ? (
-          <Suspense fallback={null}>
-            <Admin />
-          </Suspense>
-        ) : isBlog ? (
-          <Suspense fallback={null}>
-            <Blog mode={mode} onToggleTheme={handleToggleTheme} />
-          </Suspense>
-        ) : postSlug ? (
-          <Suspense fallback={null}>
-            <BlogPost slug={postSlug} mode={mode} onToggleTheme={handleToggleTheme} />
-          </Suspense>
-        ) : isStartProject ? (
-          <Suspense fallback={null}>
-            <StartProject mode={mode} onToggleTheme={handleToggleTheme} />
-          </Suspense>
-        ) : (
-          <App mode={mode} onToggleTheme={handleToggleTheme} />
-        )}
-      </ThemeProvider>
-    </CacheProvider>
+          {isAdmin ? (
+            <Suspense fallback={null}>
+              <Admin />
+            </Suspense>
+          ) : isBlog ? (
+            <Suspense fallback={null}>
+              <Blog mode={mode} onToggleTheme={handleToggleTheme} />
+            </Suspense>
+          ) : postSlug ? (
+            <Suspense fallback={null}>
+              <BlogPost slug={postSlug} mode={mode} onToggleTheme={handleToggleTheme} />
+            </Suspense>
+          ) : isStartProject ? (
+            <Suspense fallback={null}>
+              <StartProject mode={mode} onToggleTheme={handleToggleTheme} />
+            </Suspense>
+          ) : (
+            <App mode={mode} onToggleTheme={handleToggleTheme} />
+          )}
+        </ThemeProvider>
+      </CacheProvider>
+    </I18nProvider>
   );
 }
 

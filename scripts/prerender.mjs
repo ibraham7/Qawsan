@@ -1,7 +1,12 @@
 /**
  * Runs after `vite build` + the SSR build of src/entry-server.tsx.
- * Writes real HTML for each public route (so search engines and AI crawlers
- * that don't run JavaScript still see the content), plus sitemap.xml and llms.txt.
+ * Writes real HTML for every public route in every language (so search engines and AI
+ * crawlers that don't run JavaScript still see the content), plus sitemap.xml, llms.txt
+ * and one RSS feed per language.
+ *
+ *   ar (default)  /            /start-project   /blog   /blog/<slug>
+ *   en            /en          /en/start-project  /en/blog  /en/blog/<slug>
+ *   tr            /tr          ...
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,88 +20,10 @@ const SITE = "https://qawsan.website";
 // production builds of React/MUI (set before the renderer is imported)
 process.env.NODE_ENV ??= "production";
 
-const { render, fetchProjects, posts } = await import(
-  pathToFileURL(path.join(SSR, "entry-server.js")).href
-);
+const { render, fetchProjects, postsByLocale, translationsOf, localize, MESSAGES, LOCALES, LOCALE_META, localizePath } =
+  await import(pathToFileURL(path.join(SSR, "entry-server.js")).href);
 
 const ORG = { "@id": `${SITE}/#organization` };
-
-const ROUTES = [
-  {
-    path: "/",
-    file: "index.html",
-    priority: "1.0",
-  },
-  {
-    path: "/start-project",
-    file: "start-project/index.html",
-    priority: "0.8",
-    title: "ابدأ مشروعك | قوسان — Qawsan Studio",
-    description:
-      "أخبرنا عن فكرتك: نوع المشروع، الميزانية، والمدة. فريق قوسان يتواصل معك لتحويل فكرتك إلى موقع أو نظام أو منتج رقمي متكامل.",
-  },
-  {
-    path: "/blog",
-    file: "blog/index.html",
-    priority: "0.8",
-    lastmod: posts[0]?.date,
-    title: "المدونة | قوسان — Qawsan Studio",
-    description:
-      "مدونة قوسان: أدلة عملية لأصحاب المشاريع والمصممين والمطورين عن بناء المواقع والأنظمة، تجربة المستخدم، الهوية البصرية، والتطوير.",
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Blog",
-      "@id": `${SITE}/blog#blog`,
-      name: "مدونة قوسان",
-      url: `${SITE}/blog`,
-      inLanguage: "ar",
-      publisher: ORG,
-      blogPost: posts.map((p) => ({
-        "@type": "BlogPosting",
-        headline: p.title,
-        url: `${SITE}/blog/${p.slug}`,
-        datePublished: p.date,
-      })),
-    },
-  },
-  ...posts.map((p) => ({
-    path: `/blog/${p.slug}`,
-    file: `blog/${p.slug}/index.html`,
-    priority: "0.7",
-    lastmod: p.date,
-    title: `${p.title} | مدونة قوسان`,
-    description: p.description,
-    article: p,
-    schema: [
-      {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: p.title,
-        description: p.description,
-        url: `${SITE}/blog/${p.slug}`,
-        mainEntityOfPage: `${SITE}/blog/${p.slug}`,
-        datePublished: p.date,
-        dateModified: p.date,
-        inLanguage: "ar",
-        articleSection: p.category,
-        keywords: p.tags.join(", "),
-        image: `${SITE}/og-image.png`,
-        author: { "@type": "Organization", name: "Qawsan Studio", url: `${SITE}/` },
-        publisher: ORG,
-        isPartOf: { "@id": `${SITE}/blog#blog` },
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "الرئيسية", item: `${SITE}/` },
-          { "@type": "ListItem", position: 2, name: "المدونة", item: `${SITE}/blog` },
-          { "@type": "ListItem", position: 3, name: p.title, item: `${SITE}/blog/${p.slug}` },
-        ],
-      },
-    ],
-  })),
-];
 
 let projects = [];
 try {
@@ -109,164 +36,363 @@ try {
 const absolute = (url) => (url?.startsWith("/") ? SITE + url : url);
 // safe inside <script>: no "</script>" or "<!--" can be formed
 const inlineJson = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
+const escapeAttr = (s) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const xml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const today = new Date().toISOString().slice(0, 10);
 
-function projectsSchema(rows) {
+/* ------------------------------------------------------------------ routes */
+
+const PAGES = [
+  { page: "/", kind: "home", priority: "1.0" },
+  { page: "/start-project", kind: "start", priority: "0.8" },
+  { page: "/blog", kind: "blog", priority: "0.8" },
+];
+
+const routes = [];
+for (const locale of LOCALES) {
+  for (const p of PAGES) routes.push({ locale, ...p });
+  for (const post of postsByLocale[locale]) {
+    routes.push({ locale, kind: "post", page: `/blog/${post.slug}`, priority: "0.7", post });
+  }
+}
+
+const urlOf = (locale, page) => SITE + localizePath(locale, page);
+
+function alternatesOf(route) {
+  const locales = route.kind === "post" ? translationsOf(route.post.slug) : LOCALES;
+  return locales.map((l) => ({ locale: l, url: urlOf(l, route.page) }));
+}
+
+/* ------------------------------------------------------------------ structured data */
+
+function baseGraph(locale) {
+  const t = MESSAGES[locale];
+  const services = [
+    [t.footer.identity, t.process.steps.brand],
+    [t.footer.uiux, t.process.steps.uiux],
+    [t.footer.development, t.process.steps.code],
+    [t.footer.products, t.process.steps.launch],
+  ];
   return {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "أعمال قوسان",
-    itemListElement: rows.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "CreativeWork",
-        name: p.title,
-        description: p.description,
-        genre: p.category,
-        ...(p.link && p.link !== "#" ? { url: p.link } : {}),
-        ...(p.images?.[0] ? { image: absolute(p.images[0]) } : {}),
-        creator: { "@id": `${SITE}/#organization` },
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE}/#organization`,
+        name: "Qawsan Studio",
+        alternateName: ["قوسان", "Qawsan"],
+        url: `${SITE}/`,
+        logo: { "@type": "ImageObject", url: `${SITE}/icon-512.png`, width: 512, height: 512 },
+        image: `${SITE}/og-image.png`,
+        slogan: `${t.hero.title1} ${t.hero.title2}`,
+        description: t.about.p1,
+        email: "ibrahim.dev.pr@gmail.com",
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "sales",
+          email: "ibrahim.dev.pr@gmail.com",
+          url: urlOf(locale, "/start-project"),
+          availableLanguage: ["ar", "en", "tr"],
+        },
+        knowsAbout: services.map(([name]) => name),
+        sameAs: ["https://www.instagram.com/qawsa.n", "https://www.linkedin.com/in/ibrahimajanji/"],
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: t.footer.services,
+          itemListElement: services.map(([name, description]) => ({
+            "@type": "Offer",
+            itemOffered: { "@type": "Service", name, description },
+          })),
+        },
       },
-    })),
+      {
+        "@type": "WebSite",
+        "@id": `${SITE}/#website`,
+        url: `${SITE}/`,
+        name: t.meta.ogTitle,
+        inLanguage: locale,
+        publisher: ORG,
+      },
+    ],
   };
 }
 
-const escapeAttr = (s) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+function projectsSchema(locale, rows) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: MESSAGES[locale].projects.carousel,
+    itemListElement: rows.map((p, i) => {
+      const text = localize(p, locale);
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "CreativeWork",
+          name: text.title,
+          description: text.description,
+          genre: text.category,
+          inLanguage: locale,
+          ...(p.link && p.link !== "#" ? { url: p.link } : {}),
+          ...(p.images?.length ? { image: p.images.map(absolute) } : {}),
+          creator: ORG,
+        },
+      };
+    }),
+  };
+}
+
+function pageSchemas(route, locale, t) {
+  const out = [];
+  if (route.kind === "home" && projects.length) out.push(projectsSchema(locale, projects));
+  if (route.kind === "blog") {
+    out.push({
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": `${urlOf(locale, "/blog")}#blog`,
+      name: t.meta.postSuffix,
+      url: urlOf(locale, "/blog"),
+      inLanguage: locale,
+      publisher: ORG,
+      blogPost: postsByLocale[locale].map((p) => ({
+        "@type": "BlogPosting",
+        headline: p.title,
+        url: urlOf(locale, `/blog/${p.slug}`),
+        datePublished: p.date,
+      })),
+    });
+  }
+  if (route.kind === "post") {
+    const p = route.post;
+    const url = urlOf(locale, route.page);
+    out.push(
+      {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: p.title,
+        description: p.description,
+        url,
+        mainEntityOfPage: url,
+        datePublished: p.date,
+        dateModified: p.date,
+        inLanguage: locale,
+        articleSection: p.category,
+        keywords: p.tags.join(", "),
+        image: `${SITE}/og-image.png`,
+        author: { "@type": "Organization", name: "Qawsan Studio", url: `${SITE}/` },
+        publisher: ORG,
+        isPartOf: { "@id": `${urlOf(locale, "/blog")}#blog` },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: t.nav.home, item: urlOf(locale, "/") },
+          { "@type": "ListItem", position: 2, name: t.nav.blog, item: urlOf(locale, "/blog") },
+          { "@type": "ListItem", position: 3, name: p.title, item: url },
+        ],
+      }
+    );
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ pages */
 
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 
-for (const route of ROUTES) {
-  const { html, styles } = await render(route.path, projects);
-  const url = SITE + route.path;
+// replace the value of a tag whose opening matches `re` (group 1 = everything before the value)
+const setTag = (page, re, value) => page.replace(re, (_m, before) => before + value);
+
+for (const route of routes) {
+  const { locale } = route;
+  const t = MESSAGES[locale];
+  const meta = LOCALE_META[locale];
+  const routePath = localizePath(locale, route.page);
+  const url = urlOf(locale, route.page);
+  const alternates = alternatesOf(route);
+
+  const copy = {
+    home: { title: t.meta.title, description: t.meta.description, ogTitle: t.meta.ogTitle, ogDescription: t.meta.ogDescription },
+    start: { title: t.meta.startTitle, description: t.meta.startDescription, ogTitle: t.meta.startTitle, ogDescription: t.meta.startDescription },
+    blog: { title: t.meta.blogTitle, description: t.meta.blogDescription, ogTitle: t.meta.blogTitle, ogDescription: t.meta.blogDescription },
+    post: route.post && {
+      title: `${route.post.title} | ${t.meta.postSuffix}`,
+      description: route.post.description,
+      ogTitle: route.post.title,
+      ogDescription: route.post.description,
+    },
+  }[route.kind];
+
+  const { html, styles } = await render(routePath, projects);
 
   let head = styles;
-  if (projects.length) {
-    head += `\n<script>window.__QAWSAN_PROJECTS__=${inlineJson(projects)}</script>`;
-    if (route.path === "/") {
-      head += `\n<script type="application/ld+json">${inlineJson(projectsSchema(projects))}</script>`;
-    }
-  }
-  for (const schema of [route.schema ?? []].flat()) {
+  if (projects.length) head += `\n<script>window.__QAWSAN_PROJECTS__=${inlineJson(projects)}</script>`;
+  head += `\n<script type="application/ld+json">${inlineJson(baseGraph(locale))}</script>`;
+  for (const schema of pageSchemas(route, locale, t)) {
     head += `\n<script type="application/ld+json">${inlineJson(schema)}</script>`;
   }
-  if (route.article) {
-    head += `\n<meta property="article:published_time" content="${route.article.date}" />`;
-    head += `\n<meta property="article:section" content="${escapeAttr(route.article.category)}" />`;
+  for (const alt of alternates) head += `\n<link rel="alternate" hreflang="${alt.locale}" href="${alt.url}" />`;
+  const xDefault = alternates.find((a) => a.locale === "ar") ?? alternates[0];
+  head += `\n<link rel="alternate" hreflang="x-default" href="${xDefault.url}" />`;
+  if (postsByLocale[locale].length) {
+    head += `\n<link rel="alternate" type="application/rss+xml" title="${escapeAttr(t.meta.postSuffix)}" href="${localizePath(locale, "/blog/rss.xml")}" />`;
+  }
+  head += `\n<meta property="og:locale" content="${meta.og}" />`;
+  for (const alt of alternates.filter((a) => a.locale !== locale)) {
+    head += `\n<meta property="og:locale:alternate" content="${LOCALE_META[alt.locale].og}" />`;
+  }
+  if (route.kind === "post") {
+    head += `\n<meta property="article:published_time" content="${route.post.date}" />`;
+    head += `\n<meta property="article:section" content="${escapeAttr(route.post.category)}" />`;
   }
 
   let page = template
-    .replace("<!--prerender-head-->", head)
-    .replace("<!--prerender-html-->", html);
+    .replace("<!--prerender-head-->", () => head)
+    .replace("<!--prerender-html-->", () => html)
+    .replace('<html lang="ar" dir="rtl">', `<html lang="${locale}" dir="${meta.dir}">`)
+    // the template's Arabic defaults (for the dev server) are replaced per language
+    .replace(/<link rel="alternate" type="application\/rss\+xml"[^>]*>\s*/, "")
+    .replace(/<meta property="og:locale" content="[^"]*"\s*\/>\s*/, "")
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/, "")
+    .replace(/<title>[^<]*<\/title>/, () => `<title>${escapeAttr(copy.title)}</title>`);
 
-  if (route.title) {
-    page = page
-      .replace(/<title>[^<]*<\/title>/, `<title>${route.title}</title>`)
-      .replace(/(<meta property="og:title" content=")[^"]*/, `$1${escapeAttr(route.title)}`)
-      .replace(/(<meta name="twitter:title" content=")[^"]*/, `$1${escapeAttr(route.title)}`);
-  }
-  if (route.description) {
-    const d = escapeAttr(route.description);
-    page = page.replace(
-      /(<meta\s+(?:name="description"|property="og:description"|name="twitter:description")\s+content=")[^"]*/g,
-      `$1${d}`
-    );
-  }
-  if (route.article) {
+  page = setTag(page, /(<meta\s+name="description"\s+content=")[^"]*/, escapeAttr(copy.description));
+  page = setTag(page, /(<meta property="og:title" content=")[^"]*/, escapeAttr(copy.ogTitle));
+  page = setTag(page, /(<meta\s+property="og:description"\s+content=")[^"]*/, escapeAttr(copy.ogDescription));
+  page = setTag(page, /(<meta name="twitter:title" content=")[^"]*/, escapeAttr(copy.ogTitle));
+  page = setTag(page, /(<meta\s+name="twitter:description"\s+content=")[^"]*/, escapeAttr(copy.ogDescription));
+  page = setTag(page, /(<meta property="og:image:alt" content=")[^"]*/, escapeAttr(t.meta.ogImageAlt));
+  page = setTag(page, /(<link rel="canonical" href=")[^"]*/, url);
+  page = setTag(page, /(<meta property="og:url" content=")[^"]*/, url);
+  if (route.kind === "post") {
     page = page.replace('<meta property="og:type" content="website" />', '<meta property="og:type" content="article" />');
   }
-  page = page
-    .replace(/(<link rel="canonical" href=")[^"]*/, `$1${url}`)
-    .replace(/(<meta property="og:url" content=")[^"]*/, `$1${url}`);
 
-  const out = path.join(DIST, route.file);
+  const out = path.join(DIST, routePath === "/" ? "index.html" : `${routePath.slice(1)}/index.html`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, page);
-  console.log(`prerender: ${route.path} -> dist/${route.file} (${Math.round(page.length / 1024)} KB)`);
+  console.log(`prerender: ${routePath.padEnd(40)} ${Math.round(page.length / 1024)} KB`);
 }
 
-/* sitemap.xml */
-const today = new Date().toISOString().slice(0, 10);
+/* ------------------------------------------------------------------ sitemap.xml */
+
+const lastBlogDate = (locale) => postsByLocale[locale][0]?.date;
 fs.writeFileSync(
   path.join(DIST, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${ROUTES.map(
-  (r) => `  <url>
-    <loc>${SITE}${r.path}</loc>
-    <lastmod>${r.lastmod ?? today}</lastmod>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${routes
+  .map((r) => {
+    const lastmod = r.kind === "post" ? r.post.date : r.kind === "blog" ? lastBlogDate(r.locale) ?? today : today;
+    const alts = alternatesOf(r);
+    const xDefault = alts.find((a) => a.locale === "ar") ?? alts[0];
+    return `  <url>
+    <loc>${urlOf(r.locale, r.page)}</loc>
+    <lastmod>${lastmod}</lastmod>
     <priority>${r.priority}</priority>
-  </url>`
-).join("\n")}
+${alts.map((a) => `    <xhtml:link rel="alternate" hreflang="${a.locale}" href="${a.url}" />`).join("\n")}
+    <xhtml:link rel="alternate" hreflang="x-default" href="${xDefault.url}" />
+  </url>`;
+  })
+  .join("\n")}
 </urlset>
 `
 );
 
-/* llms.txt — a plain summary for AI assistants (https://llmstxt.org) */
-const projectLines = projects.length
-  ? projects
-      .map((p) => `- [${p.title}](${p.link && p.link !== "#" ? p.link : SITE + "/#projects"}): ${p.category} — ${p.description}`)
-      .join("\n")
-  : "- راجع قسم الأعمال: " + SITE + "/#projects";
+/* ------------------------------------------------------------------ llms.txt */
+
+const projectLines = (locale) =>
+  projects
+    .map((p) => {
+      const text = localize(p, locale);
+      return `- [${text.title}](${p.link && p.link !== "#" ? p.link : SITE + "/#projects"}): ${text.category} — ${text.description}`;
+    })
+    .join("\n");
+
+const blogLines = (locale) =>
+  postsByLocale[locale]
+    .map((p) => `- [${p.title}](${urlOf(locale, `/blog/${p.slug}`)}): ${p.description}`)
+    .join("\n");
 
 fs.writeFileSync(
   path.join(DIST, "llms.txt"),
-  `# قوسان — Qawsan Studio
+  `# Qawsan Studio — قوسان
+
+> Qawsan is a digital studio that brings design and technology together to build digital experiences and products, from the first idea to a real launch: brand identity, UI/UX design, custom websites and software, testing and release. Clients don't need a finished design or brand — Qawsan starts from the idea.
 
 > قوسان استوديو رقمي يجمع بين التصميم والتقنية لبناء تجارب ومنتجات رقمية تبدأ من الفكرة وتنتهي بمنتج حقيقي: الهوية البصرية، تصميم UI/UX، تطوير المواقع والبرمجيات المخصصة، والمنتجات الرقمية.
 
-Qawsan Studio is a digital studio that takes products from idea to launch: brand identity, UI/UX design, custom web and software development, testing and release. Clients don't need a ready design or brand — Qawsan starts from the idea.
+> Qawsan; fikirden gerçek bir ürüne uzanan dijital deneyimler geliştiren bir dijital stüdyodur: marka kimliği, UI/UX tasarımı, web siteleri ve özel yazılım geliştirme.
 
-## الخدمات
+The site is available in three languages: Arabic (${SITE}/), English (${SITE}/en) and Turkish (${SITE}/tr).
 
-- الهوية البصرية: بناء الهوية والاتجاه البصري للمشروع.
-- تصميم UI / UX: تجربة استخدام واضحة وسهلة.
-- التطوير: تحويل التصميم إلى موقع أو نظام برمجي فعلي.
-- المنتجات الرقمية: بناء منتج متكامل من الفكرة حتى الإطلاق.
+## Services
 
-## طريقة العمل
+- Brand identity: ${MESSAGES.en.process.steps.brand}
+- UI / UX design: ${MESSAGES.en.process.steps.uiux}
+- Development: ${MESSAGES.en.process.steps.code}
+- Digital products: ${MESSAGES.en.process.steps.launch}
 
-1. IDEA — فهم الفكرة وتحديد هدف المشروع.
-2. BRAND — بناء الهوية والاتجاه البصري.
-3. UI / UX — تصميم تجربة واضحة وسهلة الاستخدام.
-4. CODE — تحويل التصميم إلى منتج رقمي فعلي.
-5. TEST — اختبار وتحسين التفاصيل.
-6. LAUNCH — إطلاق المنتج ليصل إلى مستخدميه.
+## Process
 
-## أعمال مختارة
+1. IDEA — ${MESSAGES.en.process.steps.idea}
+2. BRAND — ${MESSAGES.en.process.steps.brand}
+3. UI / UX — ${MESSAGES.en.process.steps.uiux}
+4. CODE — ${MESSAGES.en.process.steps.code}
+5. TEST — ${MESSAGES.en.process.steps.test}
+6. LAUNCH — ${MESSAGES.en.process.steps.launch}
 
-${projectLines}
+## Selected work
 
-## المدونة
+${projectLines("en")}
 
-${posts.map((p) => `- [${p.title}](${SITE}/blog/${p.slug}): ${p.description}`).join("\n")}
+## Blog (English)
 
-## التواصل
+${blogLines("en")}
 
-- [ابدأ مشروعك](${SITE}/start-project): نموذج لطلب مشروع جديد.
-- البريد: ibrahim.dev.pr@gmail.com
+## المدونة (العربية)
+
+${blogLines("ar")}
+
+## Blog (Türkçe)
+
+${blogLines("tr")}
+
+## Contact
+
+- [Start a project](${SITE}/en/start-project): project request form
+- Email: ibrahim.dev.pr@gmail.com
 - [Instagram](https://www.instagram.com/qawsa.n)
 - [LinkedIn](https://www.linkedin.com/in/ibrahimajanji/)
 `
 );
 
-/* blog/rss.xml */
-const xml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-fs.writeFileSync(
-  path.join(DIST, "blog", "rss.xml"),
-  `<?xml version="1.0" encoding="UTF-8"?>
+/* ------------------------------------------------------------------ RSS (one per language) */
+
+for (const locale of LOCALES) {
+  const posts = postsByLocale[locale];
+  if (!posts.length) continue;
+  const t = MESSAGES[locale];
+  const feed = localizePath(locale, "/blog/rss.xml");
+  const file = path.join(DIST, feed.slice(1));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(
+    file,
+    `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>مدونة قوسان</title>
-    <link>${SITE}/blog</link>
-    <atom:link href="${SITE}/blog/rss.xml" rel="self" type="application/rss+xml" />
-    <description>أدلة عملية عن بناء المواقع والأنظمة وتجربة المستخدم والهوية البصرية.</description>
-    <language>ar</language>
+    <title>${xml(t.meta.postSuffix)}</title>
+    <link>${urlOf(locale, "/blog")}</link>
+    <atom:link href="${SITE}${feed}" rel="self" type="application/rss+xml" />
+    <description>${xml(t.meta.blogDescription)}</description>
+    <language>${locale}</language>
 ${posts
   .map(
     (p) => `    <item>
       <title>${xml(p.title)}</title>
-      <link>${SITE}/blog/${p.slug}</link>
-      <guid>${SITE}/blog/${p.slug}</guid>
+      <link>${urlOf(locale, `/blog/${p.slug}`)}</link>
+      <guid>${urlOf(locale, `/blog/${p.slug}`)}</guid>
       <pubDate>${new Date(p.date).toUTCString()}</pubDate>
       <category>${xml(p.category)}</category>
       <description>${xml(p.description)}</description>
@@ -276,7 +402,8 @@ ${posts
   </channel>
 </rss>
 `
-);
+  );
+}
 
 fs.rmSync(SSR, { recursive: true, force: true });
-console.log(`prerender: sitemap.xml, llms.txt, blog/rss.xml written (${posts.length} posts)`);
+console.log(`prerender: ${routes.length} pages, sitemap.xml, llms.txt and RSS feeds written`);

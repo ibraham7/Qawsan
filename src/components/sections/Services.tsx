@@ -1,8 +1,12 @@
+import type { PointerEvent } from "react";
+
 import {
     Box,
     Container,
     Typography,
 } from "@mui/material";
+
+import { useI18n } from "../../i18n";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import BrandingWatermarkOutlinedIcon from "@mui/icons-material/BrandingWatermarkOutlined";
@@ -15,8 +19,7 @@ const steps = [
     {
         number: "01",
         title: "IDEA",
-        description:
-            "نفهم فكرتك ونحدد هدف مشروعك.",
+        key: "idea" as const,
         label: "DEFINE",
         icon: LightbulbOutlinedIcon,
         featured: true,
@@ -24,8 +27,7 @@ const steps = [
     {
         number: "02",
         title: "BRAND",
-        description:
-            "نبني الهوية والاتجاه البصري.",
+        key: "brand" as const,
         label: "IDENTITY",
         icon: BrandingWatermarkOutlinedIcon,
         featured: false,
@@ -33,8 +35,7 @@ const steps = [
     {
         number: "03",
         title: "UI / UX",
-        description:
-            "نصمم تجربة واضحة وسهلة الاستخدام.",
+        key: "uiux" as const,
         label: "EXPERIENCE",
         icon: DesignServicesOutlinedIcon,
         featured: false,
@@ -42,8 +43,7 @@ const steps = [
     {
         number: "04",
         title: "CODE",
-        description:
-            "نحوّل التصميم إلى منتج رقمي فعلي.",
+        key: "code" as const,
         label: "BUILD",
         icon: CodeOutlinedIcon,
         featured: false,
@@ -51,8 +51,7 @@ const steps = [
     {
         number: "05",
         title: "TEST",
-        description:
-            "نختبر ونحسن كل التفاصيل.",
+        key: "test" as const,
         label: "REFINE",
         icon: CheckCircleOutlineOutlinedIcon,
         featured: false,
@@ -60,15 +59,24 @@ const steps = [
     {
         number: "06",
         title: "LAUNCH",
-        description:
-            "نطلق المنتج ليصل إلى مستخدميه.",
+        key: "launch" as const,
         label: "SHIP",
         icon: RocketLaunchOutlinedIcon,
         featured: false,
     },
 ];
 
+// spotlight position in px from the card's top-left; set inline so it isn't mirrored
+const followPointer = (e: PointerEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+};
+
 function IdeaToProduct() {
+    const { t, dir } = useI18n();
+    const ltr = dir === "ltr";
+
     return (
         <Box
             component="section"
@@ -268,7 +276,7 @@ function IdeaToProduct() {
                             },
                         }}
                     >
-                        لديك فكرة؟
+                        {t.process.title1}
                     </Typography>
 
                     <Typography
@@ -316,7 +324,7 @@ function IdeaToProduct() {
                             },
                         }}
                     >
-                        نحن نبني ما بعدها.
+                        {t.process.title2}
                     </Typography>
 
                     {/* Description */}
@@ -364,10 +372,7 @@ function IdeaToProduct() {
                             },
                         }}
                     >
-                        لا تحتاج إلى تصميم جاهز أو
-                        هوية مكتملة، نبدأ معك من
-                        الفكرة ونحوّلها إلى تجربة
-                        رقمية متكاملة.
+                        {t.process.lead}
                     </Typography>
                 </Box>
 
@@ -402,6 +407,8 @@ function IdeaToProduct() {
                         return (
                             <Box
                                 key={step.number}
+                                className="process-card"
+                                onPointerMove={followPointer}
                                 sx={{
                                     position:
                                         "relative",
@@ -450,17 +457,70 @@ function IdeaToProduct() {
                                     },
 
                                     transition:
-                                        "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
+                                        "transform 450ms cubic-bezier(.2,.7,.2,1), border-color 300ms ease, box-shadow 450ms ease",
+
+                                    // spotlight that follows the pointer (--mx/--my set by followPointer)
+                                    "&::before": {
+                                        content: '""',
+                                        position: "absolute",
+                                        inset: 0,
+                                        zIndex: 1,
+                                        background:
+                                            "radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(0,208,132,0.13), transparent 45%)",
+                                        opacity: 0,
+                                        transition: "opacity 350ms ease",
+                                        pointerEvents: "none",
+                                    },
+
+                                    // green line drawn along the top edge
+                                    "&::after": {
+                                        content: '""',
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        height: "2px",
+                                        background:
+                                            "linear-gradient(90deg, transparent, #00D084, transparent)",
+                                        transform: "scaleX(0)",
+                                        transition: "transform 600ms cubic-bezier(.2,.7,.2,1)",
+                                        pointerEvents: "none",
+                                    },
 
                                     "&:hover": {
                                         transform:
-                                            "translateY(-7px)",
+                                            "translateY(-8px)",
 
                                         borderColor:
-                                            "primary.main",
+                                            "rgba(0, 208, 132, 0.55)",
 
                                         boxShadow:
-                                            "0 24px 60px rgba(0, 208, 132, 0.10)",
+                                            "0 30px 70px -28px rgba(0, 208, 132, 0.35), 0 0 0 1px rgba(0, 208, 132, 0.12)",
+                                    },
+
+                                    "&:hover::before": { opacity: 1 },
+                                    "&:hover::after": { transform: "scaleX(1)" },
+
+                                    "&:hover .pc-icon": {
+                                        transform: "translateY(-3px) rotate(-8deg) scale(1.08)",
+                                        bgcolor: "primary.main",
+                                        borderColor: "primary.main",
+                                        color: "background.default",
+                                        boxShadow: "0 14px 34px -10px rgba(0,208,132,0.65)",
+                                    },
+
+                                    "&:hover .pc-glow": { transform: "scale(1.35)", opacity: 1 },
+
+                                    "&:hover .pc-num": { opacity: 0.11, transform: "translateY(-8px)" },
+
+                                    "&:hover .pc-label": { opacity: 1, letterSpacing: "0.26em" },
+
+                                    "&:hover .pc-step": { color: "primary.main" },
+
+                                    "@media (prefers-reduced-motion: reduce)": {
+                                        "&:hover": { transform: "none" },
+                                        "&:hover .pc-icon": { transform: "none" },
+                                        "&:hover .pc-num": { transform: "none" },
                                     },
                                 }}
                             >
@@ -469,7 +529,12 @@ function IdeaToProduct() {
                 =================================== */}
 
                                 <Box
+                                    className="pc-glow"
                                     sx={{
+                                        transition: "transform 700ms cubic-bezier(.2,.7,.2,1), opacity 500ms ease",
+
+                                        opacity: 0.8,
+
                                         position:
                                             "absolute",
 
@@ -547,11 +612,14 @@ function IdeaToProduct() {
                 =================================== */}
 
                                 <Typography
+                                    className="pc-step"
                                     sx={{
                                         position:
                                             "relative",
 
                                         zIndex: 2,
+
+                                        transition: "color 300ms ease",
 
                                         alignSelf: {
                                             xs: "flex-start",
@@ -586,6 +654,7 @@ function IdeaToProduct() {
                 =================================== */}
 
                                 <Box
+                                    className="pc-icon"
                                     sx={{
                                         position:
                                             "relative",
@@ -647,16 +716,7 @@ function IdeaToProduct() {
                                                 : "none",
 
                                         transition:
-                                            "transform 300ms ease, box-shadow 300ms ease",
-
-                                        ".MuiBox-root:hover > &":
-                                        {
-                                            transform:
-                                                "translateY(-2px)",
-
-                                            boxShadow:
-                                                "0 0 30px rgba(0,208,132,0.15)",
-                                        },
+                                            "transform 450ms cubic-bezier(.2,.7,.2,1), box-shadow 350ms ease, background-color 300ms ease, border-color 300ms ease, color 300ms ease",
                                     }}
                                 >
                                     <Icon
@@ -740,13 +800,14 @@ function IdeaToProduct() {
 
                                             textAlign: "left",
 
+                                            // only the Arabic layout needs this nudge
                                             transform: {
                                                 xs: "none",
-                                                md: "translateX(-23px)",
+                                                md: ltr ? "none" : "translateX(-23px)",
                                             },
                                         }}
                                     >
-                                        {step.description}
+                                        {t.process.steps[step.key]}
                                     </Typography>
                                 </Box>
 
@@ -790,12 +851,9 @@ function IdeaToProduct() {
 
                                         textTransform: "uppercase",
 
-                                        transition: "opacity 250ms ease",
-
-                                        ".MuiBox-root:hover &": {
-                                            opacity: 1,
-                                        },
+                                        transition: "opacity 300ms ease, letter-spacing 450ms cubic-bezier(.2,.7,.2,1)",
                                     }}
+                                    className="pc-label"
                                 >
                                     {step.label}
                                 </Typography>
@@ -806,7 +864,10 @@ function IdeaToProduct() {
 
                                 <Typography
                                     aria-hidden="true"
+                                    className="pc-num"
                                     sx={{
+                                        transition: "opacity 400ms ease, transform 600ms cubic-bezier(.2,.7,.2,1)",
+
                                         position:
                                             "absolute",
 

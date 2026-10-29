@@ -1,23 +1,27 @@
+/* eslint-disable react-refresh/only-export-components -- build-time entry, not hot-reloaded */
 /**
  * Build-time renderer used by scripts/prerender.mjs (never shipped to the browser).
  * Renders a route to HTML and collects the Emotion/MUI CSS it needs.
  */
 import { prerender } from "react-dom/static";
-import createCache from "@emotion/cache";
 import createEmotionServer from "@emotion/server/create-instance";
-import rtlPlugin from "stylis-plugin-rtl";
 
 import Root from "./Root";
 import { seedProjects } from "./data/projects";
 import type { Project } from "./data/projects";
+import { LOCALE_META, splitLocale } from "./i18n/locales";
+import { createDirectionCache } from "./theme/rtl";
 
-export { fetchProjects } from "./data/projects";
-export { posts } from "./data/blog";
+export { fetchProjects, localize } from "./data/projects";
+export { postsByLocale, translationsOf } from "./data/blog";
+export { MESSAGES } from "./i18n";
+export { LOCALES, LOCALE_META, localizePath } from "./i18n/locales";
 
 export async function render(path: string, projects: Project[]) {
   seedProjects(projects);
 
-  const cache = createCache({ key: "muirtl", stylisPlugins: [rtlPlugin] });
+  // same cache keys as the browser (muirtl / muiltr) so the inlined CSS matches
+  const cache = createDirectionCache(LOCALE_META[splitLocale(path).locale].dir);
   const { extractCriticalToChunks, constructStyleTagsFromChunks } =
     createEmotionServer(cache);
 
