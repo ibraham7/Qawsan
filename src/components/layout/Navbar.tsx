@@ -39,6 +39,10 @@ const navLinks = [
     label: "من نحن",
     href: "/#about",
   },
+  {
+    label: "المدونة",
+    href: "/blog",
+  },
 ];
 
 function Navbar({
