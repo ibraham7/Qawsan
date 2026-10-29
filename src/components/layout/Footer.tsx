@@ -5,6 +5,7 @@ const navigationLinks = [
   { label: "أعمالنا", href: "/#projects" },
   { label: "الخدمات", href: "/#services" },
   { label: "من نحن", href: "/#about" },
+  { label: "المدونة", href: "/blog" },
 ];
 
 const serviceLinks = [

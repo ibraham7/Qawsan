@@ -9,6 +9,8 @@ import { createQawsanTheme } from "./theme/theme";
 
 const StartProject = lazy(() => import("./pages/StartProject"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 interface RootProps {
   path: string;
@@ -44,6 +46,8 @@ function Root({ path, cache = rtlCache }: RootProps) {
   const route = path.replace(/\/+$/, "");
   const isStartProject = route === "/start-project";
   const isAdmin = route === "/admin";
+  const isBlog = route === "/blog";
+  const postSlug = route.startsWith("/blog/") ? route.slice("/blog/".length) : null;
 
   return (
     <CacheProvider value={cache}>
@@ -53,6 +57,14 @@ function Root({ path, cache = rtlCache }: RootProps) {
         {isAdmin ? (
           <Suspense fallback={null}>
             <Admin />
+          </Suspense>
+        ) : isBlog ? (
+          <Suspense fallback={null}>
+            <Blog mode={mode} onToggleTheme={handleToggleTheme} />
+          </Suspense>
+        ) : postSlug ? (
+          <Suspense fallback={null}>
+            <BlogPost slug={postSlug} mode={mode} onToggleTheme={handleToggleTheme} />
           </Suspense>
         ) : isStartProject ? (
           <Suspense fallback={null}>

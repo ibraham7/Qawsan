@@ -15,9 +15,11 @@ const SITE = "https://qawsan.website";
 // production builds of React/MUI (set before the renderer is imported)
 process.env.NODE_ENV ??= "production";
 
-const { render, fetchProjects } = await import(
+const { render, fetchProjects, posts } = await import(
   pathToFileURL(path.join(SSR, "entry-server.js")).href
 );
+
+const ORG = { "@id": `${SITE}/#organization` };
 
 const ROUTES = [
   {
@@ -33,6 +35,67 @@ const ROUTES = [
     description:
       "أخبرنا عن فكرتك: نوع المشروع، الميزانية، والمدة. فريق قوسان يتواصل معك لتحويل فكرتك إلى موقع أو نظام أو منتج رقمي متكامل.",
   },
+  {
+    path: "/blog",
+    file: "blog/index.html",
+    priority: "0.8",
+    lastmod: posts[0]?.date,
+    title: "المدونة | قوسان — Qawsan Studio",
+    description:
+      "مدونة قوسان: أدلة عملية لأصحاب المشاريع والمصممين والمطورين عن بناء المواقع والأنظمة، تجربة المستخدم، الهوية البصرية، والتطوير.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": `${SITE}/blog#blog`,
+      name: "مدونة قوسان",
+      url: `${SITE}/blog`,
+      inLanguage: "ar",
+      publisher: ORG,
+      blogPost: posts.map((p) => ({
+        "@type": "BlogPosting",
+        headline: p.title,
+        url: `${SITE}/blog/${p.slug}`,
+        datePublished: p.date,
+      })),
+    },
+  },
+  ...posts.map((p) => ({
+    path: `/blog/${p.slug}`,
+    file: `blog/${p.slug}/index.html`,
+    priority: "0.7",
+    lastmod: p.date,
+    title: `${p.title} | مدونة قوسان`,
+    description: p.description,
+    article: p,
+    schema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: p.title,
+        description: p.description,
+        url: `${SITE}/blog/${p.slug}`,
+        mainEntityOfPage: `${SITE}/blog/${p.slug}`,
+        datePublished: p.date,
+        dateModified: p.date,
+        inLanguage: "ar",
+        articleSection: p.category,
+        keywords: p.tags.join(", "),
+        image: `${SITE}/og-image.png`,
+        author: { "@type": "Organization", name: "Qawsan Studio", url: `${SITE}/` },
+        publisher: ORG,
+        isPartOf: { "@id": `${SITE}/blog#blog` },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "الرئيسية", item: `${SITE}/` },
+          { "@type": "ListItem", position: 2, name: "المدونة", item: `${SITE}/blog` },
+          { "@type": "ListItem", position: 3, name: p.title, item: `${SITE}/blog/${p.slug}` },
+        ],
+      },
+    ],
+  })),
 ];
 
 let projects = [];
@@ -83,6 +146,13 @@ for (const route of ROUTES) {
       head += `\n<script type="application/ld+json">${inlineJson(projectsSchema(projects))}</script>`;
     }
   }
+  for (const schema of [route.schema ?? []].flat()) {
+    head += `\n<script type="application/ld+json">${inlineJson(schema)}</script>`;
+  }
+  if (route.article) {
+    head += `\n<meta property="article:published_time" content="${route.article.date}" />`;
+    head += `\n<meta property="article:section" content="${escapeAttr(route.article.category)}" />`;
+  }
 
   let page = template
     .replace("<!--prerender-head-->", head)
@@ -100,6 +170,9 @@ for (const route of ROUTES) {
       /(<meta\s+(?:name="description"|property="og:description"|name="twitter:description")\s+content=")[^"]*/g,
       `$1${d}`
     );
+  }
+  if (route.article) {
+    page = page.replace('<meta property="og:type" content="website" />', '<meta property="og:type" content="article" />');
   }
   page = page
     .replace(/(<link rel="canonical" href=")[^"]*/, `$1${url}`)
@@ -120,7 +193,7 @@ fs.writeFileSync(
 ${ROUTES.map(
   (r) => `  <url>
     <loc>${SITE}${r.path}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${r.lastmod ?? today}</lastmod>
     <priority>${r.priority}</priority>
   </url>`
 ).join("\n")}
@@ -163,6 +236,10 @@ Qawsan Studio is a digital studio that takes products from idea to launch: brand
 
 ${projectLines}
 
+## المدونة
+
+${posts.map((p) => `- [${p.title}](${SITE}/blog/${p.slug}): ${p.description}`).join("\n")}
+
 ## التواصل
 
 - [ابدأ مشروعك](${SITE}/start-project): نموذج لطلب مشروع جديد.
@@ -172,5 +249,34 @@ ${projectLines}
 `
 );
 
+/* blog/rss.xml */
+const xml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+fs.writeFileSync(
+  path.join(DIST, "blog", "rss.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>مدونة قوسان</title>
+    <link>${SITE}/blog</link>
+    <atom:link href="${SITE}/blog/rss.xml" rel="self" type="application/rss+xml" />
+    <description>أدلة عملية عن بناء المواقع والأنظمة وتجربة المستخدم والهوية البصرية.</description>
+    <language>ar</language>
+${posts
+  .map(
+    (p) => `    <item>
+      <title>${xml(p.title)}</title>
+      <link>${SITE}/blog/${p.slug}</link>
+      <guid>${SITE}/blog/${p.slug}</guid>
+      <pubDate>${new Date(p.date).toUTCString()}</pubDate>
+      <category>${xml(p.category)}</category>
+      <description>${xml(p.description)}</description>
+    </item>`
+  )
+  .join("\n")}
+  </channel>
+</rss>
+`
+);
+
 fs.rmSync(SSR, { recursive: true, force: true });
-console.log("prerender: sitemap.xml, llms.txt written");
+console.log(`prerender: sitemap.xml, llms.txt, blog/rss.xml written (${posts.length} posts)`);

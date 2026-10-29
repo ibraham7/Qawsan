@@ -12,6 +12,7 @@ import { seedProjects } from "./data/projects";
 import type { Project } from "./data/projects";
 
 export { fetchProjects } from "./data/projects";
+export { posts } from "./data/blog";
 
 export async function render(path: string, projects: Project[]) {
   seedProjects(projects);
