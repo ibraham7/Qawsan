@@ -4,7 +4,11 @@ import {
   Typography,
 } from "@mui/material";
 
+import { useI18n } from "../../i18n";
+
 function About() {
+  const { t } = useI18n();
+
   return (
     <Box
       component="section"
@@ -150,7 +154,7 @@ function About() {
                   "plaintext",
               }}
             >
-              نصنع التجارب
+              {t.about.title1}
 
               <Box
                 component="span"
@@ -169,7 +173,7 @@ function About() {
                     "plaintext",
                 }}
               >
-                التي تستحقها الأفكار.
+                {t.about.title2}
               </Box>
             </Typography>
           </Box>
@@ -236,8 +240,7 @@ function About() {
                 },
               }}
             >
-              قوسان استوديو رقمي يجمع بين التصميم والتقنية لبناء
-              تجارب ومنتجات رقمية تبدأ من الفكرة وتنتهي بمنتج حقيقي.
+              {t.about.p1}
             </Typography>
 
             {/* Secondary Paragraph */}
@@ -281,9 +284,7 @@ function About() {
                 },
               }}
             >
-              نؤمن أن التصميم الجيد لا ينفصل عن التقنية، وأن المنتج
-              الناجح يحتاج إلى رؤية واضحة في كل مرحلة؛ من الهوية
-              البصرية وتجربة المستخدم، إلى التطوير والاختبار والإطلاق.
+              {t.about.p2}
             </Typography>
 
             {/* ==========================================
@@ -395,7 +396,7 @@ function About() {
                     direction: "rtl",
                   }}
                 >
-                  هوية وتجارب بصرية
+                  {t.about.design}
                 </Typography>
               </Box>
 
@@ -465,7 +466,7 @@ function About() {
                     direction: "rtl",
                   }}
                 >
-                  منتجات رقمية متطورة
+                  {t.about.development}
                 </Typography>
               </Box>
 
@@ -535,7 +536,7 @@ function About() {
                     direction: "rtl",
                   }}
                 >
-                  تجربة واضحة ومتكاملة
+                  {t.about.experience}
                 </Typography>
               </Box>
             </Box>

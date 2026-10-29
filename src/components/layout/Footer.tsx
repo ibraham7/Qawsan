@@ -1,19 +1,6 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, Typography, useTheme } from "@mui/material";
 
-const navigationLinks = [
-  { label: "الرئيسية", href: "/#hero" },
-  { label: "أعمالنا", href: "/#projects" },
-  { label: "الخدمات", href: "/#services" },
-  { label: "من نحن", href: "/#about" },
-  { label: "المدونة", href: "/blog" },
-];
-
-const serviceLinks = [
-  { label: "الهوية البصرية", href: "/#services" },
-  { label: "UI / UX", href: "/#services" },
-  { label: "التطوير", href: "/#services" },
-  { label: "المنتجات الرقمية", href: "/#services" },
-];
+import { useI18n } from "../../i18n";
 
 const socialLinks = [
   {
@@ -31,6 +18,24 @@ const socialLinks = [
 ];
 
 function Footer() {
+  const { t, to } = useI18n();
+  const isLight = useTheme().palette.mode === "light";
+
+  const navigationLinks = [
+    { label: t.nav.home, href: to("/#hero") },
+    { label: t.nav.projects, href: to("/#projects") },
+    { label: t.nav.services, href: to("/#services") },
+    { label: t.nav.about, href: to("/#about") },
+    { label: t.nav.blog, href: to("/blog") },
+  ];
+
+  const serviceLinks = [
+    { label: t.footer.identity, href: to("/#services") },
+    { label: t.footer.uiux, href: to("/#services") },
+    { label: t.footer.development, href: to("/#services") },
+    { label: t.footer.products, href: to("/#services") },
+  ];
+
   return (
     <Box
       component="footer"
@@ -102,8 +107,8 @@ function Footer() {
           >
             <Box
               component="img"
-              src="/logo/logo.png"
-              alt="قوسان"
+              src={isLight ? "/logo/logo-dark.png" : "/logo/logo.png"}
+              alt={t.nav.logoAlt}
               sx={{
                 width: {
                   xs: 110,
@@ -183,7 +188,7 @@ function Footer() {
                   unicodeBidi: "plaintext",
                 }}
               >
-                من الفكرة إلى المنتج.
+                {t.footer.tagline}
               </Typography>
             </Box>
           </Box>
@@ -231,7 +236,7 @@ function Footer() {
                 },
               }}
             >
-              روابط
+              {t.footer.links}
             </Typography>
 
             <Box
@@ -269,22 +274,39 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    outline: "none",
+                    display: "inline-flex",
 
-                    transition: "color 200ms ease",
+                    alignItems: "center",
+
+                    gap: 1,
+
+                    transition: "color 250ms ease",
 
                     textAlign: "center",
+
+                    // a short green dash grows in front of the link
+                    "&::before": {
+                      content: '""',
+                      width: 0,
+                      height: "1.5px",
+                      borderRadius: 2,
+                      bgcolor: "primary.main",
+                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
+                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:focus": {
-                      outline: "none",
+                    "&:hover::before": {
+                      width: 12,
                     },
 
                     "&:focus-visible": {
-                      outline: "none",
+                      outline: "2px solid",
+                      outlineColor: "primary.main",
+                      outlineOffset: 3,
+                      borderRadius: "4px",
                     },
                   }}
                 >
@@ -337,7 +359,7 @@ function Footer() {
                 },
               }}
             >
-              خدماتنا
+              {t.footer.services}
             </Typography>
 
             <Box
@@ -374,22 +396,39 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    outline: "none",
+                    display: "inline-flex",
 
-                    transition: "color 200ms ease",
+                    alignItems: "center",
+
+                    gap: 1,
+
+                    transition: "color 250ms ease",
 
                     textAlign: "center",
+
+                    // a short green dash grows in front of the link
+                    "&::before": {
+                      content: '""',
+                      width: 0,
+                      height: "1.5px",
+                      borderRadius: 2,
+                      bgcolor: "primary.main",
+                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
+                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:focus": {
-                      outline: "none",
+                    "&:hover::before": {
+                      width: 12,
                     },
 
                     "&:focus-visible": {
-                      outline: "none",
+                      outline: "2px solid",
+                      outlineColor: "primary.main",
+                      outlineOffset: 3,
+                      borderRadius: "4px",
                     },
                   }}
                 >
@@ -442,7 +481,7 @@ function Footer() {
                 },
               }}
             >
-              تواصل معنا
+              {t.footer.contact}
             </Typography>
 
             <Box
@@ -489,22 +528,39 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    outline: "none",
+                    display: "inline-flex",
 
-                    transition: "color 200ms ease",
+                    alignItems: "center",
+
+                    gap: 1,
+
+                    transition: "color 250ms ease",
 
                     textAlign: "center",
+
+                    // a short green dash grows in front of the link
+                    "&::before": {
+                      content: '""',
+                      width: 0,
+                      height: "1.5px",
+                      borderRadius: 2,
+                      bgcolor: "primary.main",
+                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
+                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:focus": {
-                      outline: "none",
+                    "&:hover::before": {
+                      width: 12,
                     },
 
                     "&:focus-visible": {
-                      outline: "none",
+                      outline: "2px solid",
+                      outlineColor: "primary.main",
+                      outlineOffset: 3,
+                      borderRadius: "4px",
                     },
                   }}
                 >
@@ -515,7 +571,7 @@ function Footer() {
 
             <Box
               component="a"
-              href="/start-project"
+              href={to("/start-project")}
               sx={{
                 display: "inline-flex",
 
@@ -553,27 +609,23 @@ function Footer() {
 
                 textDecoration: "none",
 
-                outline: "none",
-
                 transition:
-                  "transform 200ms ease, opacity 200ms ease",
+                  "transform 250ms cubic-bezier(.2,.7,.2,1), box-shadow 250ms ease",
 
                 "&:hover": {
-                  opacity: 0.9,
-
                   transform: "translateY(-2px)",
-                },
 
-                "&:focus": {
-                  outline: "none",
+                  boxShadow: "0 12px 28px -10px rgba(0,208,132,0.8)",
                 },
 
                 "&:focus-visible": {
-                  outline: "none",
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: 3,
                 },
               }}
             >
-              ابدأ مشروعك
+              {t.nav.start}
             </Box>
           </Box>
         </Box>
@@ -648,7 +700,7 @@ function Footer() {
               textAlign: "center",
             }}
           >
-            نصنع الأفكار. نبني التجارب.
+            {t.footer.motto}
           </Typography>
         </Box>
       </Container>

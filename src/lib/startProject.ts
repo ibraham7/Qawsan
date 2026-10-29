@@ -52,6 +52,8 @@ export interface StartProjectPayload {
   consent: boolean;
   /** honeypot: must stay empty */
   website: string;
+  /** site language the request was sent from (ar | en | tr) */
+  lang?: string;
   /** ms the visitor spent on the form */
   elapsed: number;
 }
@@ -62,28 +64,29 @@ const PHONE_RE = /^\+[1-9][0-9\s\-()]{6,20}$/;
 const oneOf = (list: readonly { value: string }[], v: string) =>
   list.some((i) => i.value === v);
 
+/** values are error codes; the form shows them in the visitor's language (form.errors in src/i18n) */
 export type FieldErrors = Partial<Record<keyof StartProjectPayload, string>>;
 
 /** Shared by the browser and the API route so both enforce the same rules. */
 export function validate(p: StartProjectPayload): FieldErrors {
   const e: FieldErrors = {};
   const name = p.name.trim();
-  if (name.length < 2) e.name = "الاسم مطلوب";
-  else if (name.length > LIMITS.name) e.name = "الاسم طويل جدًا";
-  if (p.company.length > LIMITS.company) e.company = "النص طويل جدًا";
+  if (name.length < 2) e.name = "name_required";
+  else if (name.length > LIMITS.name) e.name = "name_long";
+  if (p.company.length > LIMITS.company) e.company = "too_long";
   if (!EMAIL_RE.test(p.email.trim()) || p.email.length > LIMITS.email)
-    e.email = "أدخل بريدًا إلكترونيًا صحيحًا";
+    e.email = "email";
   if (!PHONE_RE.test(p.whatsapp.trim()))
-    e.whatsapp = "أدخل الرقم مع رمز الدولة، مثل +962791234567";
-  if (!oneOf(PROJECT_TYPES, p.projectType)) e.projectType = "اختر نوع المشروع";
+    e.whatsapp = "whatsapp";
+  if (!oneOf(PROJECT_TYPES, p.projectType)) e.projectType = "project_type";
   const d = p.description.trim();
-  if (d.length < 20) e.description = "اكتب وصفًا مختصرًا للمشروع (20 حرفًا على الأقل)";
-  else if (d.length > LIMITS.description) e.description = "الوصف طويل جدًا";
-  if (p.features.length > LIMITS.features) e.features = "النص طويل جدًا";
-  if (p.references.length > LIMITS.references) e.references = "النص طويل جدًا";
-  if (!oneOf(BUDGETS, p.budget)) e.budget = "اختر الميزانية";
-  if (!oneOf(TIMELINES, p.timeline)) e.timeline = "اختر المدة";
-  if (!oneOf(CONTACT_METHODS, p.contactMethod)) e.contactMethod = "اختر وسيلة التواصل";
-  if (!p.consent) e.consent = "الموافقة مطلوبة لإرسال الطلب";
+  if (d.length < 20) e.description = "description_short";
+  else if (d.length > LIMITS.description) e.description = "description_long";
+  if (p.features.length > LIMITS.features) e.features = "too_long";
+  if (p.references.length > LIMITS.references) e.references = "too_long";
+  if (!oneOf(BUDGETS, p.budget)) e.budget = "budget";
+  if (!oneOf(TIMELINES, p.timeline)) e.timeline = "timeline";
+  if (!oneOf(CONTACT_METHODS, p.contactMethod)) e.contactMethod = "contact_method";
+  if (!p.consent) e.consent = "consent";
   return e;
 }

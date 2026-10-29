@@ -1,4 +1,4 @@
-import { ArrowOutward } from "@mui/icons-material";
+import ArrowOutward from "@mui/icons-material/ArrowOutward";
 
 import {
   Box,
@@ -7,8 +7,11 @@ import {
   Typography,
 } from "@mui/material";
 
+import { useI18n } from "../../i18n";
+
 
 function CTA() {
+  const { t, to } = useI18n();
 
   return (
     <>
@@ -260,7 +263,7 @@ function CTA() {
                   textAlign: "center",
                 }}
               >
-                لديك فكرة؟
+                {t.cta.title1}
 
                 <Box
                   component="span"
@@ -279,7 +282,7 @@ function CTA() {
                     textAlign: "center",
                   }}
                 >
-                  لنحوّلها إلى منتج.
+                  {t.cta.title2}
                 </Box>
               </Typography>
 
@@ -324,17 +327,14 @@ function CTA() {
                   textAlign: "center",
                 }}
               >
-                أخبرنا عن فكرتك، وسنساعدك
-                على تحويلها إلى تجربة رقمية
-                متكاملة تبدأ من التخطيط وتنتهي
-                بمنتج جاهز.
+                {t.cta.lead}
               </Typography>
 
               {/* Start Project Button */}
 
               <Button
                 component="a"
-                href="/start-project"
+                href={to("/start-project")}
                 variant="contained"
                 size="large"
                 endIcon={
@@ -372,19 +372,21 @@ function CTA() {
 
                   whiteSpace: "nowrap",
 
-                  transition:
-                    "transform 200ms ease, background-color 200ms ease",
+                  "& .MuiButton-endIcon svg": {
+                    transition: "transform 300ms cubic-bezier(.2,.7,.2,1)",
+                  },
 
                   "&:hover": {
                     backgroundColor:
                       "primary.main",
+                  },
 
-                    transform:
-                      "translateY(-2px)",
+                  "&:hover .MuiButton-endIcon svg": {
+                    transform: "rotate(45deg)",
                   },
                 }}
               >
-                ابدأ مشروعك
+                {t.cta.button}
               </Button>
             </Box>
           </Box>

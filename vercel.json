@@ -3,6 +3,10 @@
     { "source": "/start-project", "destination": "/start-project/index.html" },
     { "source": "/blog", "destination": "/blog/index.html" },
     { "source": "/blog/:slug", "destination": "/blog/:slug/index.html" },
+    { "source": "/:lang(en|tr)", "destination": "/:lang/index.html" },
+    { "source": "/:lang(en|tr)/start-project", "destination": "/:lang/start-project/index.html" },
+    { "source": "/:lang(en|tr)/blog", "destination": "/:lang/blog/index.html" },
+    { "source": "/:lang(en|tr)/blog/:slug", "destination": "/:lang/blog/:slug/index.html" },
     { "source": "/admin", "destination": "/index.html" }
   ],
   "headers": [

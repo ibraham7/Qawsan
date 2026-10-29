@@ -2,7 +2,8 @@ import { createTheme } from "@mui/material/styles";
 import { darkColors, lightColors } from "./colors";
 
 export const createQawsanTheme = (
-  mode: "light" | "dark"
+  mode: "light" | "dark",
+  dir: "rtl" | "ltr" = "rtl"
 ) => {
   const colors =
     mode === "dark"
@@ -10,7 +11,7 @@ export const createQawsanTheme = (
       : lightColors;
 
   return createTheme({
-    direction: "rtl",
+    direction: dir,
 
     palette: {
       mode,
@@ -41,8 +42,11 @@ export const createQawsanTheme = (
     },
 
     typography: {
+      // Latin pages lead with Inter; Plex Arabic stays as the fallback for Arabic names
       fontFamily:
-        '"IBM Plex Sans Arabic", sans-serif',
+        dir === "rtl"
+          ? '"IBM Plex Sans Arabic", sans-serif'
+          : 'Inter, "IBM Plex Sans Arabic", sans-serif',
 
       h1: {
         fontWeight: 700,
@@ -100,6 +104,47 @@ export const createQawsanTheme = (
       MuiButton: {
         defaultProps: {
           disableElevation: true,
+        },
+
+        // one hover language for every button on the site
+        styleOverrides: {
+          root: {
+            transition:
+              "transform 220ms cubic-bezier(.2,.7,.2,1), box-shadow 220ms ease, background-color 220ms ease, border-color 220ms ease, color 220ms ease",
+            "&:active": { transform: "translateY(0) scale(0.98)" },
+            "@media (prefers-reduced-motion: reduce)": {
+              "&:hover, &:active": { transform: "none" },
+            },
+          },
+          contained: {
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow: `0 12px 28px -10px ${colors.primary}`,
+            },
+          },
+          outlined: {
+            "&:hover": {
+              transform: "translateY(-2px)",
+              borderColor: colors.primary,
+              backgroundColor:
+                mode === "dark"
+                  ? "rgba(0, 208, 132, 0.08)"
+                  : "rgba(0, 168, 107, 0.06)",
+            },
+          },
+        },
+      },
+
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            transition:
+              "transform 220ms cubic-bezier(.2,.7,.2,1), background-color 220ms ease, border-color 220ms ease, color 220ms ease",
+            "&:hover": { transform: "translateY(-1px)" },
+            "@media (prefers-reduced-motion: reduce)": {
+              "&:hover": { transform: "none" },
+            },
+          },
         },
       },
     },

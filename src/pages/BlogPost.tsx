@@ -4,7 +4,8 @@ import { Box, Button, Container, Typography } from "@mui/material";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
-import { findPost, posts } from "../data/blog";
+import { findPost, postsByLocale } from "../data/blog";
+import { useI18n } from "../i18n";
 import { PostCard, PostMeta } from "./Blog";
 
 interface Props {
@@ -64,14 +65,15 @@ const articleSx = {
 } as const;
 
 function BlogPost({ slug, mode, onToggleTheme }: Props) {
-  const post = findPost(slug);
-  const related = posts.filter((p) => p.slug !== slug).slice(0, 3);
+  const { t, to, locale } = useI18n();
+  const post = findPost(locale, slug);
+  const related = postsByLocale[locale].filter((p) => p.slug !== slug).slice(0, 3);
 
   useEffect(() => {
     document.title = post
-      ? `${post.title} | مدونة قوسان`
-      : "المقال غير موجود | قوسان";
-  }, [post]);
+      ? `${post.title} | ${t.meta.postSuffix}`
+      : `${t.blog.notFound} | Qawsan`;
+  }, [post, t]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -84,12 +86,12 @@ function BlogPost({ slug, mode, onToggleTheme }: Props) {
       >
         <Box
           component="nav"
-          aria-label="مسار التنقل"
-          sx={{ mb: 3, fontSize: 14, color: "text.secondary", "& a": { color: "inherit" } }}
+          aria-label={t.blog.breadcrumb}
+          sx={{ mb: 3, fontSize: 14, color: "text.secondary", "& a": { color: "inherit", textDecoration: "none", transition: "color 200ms ease" }, "& a:hover": { color: "primary.main" } }}
         >
-          <a href="/">الرئيسية</a>
+          <a href={to("/")}>{t.nav.home}</a>
           <Box component="span" aria-hidden="true" sx={{ mx: 1 }}>/</Box>
-          <a href="/blog">المدونة</a>
+          <a href={to("/blog")}>{t.nav.blog}</a>
         </Box>
 
         {post ? (
@@ -118,23 +120,23 @@ function BlogPost({ slug, mode, onToggleTheme }: Props) {
               }}
             >
               <Typography component="h2" sx={{ m: 0, mb: 1, fontSize: { xs: 21, md: 24 }, fontWeight: 700 }}>
-                لديك فكرة؟ لنحوّلها إلى منتج.
+                {t.blog.ctaTitle}
               </Typography>
               <Typography sx={{ m: 0, mb: 3, color: "text.secondary", lineHeight: 1.9 }}>
-                أخبرنا عن مشروعك، ونساعدك من الفكرة والهوية والتصميم حتى التطوير والإطلاق.
+                {t.blog.ctaText}
               </Typography>
-              <Button href="/start-project" variant="contained" size="large" sx={{ px: 4 }}>
-                ابدأ مشروعك
+              <Button href={to("/start-project")} variant="contained" size="large" sx={{ px: 4 }}>
+                {t.nav.start}
               </Button>
             </Box>
           </Box>
         ) : (
           <Box sx={{ textAlign: "center", py: 8 }}>
             <Typography component="h1" sx={{ m: 0, mb: 2, fontSize: 32, fontWeight: 700 }}>
-              المقال غير موجود
+              {t.blog.notFound}
             </Typography>
-            <Button href="/blog" variant="outlined">
-              العودة إلى المدونة
+            <Button href={to("/blog")} variant="outlined">
+              {t.blog.back}
             </Button>
           </Box>
         )}
@@ -143,12 +145,12 @@ function BlogPost({ slug, mode, onToggleTheme }: Props) {
       {post && related.length > 0 && (
         <Container
           component="aside"
-          aria-label="مقالات أخرى"
+          aria-label={t.blog.related}
           maxWidth={false}
           sx={{ maxWidth: 1180, px: { xs: 2.5, sm: 3, md: 4 }, pb: { xs: 8, md: 12 } }}
         >
           <Typography component="h2" sx={{ m: 0, mb: 3, fontSize: { xs: 22, md: 26 }, fontWeight: 700 }}>
-            مقالات أخرى
+            {t.blog.related}
           </Typography>
           <Box
             sx={{

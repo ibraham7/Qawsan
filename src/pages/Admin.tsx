@@ -29,7 +29,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 import Logo from "../components/common/Logo";
-import { fetchProjects } from "../data/projects";
+import { TRANSLATION_FIELDS, fetchProjects } from "../data/projects";
 import type { Project, ProjectInput } from "../data/projects";
 import { IMAGES_BUCKET, PROJECTS_TABLE, supabase } from "../lib/supabase";
 
@@ -198,12 +198,21 @@ function ProjectForm({
         e.preventDefault();
         setSaving(true);
         setError("");
-        const payload = {
-            ...values,
+        const payload: Record<string, unknown> & { images: string[] } = {
             title: values.title.trim(),
+            category: values.category,
+            description: values.description,
             link: values.link.trim(),
+            images: values.images,
             sort_order: Number(values.sort_order) || 0,
         };
+        // translation columns are only sent when they hold something (or are being cleared),
+        // so saving keeps working on a database that doesn't have them yet
+        for (const key of TRANSLATION_FIELDS) {
+            const text = (values[key] ?? "").trim();
+            if (text) payload[key] = text;
+            else if (initial?.[key]) payload[key] = null;
+        }
         const { error } = initial
             ? await supabase.from(PROJECTS_TABLE).update(payload).eq("id", initial.id)
             : await supabase.from(PROJECTS_TABLE).insert(payload);
@@ -262,6 +271,40 @@ function ProjectForm({
                             value={values.sort_order}
                             onChange={(e) => set("sort_order", Number(e.target.value))}
                         />
+                    </Box>
+
+                    {/* TRANSLATIONS */}
+                    <Box>
+                        <Typography sx={{ mb: 0.5, fontWeight: 600 }}>الترجمات (اختياري)</Typography>
+                        <Typography sx={{ mb: 1.5, fontSize: 13, color: "text.secondary" }}>
+                            إن تُركت فارغة يظهر النص العربي في صفحات الإنجليزية والتركية.
+                        </Typography>
+                        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+                            {(["en", "tr"] as const).map((lng) => (
+                                <Box key={lng} sx={{ display: "grid", gap: 2 }} dir="ltr">
+                                    <TextField
+                                        label={lng === "en" ? "Title (English)" : "Başlık (Türkçe)"}
+                                        slotProps={{ htmlInput: { maxLength: 120 } }}
+                                        value={values[`title_${lng}`] ?? ""}
+                                        onChange={(e) => set(`title_${lng}`, e.target.value)}
+                                    />
+                                    <TextField
+                                        label={lng === "en" ? "Category (English)" : "Kategori (Türkçe)"}
+                                        slotProps={{ htmlInput: { maxLength: 120 } }}
+                                        value={values[`category_${lng}`] ?? ""}
+                                        onChange={(e) => set(`category_${lng}`, e.target.value)}
+                                    />
+                                    <TextField
+                                        label={lng === "en" ? "Description (English)" : "Açıklama (Türkçe)"}
+                                        multiline
+                                        minRows={3}
+                                        slotProps={{ htmlInput: { maxLength: 1000 } }}
+                                        value={values[`description_${lng}`] ?? ""}
+                                        onChange={(e) => set(`description_${lng}`, e.target.value)}
+                                    />
+                                </Box>
+                            ))}
+                        </Box>
                     </Box>
 
                     {/* IMAGES */}

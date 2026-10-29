@@ -4,19 +4,17 @@ import { Box, Container, Typography } from "@mui/material";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
-import { formatDate, posts } from "../data/blog";
+import { formatDate, postsByLocale } from "../data/blog";
 import type { BlogPost } from "../data/blog";
+import { useI18n } from "../i18n";
 
 interface Props {
   mode: "light" | "dark";
   onToggleTheme: () => void;
 }
 
-// Arabic counted noun: دقيقة / دقيقتان / 3–10 دقائق / 11+ دقيقة
-const minutesLabel = (n: number) =>
-  n === 1 ? "دقيقة" : n === 2 ? "دقيقتان" : n <= 10 ? `${n} دقائق` : `${n} دقيقة`;
-
 export function PostMeta({ post }: { post: BlogPost }) {
+  const { t } = useI18n();
   return (
     <Box
       sx={{
@@ -32,14 +30,15 @@ export function PostMeta({ post }: { post: BlogPost }) {
         {post.category}
       </Box>
       <span aria-hidden="true">·</span>
-      <time dateTime={post.date}>{formatDate(post.date)}</time>
+      <time dateTime={post.date}>{formatDate(post.date, post.locale)}</time>
       <span aria-hidden="true">·</span>
-      <span>قراءة {minutesLabel(post.readingMinutes)}</span>
+      <span>{t.blog.readTime(post.readingMinutes)}</span>
     </Box>
   );
 }
 
 export function PostCard({ post }: { post: BlogPost }) {
+  const { to, dir } = useI18n();
   return (
     <Box
       component="article"
@@ -53,8 +52,29 @@ export function PostCard({ post }: { post: BlogPost }) {
         border: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
-        transition: "border-color 250ms ease, transform 300ms ease",
-        "&:hover": { borderColor: "primary.main", transform: "translateY(-4px)" },
+        overflow: "hidden",
+        transition:
+          "border-color 300ms ease, transform 450ms cubic-bezier(.2,.7,.2,1), box-shadow 450ms ease",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(120% 70% at 0% 0%, rgba(0,208,132,0.10), transparent 55%)",
+          opacity: 0,
+          transition: "opacity 400ms ease",
+          pointerEvents: "none",
+        },
+        "& .post-arrow": {
+          transition: "transform 350ms cubic-bezier(.2,.7,.2,1), color 250ms ease",
+        },
+        "&:hover": {
+          borderColor: "rgba(0,208,132,0.5)",
+          transform: "translateY(-6px)",
+          boxShadow: "0 26px 60px -30px rgba(0,208,132,0.45)",
+        },
+        "&:hover::before": { opacity: 1 },
+        "&:hover h2 a": { color: "primary.main" },
+        "&:hover .post-arrow": { transform: "translateX(6px)", color: "primary.main" },
         "&:focus-within": { borderColor: "primary.main" },
         "@media (prefers-reduced-motion: reduce)": {
           "&:hover": { transform: "none" },
@@ -69,10 +89,11 @@ export function PostCard({ post }: { post: BlogPost }) {
         {/* the whole card is clickable through this link's ::after */}
         <Box
           component="a"
-          href={`/blog/${post.slug}`}
+          href={to(`/blog/${post.slug}`)}
           sx={{
             color: "text.primary",
             textDecoration: "none",
+            transition: "color 250ms ease",
             "&::after": { content: '""', position: "absolute", inset: 0 },
             "&:focus-visible": { outline: "none" },
           }}
@@ -83,14 +104,24 @@ export function PostCard({ post }: { post: BlogPost }) {
       <Typography sx={{ m: 0, color: "text.secondary", lineHeight: 1.9, fontSize: 15 }}>
         {post.description}
       </Typography>
+      <Box
+        className="post-arrow"
+        aria-hidden="true"
+        sx={{ mt: "auto", pt: 1, fontSize: 20, lineHeight: 1, color: "text.secondary", fontFamily: "Inter, sans-serif" }}
+      >
+        {dir === "rtl" ? "←" : "→"}
+      </Box>
     </Box>
   );
 }
 
 function Blog({ mode, onToggleTheme }: Props) {
+  const { t, locale } = useI18n();
+  const posts = postsByLocale[locale];
+
   useEffect(() => {
-    document.title = "المدونة | قوسان — Qawsan Studio";
-  }, []);
+    document.title = t.meta.blogTitle;
+  }, [t.meta.blogTitle]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -121,16 +152,15 @@ function Blog({ mode, onToggleTheme }: Props) {
             component="h1"
             sx={{ m: 0, mb: 2, fontWeight: 700, fontSize: { xs: 32, sm: 42, md: 52 }, lineHeight: 1.25 }}
           >
-            مدونة{" "}
+            {t.blog.title1}{" "}
             <Box component="span" sx={{ color: "primary.main" }}>
-              قوسان
+              {t.blog.title2}
             </Box>
           </Typography>
           <Typography
             sx={{ m: 0, mx: "auto", maxWidth: 620, color: "text.secondary", fontSize: { xs: 15, md: 17 }, lineHeight: 1.9 }}
           >
-            أدلة عملية لأصحاب المشاريع والمصممين والمطورين: من الفكرة والهوية
-            وتجربة المستخدم، إلى التطوير والإطلاق.
+            {t.blog.lead}
           </Typography>
         </Box>
 
