@@ -89,7 +89,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
   const successRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "ابدأ مشروعك | قوسان";
+    document.title = "ابدأ مشروعك | قوسان — Qawsan Studio";
     startedAt.current = Date.now();
   }, []);
 

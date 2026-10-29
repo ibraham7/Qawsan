@@ -2,9 +2,12 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0B0F0E" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <title>قوسان | Qawsan Studio — من الفكرة إلى المنتج الرقمي</title>
     <meta
@@ -12,6 +15,7 @@
       content="قوسان استوديو رقمي يصمم ويبني المواقع والبرمجيات المخصصة وتجارب UI/UX والهويات البصرية — من الفكرة إلى المنتج الرقمي."
     />
     <link rel="canonical" href="https://qawsan.website/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Qawsan Studio" />
@@ -22,8 +26,17 @@
       content="من الفكرة إلى المنتج الرقمي: مواقع، برمجيات مخصصة، UI/UX وهوية بصرية."
     />
     <meta property="og:url" content="https://qawsan.website/" />
-    <meta property="og:image" content="https://qawsan.website/logo/logo.png" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://qawsan.website/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="شعار قوسان — Qawsan Studio" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="قوسان | Qawsan Studio" />
+    <meta
+      name="twitter:description"
+      content="من الفكرة إلى المنتج الرقمي: مواقع، برمجيات مخصصة، UI/UX وهوية بصرية."
+    />
+    <meta name="twitter:image" content="https://qawsan.website/og-image.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,21 +48,96 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Qawsan Studio",
-        "alternateName": "قوسان",
-        "url": "https://qawsan.website/",
-        "logo": "https://qawsan.website/logo/logo.png",
-        "sameAs": [
-          "https://www.instagram.com/qawsa.n",
-          "https://www.linkedin.com/in/ibrahimajanji/"
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://qawsan.website/#organization",
+            "name": "Qawsan Studio",
+            "alternateName": ["قوسان", "Qawsan"],
+            "url": "https://qawsan.website/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://qawsan.website/icon-512.png",
+              "width": 512,
+              "height": 512
+            },
+            "image": "https://qawsan.website/og-image.png",
+            "slogan": "من الفكرة إلى المنتج الرقمي",
+            "description": "قوسان استوديو رقمي يجمع بين التصميم والتقنية لبناء تجارب ومنتجات رقمية: الهوية البصرية، تصميم UI/UX، تطوير المواقع والبرمجيات المخصصة، والمنتجات الرقمية — من الفكرة حتى الإطلاق.",
+            "email": "ibrahim.dev.pr@gmail.com",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "sales",
+              "email": "ibrahim.dev.pr@gmail.com",
+              "url": "https://qawsan.website/start-project",
+              "availableLanguage": ["ar", "en"]
+            },
+            "knowsAbout": [
+              "تصميم الهوية البصرية",
+              "تصميم واجهات وتجربة المستخدم UI/UX",
+              "تطوير المواقع",
+              "تطوير البرمجيات المخصصة",
+              "أنظمة الإدارة"
+            ],
+            "sameAs": [
+              "https://www.instagram.com/qawsa.n",
+              "https://www.linkedin.com/in/ibrahimajanji/"
+            ],
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "خدمات قوسان",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "الهوية البصرية",
+                    "description": "بناء الهوية والاتجاه البصري للمشروع."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "تصميم UI / UX",
+                    "description": "تصميم تجربة واضحة وسهلة الاستخدام."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "التطوير",
+                    "description": "تحويل التصميم إلى موقع أو نظام برمجي فعلي، مع الاختبار والإطلاق."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "المنتجات الرقمية",
+                    "description": "بناء منتجات رقمية متكاملة من الفكرة حتى وصولها إلى المستخدمين."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://qawsan.website/#website",
+            "url": "https://qawsan.website/",
+            "name": "قوسان | Qawsan Studio",
+            "inLanguage": "ar",
+            "publisher": { "@id": "https://qawsan.website/#organization" }
+          }
         ]
       }
     </script>
+    <!--prerender-head-->
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root"><!--prerender-html--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

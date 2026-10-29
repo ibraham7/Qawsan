@@ -1,0 +1,7 @@
+# Search engines and AI assistants are welcome to read and cite the site.
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://qawsan.website/sitemap.xml

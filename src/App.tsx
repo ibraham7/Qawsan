@@ -380,51 +380,53 @@ function App({
           onToggleTheme={onToggleTheme}
         />
 
-        {/* HERO */}
+        <Box component="main">
+          {/* HERO */}
 
-        <Hero />
+          <Hero />
 
-        {/* SERVICES */}
+          {/* SERVICES */}
 
-        <ScrollReveal direction="up">
-          <Services />
-        </ScrollReveal>
+          <ScrollReveal direction="up">
+            <Services />
+          </ScrollReveal>
 
-        {/* PROJECTS */}
+          {/* PROJECTS */}
 
-        <ScrollReveal
-          direction="up"
-          delay={80}
-        >
-          <Projects />
-        </ScrollReveal>
+          <ScrollReveal
+            direction="up"
+            delay={80}
+          >
+            <Projects />
+          </ScrollReveal>
 
-        {/* WHY QAWSAN */}
+          {/* WHY QAWSAN */}
 
-        <ScrollReveal
-          direction="up"
-          delay={80}
-        >
-          <WhyQawsan />
-        </ScrollReveal>
+          <ScrollReveal
+            direction="up"
+            delay={80}
+          >
+            <WhyQawsan />
+          </ScrollReveal>
 
-        {/* ABOUT */}
+          {/* ABOUT */}
 
-        <ScrollReveal
-          direction="up"
-          delay={80}
-        >
-          <About />
-        </ScrollReveal>
+          <ScrollReveal
+            direction="up"
+            delay={80}
+          >
+            <About />
+          </ScrollReveal>
 
-        {/* CTA */}
+          {/* CTA */}
 
-        <ScrollReveal
-          direction="up"
-          delay={80}
-        >
-          <CTA />
-        </ScrollReveal>
+          <ScrollReveal
+            direction="up"
+            delay={80}
+          >
+            <CTA />
+          </ScrollReveal>
+        </Box>
 
         <Footer />
       </Box>

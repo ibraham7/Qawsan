@@ -17,7 +17,7 @@ const serviceLinks = [
 const socialLinks = [
   {
     label: "Instagram",
-    href: "https://www.instagram.com/qawsa.n?stkn=ZXVsbnZqdzY1NWN6",
+    href: "https://www.instagram.com/qawsa.n",
   },
   {
     label: "LinkedIn",

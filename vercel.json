@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/start-project", "destination": "/index.html" },
+    { "source": "/start-project", "destination": "/start-project/index.html" },
     { "source": "/admin", "destination": "/index.html" }
   ],
   "headers": [
