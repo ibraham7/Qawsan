@@ -93,14 +93,17 @@ function IdeaToProduct() {
           BACKGROUND GLOW
       =========================================== */}
 
+            {/* the gradient fades out at 70% of the radius; the top keeps that
+                visible part inside the section, so overflow: hidden doesn't
+                cut it into a straight line at the boundary with the hero */}
             <Box
                 sx={{
                     position: "absolute",
 
                     top: {
-                        xs: -160,
-                        sm: -200,
-                        md: -280,
+                        xs: -40,
+                        sm: -60,
+                        md: -80,
                     },
 
                     left: {
