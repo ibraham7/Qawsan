@@ -35,6 +35,12 @@ a {
   outline-offset: 3px;
 }
 
+/*
+ * Reduced motion: many people (and many Windows PCs with "Show animations" turned off)
+ * report "reduce" without having asked for a still page. Switching every transition and
+ * animation off made hovers snap, so only the repeating loops are limited here:
+ * entrance animations and soft hover fades keep playing, decorative loops run once.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -43,9 +49,6 @@ a {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transition-delay: 0ms !important;
   }
 }
