@@ -6,6 +6,7 @@ import {
 
 import { useI18n } from "../../i18n";
 import { cardHover, fade } from "../../theme/motion";
+import { bob, seeded } from "../../theme/animations";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import BrandingWatermarkOutlinedIcon from "@mui/icons-material/BrandingWatermarkOutlined";
@@ -393,7 +394,7 @@ function IdeaToProduct() {
                         direction: "ltr",
                     }}
                 >
-                    {steps.map((step) => {
+                    {steps.map((step, idx) => {
                         const Icon = step.icon;
 
                         return (
@@ -632,6 +633,9 @@ function IdeaToProduct() {
                                                 : "none",
 
                                         transition: fade(["transform", "box-shadow", "background"], 480),
+
+                                        // every icon bobs on its own rhythm
+                                        animation: `${bob} ${(4 + seeded(idx) * 2.6).toFixed(2)}s ease-in-out ${(-seeded(idx, 4) * 4).toFixed(2)}s infinite`,
 
                                         ".MuiBox-root:hover > &":
                                         {
