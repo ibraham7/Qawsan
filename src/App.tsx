@@ -10,6 +10,7 @@ import CTA from "./components/sections/CTA";
 import Footer from "./components/layout/Footer";
 
 import ScrollReveal from "./components/common/ScrollReveal";
+import PointerGlow from "./components/common/PointerGlow";
 import { drift } from "./theme/animations";
 import { seeded } from "./theme/animations";
 
@@ -31,6 +32,9 @@ function BackgroundEffects() {
         overflow: "hidden",
       }}
     >
+      {/* a light that follows the pointer across every section */}
+      <PointerGlow />
+
       {/* Main green glow - top right */}
 
       <Box

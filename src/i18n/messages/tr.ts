@@ -84,6 +84,12 @@ const tr: Messages = {
       { title: "Detaylara önem veriyoruz", text: "Her parçada tutarlı ve profesyonel bir deneyim yaratıyoruz." },
       { title: "Kullanıcı için üretiyoruz", text: "Net, kolay ve hızlı bir deneyime odaklanıyoruz." },
     ],
+    stats: {
+      projects: "Portföyümüzdeki proje",
+      languages: "Sitedeki dil",
+      stages: "Fikirden lansmana aşama",
+      articles: "Yayımlanan rehber",
+    },
   },
 
   about: {
