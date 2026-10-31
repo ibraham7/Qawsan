@@ -10,6 +10,8 @@ import CTA from "./components/sections/CTA";
 import Footer from "./components/layout/Footer";
 
 import ScrollReveal from "./components/common/ScrollReveal";
+import { drift } from "./theme/animations";
+import { seeded } from "./theme/animations";
 
 interface AppProps {
   mode: "light" | "dark";
@@ -34,6 +36,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(1)*34)}s ease-in-out ${-Math.round(seeded(1,2)*30)}s infinite`,
           width: {
             xs: 350,
             md: 600,
@@ -64,6 +67,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(2)*34)}s ease-in-out ${-Math.round(seeded(2,2)*30)}s infinite`,
 
           width: {
             xs: 400,
@@ -94,6 +98,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(3)*34)}s ease-in-out ${-Math.round(seeded(3,2)*30)}s infinite`,
 
           width: {
             xs: 300,
@@ -122,6 +127,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(4)*34)}s ease-in-out ${-Math.round(seeded(4,2)*30)}s infinite`,
 
           width: {
             xs: 380,
@@ -162,6 +168,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(5)*34)}s ease-in-out ${-Math.round(seeded(5,2)*30)}s infinite`,
 
           width: {
             xs: 500,
@@ -194,6 +201,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(6)*34)}s ease-in-out ${-Math.round(seeded(6,2)*30)}s infinite`,
 
           width: {
             xs: 360,
@@ -234,6 +242,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(7)*34)}s ease-in-out ${-Math.round(seeded(7,2)*30)}s infinite`,
 
           width: {
             xs: 500,
@@ -270,6 +279,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(8)*34)}s ease-in-out ${-Math.round(seeded(8,2)*30)}s infinite`,
 
           width: 7,
           height: 7,
@@ -292,6 +302,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(9)*34)}s ease-in-out ${-Math.round(seeded(9,2)*30)}s infinite`,
 
           width: 5,
           height: 5,
@@ -314,6 +325,7 @@ function BackgroundEffects() {
       <Box
         sx={{
           position: "absolute",
+          animation: `${drift} ${Math.round(38+seeded(10)*34)}s ease-in-out ${-Math.round(seeded(10,2)*30)}s infinite`,
 
           width: 6,
           height: 6,
@@ -360,7 +372,8 @@ function App({
         bgcolor: "background.default",
         color: "text.primary",
 
-        overflow: "hidden",
+        // clip (not hidden) so the sticky header can stick
+        overflowX: "clip",
       }}
     >
       {/* Background */}
@@ -394,7 +407,7 @@ function App({
           {/* PROJECTS */}
 
           <ScrollReveal
-            direction="up"
+            variant="scale"
             delay={80}
           >
             <Projects />
@@ -403,7 +416,7 @@ function App({
           {/* WHY QAWSAN */}
 
           <ScrollReveal
-            direction="up"
+            variant="blur"
             delay={80}
           >
             <WhyQawsan />
@@ -421,7 +434,7 @@ function App({
           {/* CTA */}
 
           <ScrollReveal
-            direction="up"
+            variant="scale"
             delay={80}
           >
             <CTA />

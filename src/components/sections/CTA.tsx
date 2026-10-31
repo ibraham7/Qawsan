@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import { floatTilt } from "../../theme/animations";
 
 
 function CTA() {
@@ -116,6 +117,8 @@ function CTA() {
 
                 opacity: 0.08,
 
+                animation: `${floatTilt} 11s ease-in-out 0s infinite`,
+
                 userSelect: "none",
 
                 pointerEvents: "none",
@@ -156,6 +159,8 @@ function CTA() {
                 color: "primaryDark",
 
                 opacity: 0.08,
+
+                animation: `${floatTilt} 13s ease-in-out -5s infinite`,
 
                 userSelect: "none",
 

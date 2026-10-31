@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import PointerGlow from "../common/PointerGlow";
+import { bob, floatTilt, shimmerText } from "../../theme/animations";
 
 function Hero() {
   const theme = useTheme();
@@ -42,6 +44,8 @@ function Hero() {
           "background-color 250ms ease",
       }}
     >
+      <PointerGlow />
+
       {/* ==========================================
           BACKGROUND GRID
       =========================================== */}
@@ -599,20 +603,8 @@ function Hero() {
                     ? "drop-shadow(0 0 24px rgba(0,208,132,0.14))"
                     : "drop-shadow(0 0 20px rgba(0,168,107,0.08))",
 
-                  animation:
-                    "bracesFloat 5s ease-in-out 1.1s infinite",
-
-                  "@keyframes bracesFloat": {
-                    "0%, 100%": {
-                      transform:
-                        "translateY(0)",
-                    },
-
-                    "50%": {
-                      transform:
-                        "translateY(-7px)",
-                    },
-                  },
+                  // the mark hovers in the air: a slow rise and fall with a slight tilt
+                  animation: `${floatTilt} 7s ease-in-out 1.1s infinite`,
                 }}
               >
                 {/* Left Brace */}
@@ -626,6 +618,9 @@ function Hero() {
 
                     transform:
                       "translateX(-12px)",
+
+                    // each brace also drifts a little on its own
+                    animation: `${bob} 5.5s ease-in-out 1.4s infinite`,
                   }}
                 >
                   {"{"}
@@ -656,6 +651,8 @@ function Hero() {
 
                     transform:
                       "translateX(12px)",
+
+                    animation: `${bob} 5.5s ease-in-out -1.35s infinite`,
                   }}
                 >
                   {"}"}
@@ -907,8 +904,7 @@ function Hero() {
                 <Box
                   component="span"
                   sx={{
-                    color:
-                      "primary.main",
+                    ...(isDark ? shimmerText() : shimmerText("#00A86B", "#00D084")),
                   }}
                 >
                   {t.hero.title2}

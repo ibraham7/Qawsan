@@ -36,19 +36,12 @@ a {
 }
 
 /*
- * Reduced motion: many people (and many Windows PCs with "Show animations" turned off)
- * report "reduce" without having asked for a still page. Switching every transition and
- * animation off made hovers snap, so only the repeating loops are limited here:
- * entrance animations and soft hover fades keep playing, decorative loops run once.
+ * Reduced motion: only the browser-level smooth scroll is switched off. Many Windows PCs have
+ * "Show animations" turned off and report "reduce" without the person asking for a still page,
+ * so hovers, entrances and the site's gentle ambient motion keep playing.
  */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-iteration-count: 1 !important;
   }
 }

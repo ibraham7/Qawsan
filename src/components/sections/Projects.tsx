@@ -21,6 +21,11 @@ const slideFrom = (offset: number) => keyframes`
 const enterNext = slideFrom(-48);
 const enterPrev = slideFrom(48);
 
+const kenBurns = keyframes`
+    from { scale: 1; translate: 0 0; }
+    to { scale: 1.06; translate: 0 -1.5%; }
+`;
+
 const pad = (n: number) => String(n).padStart(2, "0");
 
 function ProjectSlide({
@@ -90,6 +95,9 @@ function ProjectSlide({
                             objectFit: "cover",
                             objectPosition: "top center",
                             transition: fade(["transform"], 1100),
+
+                            // the screenshot slowly pans and breathes
+                            animation: `${kenBurns} 16s ease-in-out infinite alternate`,
                             userSelect: "none",
                         }}
                     />

@@ -6,6 +6,7 @@ import {
 
 import { useI18n } from "../../i18n";
 import { cardHover, fade } from "../../theme/motion";
+import { floatTilt, seeded } from "../../theme/animations";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
@@ -260,6 +261,9 @@ function WhyQawsan() {
                   className="reason-icon"
                   sx={{
                     flexShrink: 0,
+
+                    // a slow, slightly tilted drift, different for each card
+                    animation: `${floatTilt} ${(7 + seeded(i, 9) * 3).toFixed(2)}s ease-in-out ${(-seeded(i, 2) * 6).toFixed(2)}s infinite`,
 
                     width: {
                       xs: 58,
