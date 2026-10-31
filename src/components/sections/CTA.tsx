@@ -372,17 +372,15 @@ function CTA() {
 
                   whiteSpace: "nowrap",
 
-                  "& .MuiButton-endIcon svg": {
-                    transition: "transform 300ms cubic-bezier(.2,.7,.2,1)",
-                  },
+                  transition:
+                    "transform 200ms ease, background-color 200ms ease",
 
                   "&:hover": {
                     backgroundColor:
                       "primary.main",
-                  },
 
-                  "&:hover .MuiButton-endIcon svg": {
-                    transform: "rotate(45deg)",
+                    transform:
+                      "translateY(-2px)",
                   },
                 }}
               >

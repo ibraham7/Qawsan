@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
-import HeroMark from "./HeroMark";
 
 function Hero() {
   const theme = useTheme();
@@ -293,266 +292,376 @@ function Hero() {
                 QAWSAN VISUAL
             =========================================== */}
 
-            <HeroMark
-              isDark={isDark}
-              decorations={
-                <>
-                  {/* ==========================================
-                      OUTER TECH CIRCLE
-                  =========================================== */}
+            <Box
+              sx={{
+                position: "relative",
 
-                  <Box
-                    sx={{
-                      position: "absolute",
+                width: {
+                  xs: 260,
+                  sm: 340,
+                  md: 500,
+                },
 
-                      width: {
-                        xs: 200,
-                        sm: 250,
-                        md: 390,
-                      },
+                height: {
+                  xs: 260,
+                  sm: 340,
+                  md: 500,
+                },
 
-                      height: {
-                        xs: 200,
-                        sm: 250,
-                        md: 390,
-                      },
+                maxWidth: "100%",
 
-                      maxWidth: "100%",
+                display: "flex",
 
-                      maxHeight: "100%",
+                alignItems: "center",
 
-                      borderRadius: "50%",
+                justifyContent: "center",
 
-                      border: "1px solid",
+                animation:
+                  "qawsanVisualIn 900ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both",
 
-                      borderColor: isDark
-                        ? "rgba(0,208,132,0.14)"
-                        : "rgba(0,168,107,0.12)",
+                "@keyframes qawsanVisualIn": {
+                  from: {
+                    opacity: 0,
 
-                      opacity: 0.9,
+                    transform:
+                      "translateX(-60px) scale(0.88)",
+                  },
 
-                      animation:
-                        "circleRotate 20s linear infinite",
+                  to: {
+                    opacity: 1,
 
-                      "@keyframes circleRotate": {
-                        from: {
-                          transform:
-                            "rotate(0deg)",
-                        },
+                    transform:
+                      "translateX(0) scale(1)",
+                  },
+                },
+              }}
+            >
+              {/* ==========================================
+                  OUTER TECH CIRCLE
+              =========================================== */}
 
-                        to: {
-                          transform:
-                            "rotate(360deg)",
-                        },
-                      },
+              <Box
+                sx={{
+                  position: "absolute",
 
-                      "&::before": {
-                        content: '""',
+                  width: {
+                    xs: 200,
+                    sm: 250,
+                    md: 390,
+                  },
 
-                        position: "absolute",
+                  height: {
+                    xs: 200,
+                    sm: 250,
+                    md: 390,
+                  },
 
-                        inset: {
-                          xs: 12,
-                          sm: 15,
-                          md: 18,
-                        },
+                  maxWidth: "100%",
 
-                        borderRadius: "50%",
+                  maxHeight: "100%",
 
-                        border: "1px dashed",
+                  borderRadius: "50%",
 
-                        borderColor: isDark
-                          ? "rgba(0,208,132,0.10)"
-                          : "rgba(0,168,107,0.08)",
-                      },
+                  border: "1px solid",
 
-                      // a point of light riding the ring as it turns
-                      "&::after": {
-                        content: '""',
+                  borderColor: isDark
+                    ? "rgba(0,208,132,0.14)"
+                    : "rgba(0,168,107,0.12)",
 
-                        position: "absolute",
+                  opacity: 0.9,
 
-                        top: -4,
+                  animation:
+                    "circleRotate 20s linear infinite",
 
-                        left: "50%",
-
-                        width: 8,
-
-                        height: 8,
-
-                        marginLeft: "-4px",
-
-                        borderRadius: "50%",
-
-                        backgroundColor: "#00D084",
-
-                        boxShadow:
-                          "0 0 12px 2px rgba(0,208,132,0.75), 0 0 28px rgba(0,208,132,0.35)",
-                      },
-
-                      "@media (prefers-reduced-motion: reduce)": {
-                        animation: "none",
-                      },
-                    }}
-                  />
-
-                  {/* ==========================================
-                      VERTICAL LIGHT AXIS
-                  =========================================== */}
-
-                  <Box
-                    sx={{
-                      position: "absolute",
-
-                      width: "1px",
-
-                      height: {
-                        xs: 160,
-                        sm: 220,
-                        md: 330,
-                      },
-
-                      maxHeight: "80%",
-
-                      background:
-                        "linear-gradient(to bottom, transparent, rgba(0,208,132,0.5), transparent)",
-
-                      opacity: 0.6,
-                    }}
-                  />
-
-                  {/* ==========================================
-                      CENTER POINT
-                  =========================================== */}
-
-                  <Box
-                    sx={{
-                      position: "absolute",
-
-                      width: {
-                        xs: 8,
-                        md: 10,
-                      },
-
-                      height: {
-                        xs: 8,
-                        md: 10,
-                      },
-
-                      borderRadius: "50%",
-
-                      backgroundColor:
-                        "primary.main",
-
-                      boxShadow:
-                        "0 0 18px rgba(0,208,132,0.8), 0 0 40px rgba(0,208,132,0.25)",
-
-                      animation:
-                        "centerPulse 2.5s ease-in-out infinite",
-
-                      "@keyframes centerPulse": {
-                        "0%, 100%": {
-                          transform:
-                            "scale(0.8)",
-
-                          opacity: 0.7,
-                        },
-
-                        "50%": {
-                          transform:
-                            "scale(1.15)",
-
-                          opacity: 1,
-                        },
-                      },
-                    }}
-                  />
-
-                  {/* ==========================================
-                      DECORATIVE DOTS
-                  =========================================== */}
-
-                  {[
-                    {
-                      top: "18%",
-                      left: "16%",
-                      size: 6,
+                  "@keyframes circleRotate": {
+                    from: {
+                      transform:
+                        "rotate(0deg)",
                     },
 
-                    {
-                      top: "27%",
-                      right: "13%",
-                      size: 4,
+                    to: {
+                      transform:
+                        "rotate(360deg)",
+                    },
+                  },
+
+                  "&::before": {
+                    content: '""',
+
+                    position: "absolute",
+
+                    inset: {
+                      xs: 12,
+                      sm: 15,
+                      md: 18,
                     },
 
-                    {
-                      bottom: "22%",
-                      left: "18%",
-                      size: 4,
+                    borderRadius: "50%",
+
+                    border: "1px dashed",
+
+                    borderColor: isDark
+                      ? "rgba(0,208,132,0.10)"
+                      : "rgba(0,168,107,0.08)",
+                  },
+                }}
+              />
+
+              {/* ==========================================
+                  VERTICAL LIGHT AXIS
+              =========================================== */}
+
+              <Box
+                sx={{
+                  position: "absolute",
+
+                  width: "1px",
+
+                  height: {
+                    xs: 160,
+                    sm: 220,
+                    md: 330,
+                  },
+
+                  maxHeight: "80%",
+
+                  background:
+                    "linear-gradient(to bottom, transparent, rgba(0,208,132,0.5), transparent)",
+
+                  opacity: 0.6,
+                }}
+              />
+
+              {/* ==========================================
+                  CENTER POINT
+              =========================================== */}
+
+              <Box
+                sx={{
+                  position: "absolute",
+
+                  width: {
+                    xs: 8,
+                    md: 10,
+                  },
+
+                  height: {
+                    xs: 8,
+                    md: 10,
+                  },
+
+                  borderRadius: "50%",
+
+                  backgroundColor:
+                    "primary.main",
+
+                  boxShadow:
+                    "0 0 18px rgba(0,208,132,0.8), 0 0 40px rgba(0,208,132,0.25)",
+
+                  animation:
+                    "centerPulse 2.5s ease-in-out infinite",
+
+                  "@keyframes centerPulse": {
+                    "0%, 100%": {
+                      transform:
+                        "scale(0.8)",
+
+                      opacity: 0.7,
                     },
 
-                    {
-                      bottom: "18%",
-                      right: "16%",
-                      size: 6,
+                    "50%": {
+                      transform:
+                        "scale(1.15)",
+
+                      opacity: 1,
                     },
-                  ].map((dot, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        position: "absolute",
+                  },
+                }}
+              />
 
-                        top: dot.top,
-                        left: dot.left,
-                        right: dot.right,
-                        bottom: dot.bottom,
+              {/* ==========================================
+                  DECORATIVE DOTS
+              =========================================== */}
 
-                        width: {
-                          xs: dot.size * 0.8,
-                          sm: dot.size,
-                        },
+              {[
+                {
+                  top: "18%",
+                  left: "16%",
+                  size: 6,
+                },
 
-                        height: {
-                          xs: dot.size * 0.8,
-                          sm: dot.size,
-                        },
+                {
+                  top: "27%",
+                  right: "13%",
+                  size: 4,
+                },
 
-                        borderRadius: "50%",
+                {
+                  bottom: "22%",
+                  left: "18%",
+                  size: 4,
+                },
 
-                        backgroundColor:
-                          "primary.main",
+                {
+                  bottom: "18%",
+                  right: "16%",
+                  size: 6,
+                },
+              ].map((dot, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "absolute",
 
-                        opacity: 0.6,
+                    top: dot.top,
+                    left: dot.left,
+                    right: dot.right,
+                    bottom: dot.bottom,
 
-                        boxShadow:
-                          "0 0 10px rgba(0,208,132,0.5)",
+                    width: {
+                      xs: dot.size * 0.8,
+                      sm: dot.size,
+                    },
 
-                        animation: `dotPulse ${2 + index * 0.4
-                          }s ease-in-out ${index * 0.2
-                          }s infinite`,
+                    height: {
+                      xs: dot.size * 0.8,
+                      sm: dot.size,
+                    },
 
-                        "@keyframes dotPulse": {
-                          "0%, 100%": {
-                            opacity: 0.3,
+                    borderRadius: "50%",
 
-                            transform:
-                              "scale(0.8)",
-                          },
+                    backgroundColor:
+                      "primary.main",
 
-                          "50%": {
-                            opacity: 0.9,
+                    opacity: 0.6,
 
-                            transform:
-                              "scale(1.2)",
-                          },
-                        },
-                      }}
-                    />
-                  ))}
+                    boxShadow:
+                      "0 0 10px rgba(0,208,132,0.5)",
 
-                </>
-              }
-            />
+                    animation: `dotPulse ${2 + index * 0.4
+                      }s ease-in-out ${index * 0.2
+                      }s infinite`,
+
+                    "@keyframes dotPulse": {
+                      "0%, 100%": {
+                        opacity: 0.3,
+
+                        transform:
+                          "scale(0.8)",
+                      },
+
+                      "50%": {
+                        opacity: 0.9,
+
+                        transform:
+                          "scale(1.2)",
+                      },
+                    },
+                  }}
+                />
+              ))}
+
+              {/* ==========================================
+                  BRACES
+              =========================================== */}
+
+              <Box
+                sx={{
+                  position: "relative",
+
+                  zIndex: 2,
+
+                  display: "flex",
+
+                  alignItems: "center",
+
+                  justifyContent: "center",
+
+                  direction: "ltr",
+
+                  fontFamily:
+                    "Inter, sans-serif",
+
+                  fontSize: {
+                    xs: "120px",
+                    sm: "165px",
+                    md: "250px",
+                    lg: "285px",
+                  },
+
+                  fontWeight: 400,
+
+                  lineHeight: 0.8,
+
+                  userSelect: "none",
+
+                  filter: isDark
+                    ? "drop-shadow(0 0 24px rgba(0,208,132,0.14))"
+                    : "drop-shadow(0 0 20px rgba(0,168,107,0.08))",
+
+                  animation:
+                    "bracesFloat 5s ease-in-out 1.1s infinite",
+
+                  "@keyframes bracesFloat": {
+                    "0%, 100%": {
+                      transform:
+                        "translateY(0)",
+                    },
+
+                    "50%": {
+                      transform:
+                        "translateY(-7px)",
+                    },
+                  },
+                }}
+              >
+                {/* Left Brace */}
+
+                <Box
+                  component="span"
+                  sx={{
+                    color: isDark
+                      ? "#F8FAF9"
+                      : "#3A6B5A",
+
+                    transform:
+                      "translateX(-12px)",
+                  }}
+                >
+                  {"{"}
+                </Box>
+
+                {/* Space Between Braces */}
+
+                <Box
+                  component="span"
+                  sx={{
+                    width: {
+                      xs: 22,
+                      sm: 32,
+                      md: 58,
+                    },
+
+                    flexShrink: 0,
+                  }}
+                />
+
+                {/* Right Brace */}
+
+                <Box
+                  component="span"
+                  sx={{
+                    color:
+                      "primary.main",
+
+                    transform:
+                      "translateX(12px)",
+                  }}
+                >
+                  {"}"}
+                </Box>
+              </Box>
+            </Box>
 
             {/* Technical Label */}
 
@@ -881,12 +990,10 @@ function Hero() {
                 href={to("/start-project")}
                 variant="contained"
                 endIcon={
-                  // points toward the reading direction's "forward"
                   <ArrowBackRounded
                     sx={{
-                      transform: ltr
-                        ? "rotate(180deg)"
-                        : "none",
+                      transform:
+                        "rotate(180deg)",
                     }}
                   />
                 }
@@ -917,17 +1024,15 @@ function Hero() {
 
                   fontWeight: 500,
 
-                  "& .MuiButton-endIcon svg": {
-                    transition: "translate 250ms ease",
-                  },
+                  transition:
+                    "transform 200ms ease",
 
                   "&:hover": {
                     backgroundColor:
                       "primary.main",
-                  },
 
-                  "&:hover .MuiButton-endIcon svg": {
-                    translate: ltr ? "3px 0" : "-3px 0",
+                    transform:
+                      "translateY(-2px)",
                   },
                 }}
               >
@@ -965,12 +1070,18 @@ function Hero() {
 
                   fontWeight: 500,
 
+                  transition:
+                    "all 200ms ease",
+
                   "&:hover": {
                     borderColor:
                       "primary.main",
 
                     color:
                       "primary.main",
+
+                    backgroundColor:
+                      "transparent",
                   },
                 }}
               >

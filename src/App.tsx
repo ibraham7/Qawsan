@@ -360,7 +360,7 @@ function App({
         bgcolor: "background.default",
         color: "text.primary",
 
-        overflowX: "clip",
+        overflow: "hidden",
       }}
     >
       {/* Background */}
