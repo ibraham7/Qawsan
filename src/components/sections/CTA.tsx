@@ -371,17 +371,6 @@ function CTA() {
                     "background.default",
 
                   whiteSpace: "nowrap",
-
-                  transition:
-                    "transform 200ms ease, background-color 200ms ease",
-
-                  "&:hover": {
-                    backgroundColor:
-                      "primary.main",
-
-                    transform:
-                      "translateY(-2px)",
-                  },
                 }}
               >
                 {t.cta.button}

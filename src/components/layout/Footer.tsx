@@ -1,6 +1,7 @@
 import { Box, Container, Typography } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import { fade } from "../../theme/motion";
 
 const socialLinks = [
   {
@@ -18,7 +19,8 @@ const socialLinks = [
 ];
 
 function Footer() {
-  const { t, to } = useI18n();
+  const { t, to, dir } = useI18n();
+  const ltr = dir === "ltr";
 
   const navigationLinks = [
     { label: t.nav.home, href: to("/#hero") },
@@ -275,12 +277,13 @@ function Footer() {
 
                     outline: "none",
 
-                    transition: "color 200ms ease",
+                    transition: fade(["color", "translate"], 380),
 
                     textAlign: "center",
 
                     "&:hover": {
                       color: "primary.main",
+                      translate: ltr ? "3px 0" : "-3px 0",
                     },
 
                     "&:focus": {
@@ -380,12 +383,13 @@ function Footer() {
 
                     outline: "none",
 
-                    transition: "color 200ms ease",
+                    transition: fade(["color", "translate"], 380),
 
                     textAlign: "center",
 
                     "&:hover": {
                       color: "primary.main",
+                      translate: ltr ? "3px 0" : "-3px 0",
                     },
 
                     "&:focus": {
@@ -495,12 +499,13 @@ function Footer() {
 
                     outline: "none",
 
-                    transition: "color 200ms ease",
+                    transition: fade(["color", "translate"], 380),
 
                     textAlign: "center",
 
                     "&:hover": {
                       color: "primary.main",
+                      translate: ltr ? "3px 0" : "-3px 0",
                     },
 
                     "&:focus": {
@@ -559,13 +564,14 @@ function Footer() {
 
                 outline: "none",
 
-                transition:
-                  "transform 200ms ease, opacity 200ms ease",
+                transition: fade(["transform", "box-shadow", "filter"], 420),
 
                 "&:hover": {
-                  opacity: 0.9,
+                  filter: "brightness(1.05)",
 
                   transform: "translateY(-2px)",
+
+                  boxShadow: "0 14px 32px -16px rgba(0, 208, 132, 0.6)",
                 },
 
                 "&:focus": {
