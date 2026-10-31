@@ -4,7 +4,7 @@
  * - Slow, gentle ease-out: things drift into place instead of snapping.
  * - Small movement only: lift of 2–4px, no rotation, no scale jumps.
  * - Green is a tint that fades in (borders, glows, a faint wash), never a solid colour flip.
- * - `prefers-reduced-motion` is handled globally in index.css (transitions drop to 0.01ms).
+ * - Reduced motion only limits repeating loops (see index.css); transitions always play.
  */
 export const EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
 

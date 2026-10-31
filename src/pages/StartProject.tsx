@@ -281,7 +281,6 @@ function StartProject({ mode, onToggleTheme }: Props) {
                 from: { opacity: 0, transform: "translateY(12px)" },
                 to: { opacity: 1, transform: "none" },
               },
-              "@media (prefers-reduced-motion: reduce)": { animation: "none" },
             }}
           >
             <CheckCircleRoundedIcon
@@ -472,9 +471,6 @@ function StartProject({ mode, onToggleTheme }: Props) {
                 fontWeight: 600,
                 fontSize: 16,
                 color: "background.default",
-                "@media (prefers-reduced-motion: reduce)": {
-                  "&:hover": { transform: "none" },
-                },
               }}
             >
               {status === "sending" ? (

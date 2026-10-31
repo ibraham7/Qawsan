@@ -56,9 +56,6 @@ export function PostCard({ post }: { post: BlogPost }) {
         ...cardHover,
         "&:hover h2 a": { color: "primary.main" },
         "&:focus-within": { borderColor: "primary.main" },
-        "@media (prefers-reduced-motion: reduce)": {
-          "&:hover": { transform: "none" },
-        },
       }}
     >
       <PostMeta post={post} />
