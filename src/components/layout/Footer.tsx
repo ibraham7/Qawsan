@@ -1,4 +1,4 @@
-import { Box, Container, Typography, useTheme } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 
 import { useI18n } from "../../i18n";
 
@@ -19,7 +19,6 @@ const socialLinks = [
 
 function Footer() {
   const { t, to } = useI18n();
-  const isLight = useTheme().palette.mode === "light";
 
   const navigationLinks = [
     { label: t.nav.home, href: to("/#hero") },
@@ -107,7 +106,7 @@ function Footer() {
           >
             <Box
               component="img"
-              src={isLight ? "/logo/logo-dark.png" : "/logo/logo.png"}
+              src="/logo/logo.png"
               alt={t.nav.logoAlt}
               sx={{
                 width: {
@@ -274,39 +273,22 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    display: "inline-flex",
+                    outline: "none",
 
-                    alignItems: "center",
-
-                    gap: 1,
-
-                    transition: "color 250ms ease",
+                    transition: "color 200ms ease",
 
                     textAlign: "center",
-
-                    // a short green dash grows in front of the link
-                    "&::before": {
-                      content: '""',
-                      width: 0,
-                      height: "1.5px",
-                      borderRadius: 2,
-                      bgcolor: "primary.main",
-                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
-                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:hover::before": {
-                      width: 12,
+                    "&:focus": {
+                      outline: "none",
                     },
 
                     "&:focus-visible": {
-                      outline: "2px solid",
-                      outlineColor: "primary.main",
-                      outlineOffset: 3,
-                      borderRadius: "4px",
+                      outline: "none",
                     },
                   }}
                 >
@@ -396,39 +378,22 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    display: "inline-flex",
+                    outline: "none",
 
-                    alignItems: "center",
-
-                    gap: 1,
-
-                    transition: "color 250ms ease",
+                    transition: "color 200ms ease",
 
                     textAlign: "center",
-
-                    // a short green dash grows in front of the link
-                    "&::before": {
-                      content: '""',
-                      width: 0,
-                      height: "1.5px",
-                      borderRadius: 2,
-                      bgcolor: "primary.main",
-                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
-                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:hover::before": {
-                      width: 12,
+                    "&:focus": {
+                      outline: "none",
                     },
 
                     "&:focus-visible": {
-                      outline: "2px solid",
-                      outlineColor: "primary.main",
-                      outlineOffset: 3,
-                      borderRadius: "4px",
+                      outline: "none",
                     },
                   }}
                 >
@@ -528,39 +493,22 @@ function Footer() {
 
                     textDecoration: "none",
 
-                    display: "inline-flex",
+                    outline: "none",
 
-                    alignItems: "center",
-
-                    gap: 1,
-
-                    transition: "color 250ms ease",
+                    transition: "color 200ms ease",
 
                     textAlign: "center",
-
-                    // a short green dash grows in front of the link
-                    "&::before": {
-                      content: '""',
-                      width: 0,
-                      height: "1.5px",
-                      borderRadius: 2,
-                      bgcolor: "primary.main",
-                      transition: "width 300ms cubic-bezier(.2,.7,.2,1)",
-                    },
 
                     "&:hover": {
                       color: "primary.main",
                     },
 
-                    "&:hover::before": {
-                      width: 12,
+                    "&:focus": {
+                      outline: "none",
                     },
 
                     "&:focus-visible": {
-                      outline: "2px solid",
-                      outlineColor: "primary.main",
-                      outlineOffset: 3,
-                      borderRadius: "4px",
+                      outline: "none",
                     },
                   }}
                 >
@@ -609,19 +557,23 @@ function Footer() {
 
                 textDecoration: "none",
 
+                outline: "none",
+
                 transition:
-                  "transform 250ms cubic-bezier(.2,.7,.2,1), box-shadow 250ms ease",
+                  "transform 200ms ease, opacity 200ms ease",
 
                 "&:hover": {
-                  transform: "translateY(-2px)",
+                  opacity: 0.9,
 
-                  boxShadow: "0 12px 28px -10px rgba(0,208,132,0.8)",
+                  transform: "translateY(-2px)",
+                },
+
+                "&:focus": {
+                  outline: "none",
                 },
 
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: 3,
+                  outline: "none",
                 },
               }}
             >

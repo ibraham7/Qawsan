@@ -37,7 +37,7 @@ export const TRANSLATION_FIELDS = [
 ] as const;
 
 /* shown until Supabase answers, and if it can't be reached */
-const fallbackRows: Project[] = [
+export const fallbackProjects: Project[] = [
     {
         id: "clinova",
         title: "Clinova",
@@ -69,31 +69,6 @@ const fallbackRows: Project[] = [
         sort_order: 3,
     },
 ];
-
-/*
- * Extra screenshots for projects whose database row only lists the original cover.
- * They go first (the cover image is the first one shown); the database images follow.
- */
-const BUILT_IN_IMAGES: Record<string, string[]> = {
-    "https://sales.novanoai.online/": [
-        "/images/projects/novasales-dashboard.webp",
-        "/images/projects/novasales-reports.webp",
-        "/images/projects/novasales-products.webp",
-    ],
-    "https://uni.novanoai.online/": [
-        "/images/projects/university-dashboard.webp",
-        "/images/projects/university-courses.webp",
-        "/images/projects/university-structure.webp",
-    ],
-};
-
-function withGallery(p: Project): Project {
-    const extra = BUILT_IN_IMAGES[p.link];
-    if (!extra) return p;
-    return { ...p, images: [...extra, ...p.images.filter((src) => !extra.includes(src))] };
-}
-
-export const fallbackProjects: Project[] = fallbackRows.map(withGallery);
 
 /*
  * English / Turkish copy for the projects that already exist, keyed by link.
@@ -217,7 +192,7 @@ export async function fetchProjects(): Promise<Project[]> {
         .order("created_at", { ascending: true });
 
     if (error) throw error;
-    return (data ?? []).map((row) => withGallery({
+    return (data ?? []).map((row) => ({
         id: row.id,
         title: row.title,
         category: row.category,

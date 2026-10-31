@@ -238,51 +238,22 @@ function WhyQawsan() {
                   direction: "rtl",
                   textAlign: "center",
 
-                  overflow: "hidden",
-
                   transition:
-                    "transform 450ms cubic-bezier(.2,.7,.2,1), border-color 300ms ease, box-shadow 450ms ease",
-
-                  // soft green wash rising from the bottom on hover
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "radial-gradient(120% 80% at 50% 120%, rgba(0,208,132,0.14), transparent 60%)",
-                    opacity: 0,
-                    transition: "opacity 400ms ease",
-                    pointerEvents: "none",
-                  },
-
-                  "& > *": { position: "relative" },
+                    "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
 
                   "&:hover": {
-                    transform: "translateY(-8px)",
+                    transform: "translateY(-5px)",
                     borderColor:
-                      "rgba(0, 208, 132, 0.45)",
+                      "rgba(0, 208, 132, 0.3)",
                     boxShadow:
-                      "0 28px 60px -26px rgba(0, 208, 132, 0.35)",
-
-                    "&::before": { opacity: 1 },
+                      "0 20px 50px rgba(0, 208, 132, 0.06)",
 
                     "& .reason-icon": {
-                      transform: "translateY(-4px) scale(1.08)",
                       backgroundColor:
-                        "primary.main",
+                        "rgba(0, 208, 132, 0.12)",
                       borderColor:
-                        "primary.main",
-                      color: "background.default",
-                      boxShadow: "0 16px 36px -12px rgba(0,208,132,0.7)",
+                        "rgba(0, 208, 132, 0.35)",
                     },
-
-                    "& .reason-icon svg": {
-                      transform: "rotate(-10deg)",
-                    },
-                  },
-
-                  "@media (prefers-reduced-motion: reduce)": {
-                    "&:hover, &:hover .reason-icon, &:hover .reason-icon svg": { transform: "none" },
                   },
                 }}
               >
@@ -319,13 +290,11 @@ function WhyQawsan() {
                     color: "primary.main",
 
                     transition:
-                      "transform 450ms cubic-bezier(.2,.7,.2,1), background-color 300ms ease, border-color 300ms ease, color 300ms ease, box-shadow 400ms ease",
+                      "all 300ms ease",
                   }}
                 >
                   <Icon
                     sx={{
-                      transition: "transform 450ms cubic-bezier(.2,.7,.2,1)",
-
                       fontSize: {
                         xs: 27,
                         md: 30,

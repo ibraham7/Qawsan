@@ -87,7 +87,7 @@ function BlogPost({ slug, mode, onToggleTheme }: Props) {
         <Box
           component="nav"
           aria-label={t.blog.breadcrumb}
-          sx={{ mb: 3, fontSize: 14, color: "text.secondary", "& a": { color: "inherit", textDecoration: "none", transition: "color 200ms ease" }, "& a:hover": { color: "primary.main" } }}
+          sx={{ mb: 3, fontSize: 14, color: "text.secondary", "& a": { color: "inherit" } }}
         >
           <a href={to("/")}>{t.nav.home}</a>
           <Box component="span" aria-hidden="true" sx={{ mx: 1 }}>/</Box>

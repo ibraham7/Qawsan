@@ -38,7 +38,7 @@ export function PostMeta({ post }: { post: BlogPost }) {
 }
 
 export function PostCard({ post }: { post: BlogPost }) {
-  const { to, dir } = useI18n();
+  const { to } = useI18n();
   return (
     <Box
       component="article"
@@ -52,29 +52,8 @@ export function PostCard({ post }: { post: BlogPost }) {
         border: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
-        overflow: "hidden",
-        transition:
-          "border-color 300ms ease, transform 450ms cubic-bezier(.2,.7,.2,1), box-shadow 450ms ease",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          inset: 0,
-          background: "radial-gradient(120% 70% at 0% 0%, rgba(0,208,132,0.10), transparent 55%)",
-          opacity: 0,
-          transition: "opacity 400ms ease",
-          pointerEvents: "none",
-        },
-        "& .post-arrow": {
-          transition: "transform 350ms cubic-bezier(.2,.7,.2,1), color 250ms ease",
-        },
-        "&:hover": {
-          borderColor: "rgba(0,208,132,0.5)",
-          transform: "translateY(-6px)",
-          boxShadow: "0 26px 60px -30px rgba(0,208,132,0.45)",
-        },
-        "&:hover::before": { opacity: 1 },
-        "&:hover h2 a": { color: "primary.main" },
-        "&:hover .post-arrow": { transform: "translateX(6px)", color: "primary.main" },
+        transition: "border-color 250ms ease, transform 300ms ease",
+        "&:hover": { borderColor: "primary.main", transform: "translateY(-4px)" },
         "&:focus-within": { borderColor: "primary.main" },
         "@media (prefers-reduced-motion: reduce)": {
           "&:hover": { transform: "none" },
@@ -93,7 +72,6 @@ export function PostCard({ post }: { post: BlogPost }) {
           sx={{
             color: "text.primary",
             textDecoration: "none",
-            transition: "color 250ms ease",
             "&::after": { content: '""', position: "absolute", inset: 0 },
             "&:focus-visible": { outline: "none" },
           }}
@@ -104,13 +82,6 @@ export function PostCard({ post }: { post: BlogPost }) {
       <Typography sx={{ m: 0, color: "text.secondary", lineHeight: 1.9, fontSize: 15 }}>
         {post.description}
       </Typography>
-      <Box
-        className="post-arrow"
-        aria-hidden="true"
-        sx={{ mt: "auto", pt: 1, fontSize: 20, lineHeight: 1, color: "text.secondary", fontFamily: "Inter, sans-serif" }}
-      >
-        {dir === "rtl" ? "←" : "→"}
-      </Box>
     </Box>
   );
 }
