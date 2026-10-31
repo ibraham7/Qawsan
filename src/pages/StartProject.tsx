@@ -472,10 +472,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
                 fontWeight: 600,
                 fontSize: 16,
                 color: "background.default",
-                transition: "transform 200ms ease",
-                "&:hover": { transform: "translateY(-2px)" },
                 "@media (prefers-reduced-motion: reduce)": {
-                  transition: "none",
                   "&:hover": { transform: "none" },
                 },
               }}

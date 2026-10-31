@@ -25,6 +25,7 @@ import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 import { LOCALES, LOCALE_META, localizePath, useI18n } from "../../i18n";
+import { fade, ringHover } from "../../theme/motion";
 
 
 interface NavbarProps {
@@ -59,12 +60,7 @@ function LanguageButton({ size, isLightMode }: { size: number; isLightMode: bool
           fontFamily: "Inter, sans-serif",
           fontSize: 12,
           fontWeight: 600,
-          transition: "all 250ms ease",
-          "&:hover": {
-            color: isLightMode ? "#00B878" : "#0B0F0E",
-            backgroundColor: isLightMode ? "#FFFFFF" : "#00D084",
-            borderColor: isLightMode ? "#FFFFFF" : "#00D084",
-          },
+          ...ringHover(isLightMode),
         }}
       >
         {LOCALE_META[locale].short}
@@ -242,27 +238,7 @@ function Navbar({
                         ? "rgba(255, 255, 255, 0.05)"
                         : "rgba(0, 208, 132, 0.04)",
 
-                      transition:
-                        "all 250ms ease",
-
-                      "&:hover": {
-                        color: isLightMode
-                          ? "#00B878"
-                          : "#0B0F0E",
-
-                        backgroundColor:
-                          isLightMode
-                            ? "#FFFFFF"
-                            : "#00D084",
-
-                        borderColor:
-                          isLightMode
-                            ? "#FFFFFF"
-                            : "#00D084",
-
-                        transform:
-                          "rotate(15deg)",
-                      },
+                      ...ringHover(isLightMode),
                     }}
                   >
                     {isLightMode ? (
@@ -307,17 +283,11 @@ function Navbar({
 
                       fontWeight: 500,
 
-                      transition:
-                        "transform 200ms ease, background-color 200ms ease",
-
                       "&:hover": {
                         backgroundColor:
                           isLightMode
                             ? "#FFFFFF"
                             : "primary.main",
-
-                        transform:
-                          "translateY(-2px)",
                       },
                     }}
                   >
@@ -341,7 +311,8 @@ function Navbar({
                     display: "flex",
                     alignItems: "center",
 
-                    gap: 4,
+                    // links carry their own padding for the hover pill, so the gap is smaller
+                    gap: 1,
                   }}
                 >
                   {navLinks.map((link) => (
@@ -351,7 +322,7 @@ function Navbar({
                       sx={{
                         minWidth: "auto",
 
-                        px: 0,
+                        px: 1.5,
 
                         color: isLightMode
                           ? "#FFFFFF"
@@ -363,20 +334,18 @@ function Navbar({
 
                         whiteSpace: "nowrap",
 
-                        transition:
-                          "color 200ms ease",
+                        borderRadius: "10px",
+
+                        transition: fade(["color", "background-color"], 360),
 
                         "&:hover": {
                           color: isLightMode
                             ? "#FFFFFF"
                             : "primary.main",
 
-                          backgroundColor:
-                            "transparent",
-
-                          opacity: isLightMode
-                            ? 0.8
-                            : 1,
+                          backgroundColor: isLightMode
+                            ? "rgba(255, 255, 255, 0.16)"
+                            : "rgba(0, 208, 132, 0.07)",
                         },
                       }}
                     >
@@ -468,27 +437,7 @@ function Navbar({
                         ? "rgba(255, 255, 255, 0.05)"
                         : "rgba(0, 208, 132, 0.04)",
 
-                      transition:
-                        "all 250ms ease",
-
-                      "&:hover": {
-                        color: isLightMode
-                          ? "#00B878"
-                          : "#0B0F0E",
-
-                        backgroundColor:
-                          isLightMode
-                            ? "#FFFFFF"
-                            : "#00D084",
-
-                        borderColor:
-                          isLightMode
-                            ? "#FFFFFF"
-                            : "#00D084",
-
-                        transform:
-                          "rotate(15deg)",
-                      },
+                      ...ringHover(isLightMode),
                     }}
                   >
                     {isLightMode ? (
@@ -523,9 +472,6 @@ function Navbar({
                         color: isLightMode
                           ? "#FFFFFF"
                           : "primary.main",
-
-                        backgroundColor:
-                          "transparent",
                       },
                     }}
                   >
@@ -618,7 +564,6 @@ function Navbar({
 
                 "&:hover": {
                   color: "primary.main",
-                  backgroundColor: "transparent",
                 },
               }}
             >
@@ -646,8 +591,7 @@ function Navbar({
                     borderRadius: "10px",
                     color: "text.primary",
 
-                    transition:
-                      "color 200ms ease, background-color 200ms ease",
+                    transition: fade(["color", "background-color"], 320),
 
                     "&:hover": {
                       color: "primary.main",

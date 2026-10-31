@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import { darkColors, lightColors } from "./colors";
+import { GREEN, fade } from "./motion";
 
 export const createQawsanTheme = (
   mode: "light" | "dark",
@@ -104,6 +105,75 @@ export const createQawsanTheme = (
       MuiButton: {
         defaultProps: {
           disableElevation: true,
+        },
+
+        styleOverrides: {
+          // every button moves, glows and tints the same gentle way
+          root: {
+            transition: fade(
+              ["transform", "box-shadow", "background-color", "border-color", "color", "filter"],
+              420
+            ),
+            "&:active": {
+              transform: "translateY(0)",
+              transition: fade(["transform"], 120),
+            },
+          },
+          contained: {
+            "&:hover": {
+              // keep the brand green on hover (MUI would switch to the dark primary)
+              backgroundColor: colors.primary,
+              transform: "translateY(-2px)",
+              filter: "brightness(1.05)",
+              boxShadow: `0 14px 32px -16px rgba(${GREEN}, 0.6)`,
+            },
+          },
+          outlined: {
+            "&:hover": {
+              transform: "translateY(-2px)",
+              borderColor: `rgba(${GREEN}, 0.55)`,
+              backgroundColor: `rgba(${GREEN}, 0.06)`,
+              boxShadow: `0 12px 28px -18px rgba(${GREEN}, 0.45)`,
+            },
+          },
+          text: {
+            "&:hover": {
+              backgroundColor: `rgba(${GREEN}, 0.06)`,
+            },
+          },
+        },
+      },
+
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            transition: fade(
+              ["transform", "background-color", "border-color", "color", "box-shadow"],
+              360
+            ),
+            "&:hover": {
+              backgroundColor: `rgba(${GREEN}, 0.08)`,
+            },
+          },
+        },
+      },
+
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            transition: fade(["background-color", "color", "padding"], 300),
+            "&:hover": {
+              backgroundColor: `rgba(${GREEN}, 0.08)`,
+            },
+          },
+        },
+      },
+
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            transition: fade(["background-color", "color"], 320),
+          },
         },
       },
     },

@@ -11,6 +11,7 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { localize, useProjects } from "../../data/projects";
 import type { Project } from "../../data/projects";
 import { useI18n } from "../../i18n";
+import { cardHover, fade } from "../../theme/motion";
 
 const slideFrom = (offset: number) => keyframes`
     from { opacity: 0; transform: translateX(${offset}px); }
@@ -50,15 +51,12 @@ function ProjectSlide({
                 borderColor: "divider",
                 bgcolor: "background.paper",
                 animation: `${(direction === 1) !== ltr ? enterNext : enterPrev} 450ms cubic-bezier(.2,.7,.2,1)`,
-                transition:
-                    "border-color 300ms ease, transform 400ms cubic-bezier(.2,.7,.2,1), box-shadow 400ms ease",
+                ...cardHover,
                 "&:hover": {
-                    borderColor: "primary.main",
-                    transform: "translateY(-6px)",
-                    boxShadow:
-                        "0 28px 70px -20px rgba(0, 208, 132, 0.28), 0 0 0 1px rgba(0, 208, 132, 0.25)",
+                    ...cardHover["&:hover"],
+                    boxShadow: "0 32px 70px -34px rgba(0, 208, 132, 0.4)",
                 },
-                "&:hover .project-image": { transform: "scale(1.04)" },
+                "&:hover .project-image": { transform: "scale(1.025)" },
                 // stylis-plugin-rtl mirrors this, so +4px ends up moving the arrow left (its pointing direction)
                 "&:hover .project-link svg": { transform: "translateX(4px)" },
                 "@media (prefers-reduced-motion: reduce)": {
@@ -96,7 +94,7 @@ function ProjectSlide({
                             height: "100%",
                             objectFit: "cover",
                             objectPosition: "top center",
-                            transition: "transform 700ms cubic-bezier(.2,.7,.2,1)",
+                            transition: fade(["transform"], 1100),
                             userSelect: "none",
                         }}
                     />
@@ -244,7 +242,7 @@ function ProjectSlide({
                             fontSize: 15,
                             gap: 1,
                             "& .MuiButton-endIcon": { m: 0 },
-                            "& svg": { transition: "transform 250ms ease" },
+                            "& svg": { transition: fade(["transform"], 380) },
                         }}
                     >
                         {t.projects.visit}
@@ -261,11 +259,12 @@ const arrowSx = {
     border: "1px solid",
     borderColor: "divider",
     color: "text.primary",
-    transition: "all 250ms ease",
+    transition: fade(["background-color", "border-color", "color", "box-shadow"], 360),
     "&:hover": {
-        borderColor: "primary.main",
+        borderColor: "rgba(0, 208, 132, 0.55)",
         color: "primary.main",
-        bgcolor: "rgba(0, 208, 132, 0.08)",
+        bgcolor: "rgba(0, 208, 132, 0.07)",
+        boxShadow: "0 0 0 4px rgba(0, 208, 132, 0.06)",
     },
 };
 
@@ -459,7 +458,13 @@ function Projects() {
                                                     i === safeIndex
                                                         ? "primary.main"
                                                         : "divider",
-                                                transition: "all 300ms ease",
+                                                transition: fade(["width", "background-color"], 420),
+                                                "&:hover": {
+                                                    bgcolor:
+                                                        i === safeIndex
+                                                            ? "primary.main"
+                                                            : "rgba(0, 208, 132, 0.45)",
+                                                },
                                             }}
                                         />
                                     ))}

@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import { cardHover, fade } from "../../theme/motion";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import BrandingWatermarkOutlinedIcon from "@mui/icons-material/BrandingWatermarkOutlined";
@@ -445,19 +446,7 @@ function IdeaToProduct() {
                                         md: "left",
                                     },
 
-                                    transition:
-                                        "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
-
-                                    "&:hover": {
-                                        transform:
-                                            "translateY(-7px)",
-
-                                        borderColor:
-                                            "primary.main",
-
-                                        boxShadow:
-                                            "0 24px 60px rgba(0, 208, 132, 0.10)",
-                                    },
+                                    ...cardHover,
                                 }}
                             >
                                 {/* ==================================
@@ -642,8 +631,7 @@ function IdeaToProduct() {
                                                 ? "0 0 30px rgba(0,208,132,0.10)"
                                                 : "none",
 
-                                        transition:
-                                            "transform 300ms ease, box-shadow 300ms ease",
+                                        transition: fade(["transform", "box-shadow", "background"], 480),
 
                                         ".MuiBox-root:hover > &":
                                         {
@@ -651,7 +639,7 @@ function IdeaToProduct() {
                                                 "translateY(-2px)",
 
                                             boxShadow:
-                                                "0 0 30px rgba(0,208,132,0.15)",
+                                                "0 10px 28px -12px rgba(0,208,132,0.35)",
                                         },
                                     }}
                                 >
@@ -787,7 +775,7 @@ function IdeaToProduct() {
 
                                         textTransform: "uppercase",
 
-                                        transition: "opacity 250ms ease",
+                                        transition: fade(["opacity"], 400),
 
                                         ".MuiBox-root:hover &": {
                                             opacity: 1,

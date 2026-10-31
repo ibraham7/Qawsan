@@ -7,6 +7,7 @@ import Footer from "../components/layout/Footer";
 import { formatDate, postsByLocale } from "../data/blog";
 import type { BlogPost } from "../data/blog";
 import { useI18n } from "../i18n";
+import { cardHover, fade } from "../theme/motion";
 
 interface Props {
   mode: "light" | "dark";
@@ -52,8 +53,8 @@ export function PostCard({ post }: { post: BlogPost }) {
         border: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
-        transition: "border-color 250ms ease, transform 300ms ease",
-        "&:hover": { borderColor: "primary.main", transform: "translateY(-4px)" },
+        ...cardHover,
+        "&:hover h2 a": { color: "primary.main" },
         "&:focus-within": { borderColor: "primary.main" },
         "@media (prefers-reduced-motion: reduce)": {
           "&:hover": { transform: "none" },
@@ -72,6 +73,7 @@ export function PostCard({ post }: { post: BlogPost }) {
           sx={{
             color: "text.primary",
             textDecoration: "none",
+            transition: fade(["color"], 360),
             "&::after": { content: '""', position: "absolute", inset: 0 },
             "&:focus-visible": { outline: "none" },
           }}

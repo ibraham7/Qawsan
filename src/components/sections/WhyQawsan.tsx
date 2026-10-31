@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import { cardHover, fade } from "../../theme/motion";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
@@ -238,21 +239,17 @@ function WhyQawsan() {
                   direction: "rtl",
                   textAlign: "center",
 
-                  transition:
-                    "transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease",
+                  transition: cardHover.transition,
 
                   "&:hover": {
-                    transform: "translateY(-5px)",
-                    borderColor:
-                      "rgba(0, 208, 132, 0.3)",
-                    boxShadow:
-                      "0 20px 50px rgba(0, 208, 132, 0.06)",
+                    ...cardHover["&:hover"],
 
                     "& .reason-icon": {
                       backgroundColor:
                         "rgba(0, 208, 132, 0.12)",
                       borderColor:
-                        "rgba(0, 208, 132, 0.35)",
+                        "rgba(0, 208, 132, 0.4)",
+                      transform: "translateY(-2px)",
                     },
                   },
                 }}
@@ -289,8 +286,10 @@ function WhyQawsan() {
 
                     color: "primary.main",
 
-                    transition:
-                      "all 300ms ease",
+                    transition: fade(
+                      ["transform", "background-color", "border-color"],
+                      480
+                    ),
                   }}
                 >
                   <Icon

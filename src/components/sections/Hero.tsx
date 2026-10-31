@@ -1023,17 +1023,6 @@ function Hero() {
                   },
 
                   fontWeight: 500,
-
-                  transition:
-                    "transform 200ms ease",
-
-                  "&:hover": {
-                    backgroundColor:
-                      "primary.main",
-
-                    transform:
-                      "translateY(-2px)",
-                  },
                 }}
               >
                 {t.hero.cta}
@@ -1070,18 +1059,9 @@ function Hero() {
 
                   fontWeight: 500,
 
-                  transition:
-                    "all 200ms ease",
-
                   "&:hover": {
-                    borderColor:
-                      "primary.main",
-
                     color:
                       "primary.main",
-
-                    backgroundColor:
-                      "transparent",
                   },
                 }}
               >
