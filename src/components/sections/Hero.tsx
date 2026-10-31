@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 
 import { useI18n } from "../../i18n";
-import PointerGlow from "../common/PointerGlow";
 import { bob, floatTilt, shimmerText } from "../../theme/animations";
 
 function Hero() {
@@ -36,16 +35,13 @@ function Hero() {
 
         alignItems: "center",
 
-        overflow: "hidden",
-
-        bgcolor: "background.default",
+        // no clipping and no own background: the page has one continuous backdrop
+        bgcolor: "transparent",
 
         transition:
           "background-color 250ms ease",
       }}
     >
-      <PointerGlow />
-
       {/* ==========================================
           BACKGROUND GRID
       =========================================== */}

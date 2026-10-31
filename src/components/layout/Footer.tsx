@@ -43,7 +43,7 @@ function Footer() {
       sx={{
         borderTop: "1px solid",
         borderColor: "divider",
-        bgcolor: "background.paper",
+        bgcolor: "transparent",
         overflow: "hidden",
       }}
     >

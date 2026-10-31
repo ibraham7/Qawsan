@@ -1,10 +1,9 @@
-import type { PointerEvent, ReactNode } from "react";
-
 import { Box, Container, Typography, useTheme } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material";
+import type { Theme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 
 import ScrollReveal from "../common/ScrollReveal";
+import Cell from "../common/SpotCard";
 import { useI18n } from "../../i18n";
 import {
   bob,
@@ -18,7 +17,7 @@ import {
   spin,
   typeBar,
 } from "../../theme/animations";
-import { EASE, GREEN, cardHover } from "../../theme/motion";
+import { EASE, GREEN } from "../../theme/motion";
 
 /*
  * About: a bento grid instead of a heading plus two paragraphs. Every cell has its own small
@@ -30,49 +29,6 @@ import { EASE, GREEN, cardHover } from "../../theme/motion";
 const ink = (a: number) => (t: Theme) => alpha(t.palette.text.primary, a);
 
 const STEPS = ["IDEA", "BRAND", "UI / UX", "CODE", "TEST", "LAUNCH"];
-
-// spotlight that follows the pointer (inline custom properties: physical, never mirrored)
-const follow = (e: PointerEvent<HTMLElement>) => {
-  const r = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-};
-
-function Cell({ children, sx }: { children: ReactNode; sx?: SxProps<Theme> }) {
-  return (
-    <Box
-      onPointerMove={follow}
-      sx={[
-        {
-          position: "relative",
-          overflow: "hidden",
-          height: "100%",
-          borderRadius: { xs: "22px", md: "28px" },
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.default",
-          p: { xs: 3, md: 4 },
-          textAlign: "start",
-          ...cardHover,
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            inset: 0,
-            zIndex: 0,
-            background: `radial-gradient(380px circle at var(--mx, 50%) var(--my, 0%), rgba(${GREEN}, 0.13), transparent 60%)`,
-            opacity: 0,
-            transition: `opacity 500ms ${EASE}`,
-            pointerEvents: "none",
-          },
-          "&:hover::before": { opacity: 1 },
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-    >
-      {children}
-    </Box>
-  );
-}
 
 /* ------------------------------------------------------------------ mini illustrations */
 
@@ -302,8 +258,7 @@ function About() {
       sx={{
         position: "relative",
         py: { xs: 9, sm: 11, md: 15 },
-        bgcolor: "background.paper",
-        overflow: "hidden",
+        bgcolor: "transparent",
       }}
     >
       {/* slow-moving light behind the grid (inline top/left/right: physical, not mirrored) */}

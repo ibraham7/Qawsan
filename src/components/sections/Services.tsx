@@ -1,12 +1,16 @@
+import { Fragment, useEffect, useRef, useState } from "react";
+
 import {
     Box,
     Container,
     Typography,
 } from "@mui/material";
 
+import ScrollReveal from "../common/ScrollReveal";
+
 import { useI18n } from "../../i18n";
-import { cardHover, fade } from "../../theme/motion";
-import { bob, seeded } from "../../theme/animations";
+import { EASE, GREEN, cardHover, fade } from "../../theme/motion";
+import { bob, breathe, seeded } from "../../theme/animations";
 
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import BrandingWatermarkOutlinedIcon from "@mui/icons-material/BrandingWatermarkOutlined";
@@ -66,14 +70,127 @@ const steps = [
     },
 ];
 
+/** The six stages as a connected line; the lit stage moves on by itself. */
+function ProcessRail({ active, onPick, dir }: { active: number; onPick: (i: number) => void; dir: "rtl" | "ltr" }) {
+    return (
+        <Box dir={dir} sx={{ display: { xs: "none", md: "flex" }, alignItems: "flex-start", mb: 5 }}>
+            {steps.map((step, i) => {
+                const done = i < active;
+                const on = i === active;
+                return (
+                    <Fragment key={step.number}>
+                        {i > 0 && (
+                            <Box sx={{ flex: 1, height: 2, mt: "22px", borderRadius: 2, bgcolor: "divider", overflow: "hidden" }}>
+                                <Box
+                                    style={{ transformOrigin: dir === "rtl" ? "100% 50%" : "0% 50%" }}
+                                    sx={{
+                                        height: "100%",
+                                        background: "linear-gradient(90deg, #00D084, #8CFAD3)",
+                                        transform: `scaleX(${i <= active ? 1 : 0})`,
+                                        transition: `transform 900ms ${EASE}`,
+                                    }}
+                                />
+                            </Box>
+                        )}
+                        <Box
+                            component="button"
+                            type="button"
+                            aria-label={step.title}
+                            onClick={() => onPick(i)}
+                            sx={{
+                                all: "unset",
+                                cursor: "pointer",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: 1,
+                                px: 0.5,
+                                "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", borderRadius: 2 },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    position: "relative",
+                                    width: 46,
+                                    height: 46,
+                                    borderRadius: "50%",
+                                    display: "grid",
+                                    placeItems: "center",
+                                    fontFamily: "Inter, sans-serif",
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    border: "1.5px solid",
+                                    borderColor: on || done ? "primary.main" : "divider",
+                                    bgcolor: on ? "primary.main" : done ? `rgba(${GREEN}, 0.14)` : "background.paper",
+                                    color: on ? "#04110C" : done ? "primary.main" : "text.secondary",
+                                    boxShadow: on ? `0 0 0 6px rgba(${GREEN}, 0.14), 0 12px 28px -10px rgba(${GREEN}, 0.7)` : "none",
+                                    transition: fade(["background-color", "border-color", "color", "box-shadow"], 600),
+                                    // a ripple leaves the lit stage
+                                    "&::after": {
+                                        content: '""',
+                                        position: "absolute",
+                                        inset: -2,
+                                        borderRadius: "50%",
+                                        border: "1.5px solid",
+                                        borderColor: "primary.main",
+                                        opacity: on ? 1 : 0,
+                                        animation: on ? `${breathe} 2.2s ease-in-out infinite` : "none",
+                                    },
+                                }}
+                            >
+                                {step.number}
+                            </Box>
+                            <Box
+                                component="span"
+                                dir="ltr"
+                                sx={{
+                                    fontFamily: "Inter, sans-serif",
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    letterSpacing: "0.12em",
+                                    color: on ? "primary.main" : "text.secondary",
+                                    transition: fade(["color"], 500),
+                                }}
+                            >
+                                {step.title}
+                            </Box>
+                        </Box>
+                    </Fragment>
+                );
+            })}
+        </Box>
+    );
+}
+
 function IdeaToProduct() {
     const { t, dir } = useI18n();
     const ltr = dir === "ltr";
+
+    // the lit stage walks along the process while the section is on screen
+    const [active, setActive] = useState(0);
+    const [paused, setPaused] = useState(false);
+    const [inView, setInView] = useState(false);
+    const sectionRef = useRef<HTMLElement | null>(null);
+
+    useEffect(() => {
+        const el = sectionRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.25 });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!inView || paused) return;
+        const id = setInterval(() => setActive((a) => (a + 1) % steps.length), 2600);
+        return () => clearInterval(id);
+    }, [inView, paused]);
 
     return (
         <Box
             component="section"
             id="services"
+            ref={sectionRef}
             sx={{
                 position: "relative",
 
@@ -83,9 +200,7 @@ function IdeaToProduct() {
                     md: 16,
                 },
 
-                bgcolor: "background.default",
-
-                overflow: "hidden",
+                bgcolor: "transparent",
 
                 direction: "ltr",
             }}
@@ -373,7 +488,11 @@ function IdeaToProduct() {
             PROCESS GRID
         =========================================== */}
 
+                <ProcessRail active={active} onPick={setActive} dir={dir} />
+
                 <Box
+                    onPointerEnter={() => setPaused(true)}
+                    onPointerLeave={() => setPaused(false)}
                     sx={{
                         position: "relative",
 
@@ -398,9 +517,16 @@ function IdeaToProduct() {
                         const Icon = step.icon;
 
                         return (
-                            <Box
+                            <ScrollReveal
                                 key={step.number}
+                                variant={(["tilt", "up", "scale", "blur", "up", "tilt"] as const)[idx]}
+                                delay={(idx % 3) * 110 + Math.floor(idx / 3) * 80}
+                            >
+                            <Box
+                                data-active={idx === active ? "true" : "false"}
+                                onPointerEnter={() => setActive(idx)}
                                 sx={{
+                                    height: "100%",
                                     position:
                                         "relative",
 
@@ -448,6 +574,32 @@ function IdeaToProduct() {
                                     },
 
                                     ...cardHover,
+
+                                    transition: fade(["transform", "border-color", "box-shadow", "background-color", "translate"], 600),
+
+                                    // a bright line along the top edge, drawn when the stage is lit
+                                    "&::after": {
+                                        content: '""',
+                                        position: "absolute",
+                                        top: 0,
+                                        insetInline: 0,
+                                        height: "2px",
+                                        background: "linear-gradient(90deg, transparent, #00D084, transparent)",
+                                        scale: "0 1",
+                                        transition: `scale 900ms ${EASE}`,
+                                    },
+
+                                    "&[data-active='true']": {
+                                        borderColor: `rgba(${GREEN}, 0.55)`,
+                                        boxShadow: `0 30px 64px -32px rgba(${GREEN}, 0.55), 0 0 0 1px rgba(${GREEN}, 0.14)`,
+                                        translate: "0 -6px",
+                                    },
+                                    "&[data-active='true']::after": { scale: "1 1" },
+                                    "&[data-active='true'] .pc-icon": {
+                                        bgcolor: `rgba(${GREEN}, 0.22)`,
+                                        borderColor: `rgba(${GREEN}, 0.7)`,
+                                        boxShadow: `0 14px 32px -12px rgba(${GREEN}, 0.7)`,
+                                    },
                                 }}
                             >
                                 {/* ==================================
@@ -572,6 +724,7 @@ function IdeaToProduct() {
                 =================================== */}
 
                                 <Box
+                                    className="pc-icon"
                                     sx={{
                                         position:
                                             "relative",
@@ -838,6 +991,7 @@ function IdeaToProduct() {
                                     {step.number}
                                 </Typography>
                             </Box>
+                            </ScrollReveal>
                         );
                     })}
                 </Box>

@@ -295,8 +295,7 @@ function Projects() {
             id="projects"
             sx={{
                 py: { xs: 8, sm: 10, md: 16 },
-                bgcolor: "background.default",
-                overflow: "hidden",
+                bgcolor: "transparent",
             }}
         >
             <Container

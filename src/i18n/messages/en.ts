@@ -84,6 +84,12 @@ const en: Messages = {
       { title: "We care about details", text: "We craft a consistent, professional experience in every part." },
       { title: "We build for the user", text: "We focus on an experience that is clear, simple and fast." },
     ],
+    stats: {
+      projects: "Projects in our portfolio",
+      languages: "Languages on this site",
+      stages: "Stages from idea to launch",
+      articles: "Guides published",
+    },
   },
 
   about: {
