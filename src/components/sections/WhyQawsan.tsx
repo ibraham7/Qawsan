@@ -9,7 +9,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 import CountUp from "../common/CountUp";
 import ScrollReveal from "../common/ScrollReveal";
-import { pickReviews, satisfactionPercent } from "../../data/reviews";
+import { satisfactionPercent, useReviews } from "../../data/reviews";
 import { useI18n } from "../../i18n";
 import { bob, drift, seeded, shimmerText } from "../../theme/animations";
 import { EASE, GREEN, fade } from "../../theme/motion";
@@ -42,7 +42,7 @@ function BigNumber({ value, suffix }: { value: number; suffix?: string }) {
 
 function WhyQawsan() {
   const { t, to, dir } = useI18n();
-  const { list: reviews } = pickReviews();
+  const { list: reviews } = useReviews();
   const satisfaction = satisfactionPercent(reviews);
   const hasSatisfaction = reviews.length > 0;
   const isDark = useTheme().palette.mode === "dark";

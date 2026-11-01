@@ -20,7 +20,7 @@ const SITE = "https://qawsan.website";
 // production builds of React/MUI (set before the renderer is imported)
 process.env.NODE_ENV ??= "production";
 
-const { render, fetchProjects, postsByLocale, translationsOf, localize, MESSAGES, LOCALES, LOCALE_META, localizePath } =
+const { render, fetchProjects, fetchReviews, postsByLocale, translationsOf, localize, MESSAGES, LOCALES, LOCALE_META, localizePath } =
   await import(pathToFileURL(path.join(SSR, "entry-server.js")).href);
 
 const ORG = { "@id": `${SITE}/#organization` };
@@ -31,6 +31,14 @@ try {
   console.log(`prerender: ${projects.length} projects from Supabase`);
 } catch (error) {
   console.warn("prerender: could not fetch projects, using fallback list", error?.message);
+}
+
+let reviews = [];
+try {
+  reviews = await fetchReviews();
+  console.log(`prerender: ${reviews.length} approved reviews from Supabase`);
+} catch (error) {
+  console.warn("prerender: could not fetch reviews (is the qawsan_reviews table created?)", error?.message);
 }
 
 const absolute = (url) => (url?.startsWith("/") ? SITE + url : url);
@@ -46,6 +54,8 @@ const PAGES = [
   { page: "/", kind: "home", priority: "1.0" },
   { page: "/start-project", kind: "start", priority: "0.8" },
   { page: "/blog", kind: "blog", priority: "0.8" },
+  // shared by link with customers: prerendered, but kept out of the sitemap and of search results
+  { page: "/review", kind: "review", priority: "0.3", noindex: true },
 ];
 
 const routes = [];
@@ -215,6 +225,7 @@ for (const route of routes) {
   const copy = {
     home: { title: t.meta.title, description: t.meta.description, ogTitle: t.meta.ogTitle, ogDescription: t.meta.ogDescription },
     start: { title: t.meta.startTitle, description: t.meta.startDescription, ogTitle: t.meta.startTitle, ogDescription: t.meta.startDescription },
+    review: { title: t.review.metaTitle, description: t.review.metaDescription, ogTitle: t.review.metaTitle, ogDescription: t.review.metaDescription },
     blog: { title: t.meta.blogTitle, description: t.meta.blogDescription, ogTitle: t.meta.blogTitle, ogDescription: t.meta.blogDescription },
     post: route.post && {
       title: `${route.post.title} | ${t.meta.postSuffix}`,
@@ -224,10 +235,11 @@ for (const route of routes) {
     },
   }[route.kind];
 
-  const { html, styles } = await render(routePath, projects);
+  const { html, styles } = await render(routePath, projects, reviews);
 
   let head = styles;
   if (projects.length) head += `\n<script>window.__QAWSAN_PROJECTS__=${inlineJson(projects)}</script>`;
+  if (reviews.length) head += `\n<script>window.__QAWSAN_REVIEWS__=${inlineJson(reviews)}</script>`;
   head += `\n<script type="application/ld+json">${inlineJson(baseGraph(locale))}</script>`;
   for (const schema of pageSchemas(route, locale, t)) {
     head += `\n<script type="application/ld+json">${inlineJson(schema)}</script>`;
@@ -265,6 +277,7 @@ for (const route of routes) {
   page = setTag(page, /(<meta property="og:image:alt" content=")[^"]*/, escapeAttr(t.meta.ogImageAlt));
   page = setTag(page, /(<link rel="canonical" href=")[^"]*/, url);
   page = setTag(page, /(<meta property="og:url" content=")[^"]*/, url);
+  if (route.noindex) page = page.replace(/<meta name="robots" content="[^"]*" \/>/, '<meta name="robots" content="noindex, follow" />');
   if (route.kind === "post") {
     page = page.replace('<meta property="og:type" content="website" />', '<meta property="og:type" content="article" />');
   }
@@ -283,6 +296,7 @@ fs.writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${routes
+  .filter((r) => !r.noindex)
   .map((r) => {
     const lastmod = r.kind === "post" ? r.post.date : r.kind === "blog" ? lastBlogDate(r.locale) ?? today : today;
     const alts = alternatesOf(r);

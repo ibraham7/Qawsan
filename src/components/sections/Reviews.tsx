@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
-import { Box, Container, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Button, Container, IconButton, Typography, useTheme } from "@mui/material";
 
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -10,11 +10,11 @@ import StarHalfRoundedIcon from "@mui/icons-material/StarHalfRounded";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 
 import ScrollReveal from "../common/ScrollReveal";
-import { averageRating, pickReviews, reviewText } from "../../data/reviews";
+import { averageRating, reviewText, useReviews } from "../../data/reviews";
 import type { Review } from "../../data/reviews";
 import { useI18n } from "../../i18n";
-import { breathe, drift, shimmerText } from "../../theme/animations";
-import { EASE, GREEN, cardHover, fade } from "../../theme/motion";
+import { drift, shimmerText } from "../../theme/animations";
+import { EASE, GREEN, cardHover } from "../../theme/motion";
 
 /*
  * Customer reviews: an overall rating and a row of cards that scrolls the way a phone does.
@@ -111,12 +111,12 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 function Reviews() {
-  const { t, dir } = useI18n();
+  const { t, to, dir } = useI18n();
   const isDark = useTheme().palette.mode === "dark";
   const rtl = dir === "rtl";
 
-  // evaluated in the browser only: the prerendered page (and crawlers) never contain sample content
-  const [{ list, demo }] = useState(pickReviews);
+  // real reviews are in the prerendered page; sample ones only ever appear in the browser (?demo)
+  const { list, demo } = useReviews();
 
   const track = useRef<HTMLDivElement | null>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
@@ -327,7 +327,15 @@ function Reviews() {
             />
           </Box>
 
-          <Box aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "primary.main", boxShadow: `0 0 12px rgba(${GREEN}, 0.9)`, animation: `${breathe} 3s ease-in-out infinite`, display: { xs: "none", md: "block" }, transition: fade(["opacity"], 300) }} />
+          <Button
+            component="a"
+            href={to("/review")}
+            variant="outlined"
+            startIcon={<StarRoundedIcon sx={{ color: GOLD }} />}
+            sx={{ height: 50, px: 2.5, borderRadius: 999, whiteSpace: "nowrap", fontWeight: 600, display: { xs: "none", sm: "inline-flex" } }}
+          >
+            {t.reviews.rate}
+          </Button>
         </Box>
       </Container>
     </Box>

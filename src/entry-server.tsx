@@ -9,16 +9,20 @@ import createEmotionServer from "@emotion/server/create-instance";
 import Root from "./Root";
 import { seedProjects } from "./data/projects";
 import type { Project } from "./data/projects";
+import { seedReviews } from "./data/reviews";
+import type { Review } from "./data/reviews";
 import { LOCALE_META, splitLocale } from "./i18n/locales";
 import { createDirectionCache } from "./theme/rtl";
 
 export { fetchProjects, localize } from "./data/projects";
 export { postsByLocale, translationsOf } from "./data/blog";
+export { fetchReviews } from "./data/reviews";
 export { MESSAGES } from "./i18n";
 export { LOCALES, LOCALE_META, localizePath } from "./i18n/locales";
 
-export async function render(path: string, projects: Project[]) {
+export async function render(path: string, projects: Project[], reviews: Review[] = []) {
   seedProjects(projects);
+  seedReviews(reviews);
 
   // same cache keys as the browser (muirtl / muiltr) so the inlined CSS matches
   const cache = createDirectionCache(LOCALE_META[splitLocale(path).locale].dir);

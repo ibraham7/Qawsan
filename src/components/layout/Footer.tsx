@@ -37,6 +37,8 @@ function Footer() {
     { label: t.footer.products, href: to("/#services") },
   ];
 
+  const rateLink = { label: t.footer.rate, href: to("/review") };
+
   return (
     <Box
       component="footer"
@@ -431,7 +433,7 @@ function Footer() {
                 },
               }}
             >
-              {socialLinks.map((social) => (
+              {[...socialLinks, rateLink].map((social) => (
                 <Box
                   key={social.label}
                   component="a"

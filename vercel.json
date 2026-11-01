@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/start-project", "destination": "/start-project/index.html" },
+    { "source": "/review", "destination": "/review/index.html" },
+    { "source": "/:lang(en|tr)/review", "destination": "/:lang/review/index.html" },
     { "source": "/blog", "destination": "/blog/index.html" },
     { "source": "/blog/:slug", "destination": "/blog/:slug/index.html" },
     { "source": "/:lang(en|tr)", "destination": "/:lang/index.html" },
