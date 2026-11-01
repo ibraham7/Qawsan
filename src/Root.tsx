@@ -1,9 +1,10 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { CacheProvider } from "@emotion/react";
 import type { EmotionCache } from "@emotion/cache";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 
 import App from "./App";
+import SpaceBackdrop from "./components/common/SpaceBackdrop";
 import { I18nProvider, LOCALE_META, splitLocale } from "./i18n";
 import { cacheFor } from "./theme/rtl";
 import { createQawsanTheme } from "./theme/theme";
@@ -66,6 +67,10 @@ function Root({ path, cache }: RootProps) {
         <ThemeProvider theme={theme}>
           <CssBaseline />
 
+          {/* stars and planets behind every public page */}
+          {!isAdmin && <SpaceBackdrop />}
+
+          <Box sx={{ position: "relative", zIndex: 1 }}>
           {isAdmin ? (
             <Suspense fallback={null}>
               <Admin />
@@ -89,6 +94,7 @@ function Root({ path, cache }: RootProps) {
           ) : (
             <App mode={mode} onToggleTheme={handleToggleTheme} />
           )}
+          </Box>
         </ThemeProvider>
       </CacheProvider>
     </I18nProvider>

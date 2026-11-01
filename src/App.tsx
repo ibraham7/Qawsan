@@ -374,7 +374,6 @@ function App({
 
         minHeight: "100vh",
 
-        bgcolor: "background.default",
         color: "text.primary",
 
         // clip (not hidden) so the sticky header can stick
