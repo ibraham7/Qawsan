@@ -106,74 +106,38 @@ function Footer() {
               },
             }}
           >
-            <Box
-              component="img"
-              src="/logo/logo.png"
-              alt={t.nav.logoAlt}
-              sx={{
-                width: {
-                  xs: 110,
-                  sm: 125,
-                  md: 150,
-                },
-
-                height: "auto",
-
-                display: "block",
-
-                objectFit: "contain",
-              }}
-            />
-
+            {/* the logo and its sentence form one unit: the sentence sits right under the logo, centred on it */}
             <Box
               sx={{
                 display: "flex",
-
+                flexDirection: "column",
                 alignItems: "center",
-
-                justifyContent: {
-                  xs: "center",
-                  md: "flex-start",
-                },
-
-                gap: {
-                  xs: 0.8,
-                  md: 1,
-                },
-
-                mt: {
-                  xs: 2.5,
-                  sm: 3,
-                  md: 4,
-                },
-
-                transform: {
-                  xs: "none",
-                  md: "translateX(-15px)",
-                },
+                width: "fit-content",
               }}
             >
-              <Typography
+              <Box
+                component="img"
+                src="/logo/logo.png"
+                alt={t.nav.logoAlt}
                 sx={{
-                  fontFamily: "Inter, sans-serif",
-
-                  fontSize: {
-                    xs: 11,
-                    md: 12,
+                  width: {
+                    xs: 110,
+                    sm: 125,
+                    md: 150,
                   },
 
-                  fontWeight: 600,
+                  height: "auto",
 
-                  color: "primary.main",
+                  display: "block",
 
-                  textAlign: "center",
+                  objectFit: "contain",
                 }}
-              >
-                {"{ }"}
-              </Typography>
+              />
 
               <Typography
                 sx={{
+                  mt: 0.5,
+
                   fontSize: {
                     xs: 12,
                     md: 13,
@@ -181,12 +145,9 @@ function Footer() {
 
                   color: "text.secondary",
 
-                  textAlign: {
-                    xs: "center",
-                    md: "left",
-                  },
+                  textAlign: "center",
 
-                  unicodeBidi: "plaintext",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {t.footer.tagline}
