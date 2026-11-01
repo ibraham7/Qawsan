@@ -1,11 +1,20 @@
+import { useEffect, useState } from "react";
+
 import type { Locale } from "../i18n/locales";
+
+declare global {
+    interface Window {
+        __QAWSAN_REVIEWS__?: Review[];
+    }
+}
 
 /**
  * Customer reviews.
  *
- * Add real reviews to REVIEWS (a customer's own words, their real rating, a name and role
- * they agreed to show). The reviews section, the overall rating and the "client satisfaction"
- * figure in the numbers band all read from this list and appear as soon as it has entries.
+ * Real reviews come from the database (table qawsan_reviews): customers send them from /review,
+ * an admin approves them in /admin, and only approved ones are public. You can also add a
+ * review by hand to REVIEWS below. The reviews section, the overall rating and the "client
+ * satisfaction" figure all read from the combined list and appear as soon as it has entries.
  *
  * SAMPLE_REVIEWS exist only to preview the layout (add ?demo to the address of the home page,
  * or run the dev server). They are never shown to visitors, because invented reviews on a
@@ -148,12 +157,62 @@ export const averageRating = (list: Review[]) =>
 export const satisfactionPercent = (list: Review[]) =>
     list.length ? Math.round((list.filter((r) => r.rating >= 4).length / list.length) * 100) : 0;
 
+/* the prerender seeds the approved reviews it fetched at build time; the built page carries
+   the same list in window.__QAWSAN_REVIEWS__ so the first render already has them */
+let seeded: Review[] | null = null;
+
+export function seedReviews(rows: Review[]) {
+    seeded = rows;
+}
+
+/** approved reviews from the database (public read; RLS hides everything unapproved) */
+export async function fetchReviews(): Promise<Review[]> {
+    // loaded on demand so the Supabase client stays out of the main bundle
+    const { supabase } = await import("../lib/supabase");
+    const { data, error } = await supabase
+        .from("qawsan_reviews")
+        .select("id, name, role, rating, text, locale, created_at")
+        .eq("approved", true)
+        .order("created_at", { ascending: false })
+        .limit(40);
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+        id: row.id as string,
+        name: row.name as string,
+        role: (row.role as string) ?? "",
+        rating: Number(row.rating),
+        text: { [row.locale as Locale]: row.text as string },
+    }));
+}
+
+function initialReviews(): Review[] {
+    const fromBuild =
+        seeded ?? (typeof window !== "undefined" ? window.__QAWSAN_REVIEWS__ : undefined) ?? [];
+    return [...REVIEWS, ...fromBuild];
+}
+
 /**
  * The reviews to show: the real ones; or, only when previewing (?demo in the address, or the
- * dev server), the sample ones, flagged so the page can say they are samples.
+ * dev server) and there are none, the sample ones, flagged so the page can say they are samples.
  */
-export function pickReviews(): { list: Review[]; demo: boolean } {
-    if (REVIEWS.length) return { list: REVIEWS, demo: false };
+export function useReviews(): { list: Review[]; demo: boolean } {
+    const [real, setReal] = useState<Review[]>(initialReviews);
+
+    useEffect(() => {
+        let active = true;
+        fetchReviews()
+            .then((rows) => {
+                if (active) setReal([...REVIEWS, ...rows]);
+            })
+            .catch(() => {
+                /* keep what we have */
+            });
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    if (real.length) return { list: real, demo: false };
     const previewing =
         import.meta.env.DEV ||
         (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo"));

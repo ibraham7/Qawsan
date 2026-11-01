@@ -12,6 +12,7 @@ const StartProject = lazy(() => import("./pages/StartProject"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Review = lazy(() => import("./pages/Review"));
 
 interface RootProps {
   path: string;
@@ -56,6 +57,7 @@ function Root({ path, cache }: RootProps) {
   const isStartProject = route === "/start-project";
   const isAdmin = route === "/admin";
   const isBlog = route === "/blog";
+  const isReview = route === "/review";
   const postSlug = route.startsWith("/blog/") ? route.slice("/blog/".length) : null;
 
   return (
@@ -67,6 +69,10 @@ function Root({ path, cache }: RootProps) {
           {isAdmin ? (
             <Suspense fallback={null}>
               <Admin />
+            </Suspense>
+          ) : isReview ? (
+            <Suspense fallback={null}>
+              <Review mode={mode} onToggleTheme={handleToggleTheme} />
             </Suspense>
           ) : isBlog ? (
             <Suspense fallback={null}>

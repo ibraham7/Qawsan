@@ -28,6 +28,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
+import ReviewsAdmin from "../components/admin/ReviewsAdmin";
 import Logo from "../components/common/Logo";
 import { TRANSLATION_FIELDS, fetchProjects } from "../data/projects";
 import type { Project, ProjectInput } from "../data/projects";
@@ -541,6 +542,8 @@ function Dashboard({ session }: { session: Session }) {
                     ))}
                 </Box>
             )}
+
+            <ReviewsAdmin />
 
             {editing && (
                 <ProjectForm
