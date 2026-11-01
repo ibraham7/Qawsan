@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Locale } from "../i18n/locales";
 
@@ -144,6 +144,52 @@ const BUILT_IN: Record<string, Partial<Record<"en" | "tr", { title?: string; cat
     },
 };
 
+/*
+ * Extra screenshots shipped with the site, keyed by project link, so every project has several
+ * views to flip through. Images added in /admin are kept and shown first.
+ */
+const GALLERY: Record<string, string[]> = {
+    "https://clinova.novanoai.online/": [
+        "/images/projects/clinova-1.jpeg",
+        "/images/projects/clinova-2.jpeg",
+        "/images/projects/clinova-3.jpeg",
+        "/images/projects/clinova-4.jpeg",
+    ],
+    "https://sales.novanoai.online/": [
+        "/images/projects/novasales-1.jpeg",
+        "/images/projects/novasales-2.jpeg",
+        "/images/projects/novasales-3.jpeg",
+    ],
+    "https://uni.novanoai.online/": [
+        "/images/projects/university-1.jpeg",
+        "/images/projects/university-2.jpeg",
+        "/images/projects/university-3.jpeg",
+    ],
+    "https://wird-platform.vercel.app/": [
+        "/images/projects/wird-1.jpeg",
+        "/images/projects/wird-2.jpeg",
+        "/images/projects/wird-3.jpeg",
+    ],
+    "https://rpanyon.com/": [
+        "/images/projects/rabbanioon-1.jpeg",
+        "/images/projects/rabbanioon-2.jpeg",
+        "/images/projects/rabbanioon-3.jpeg",
+    ],
+};
+
+/*
+ * Order: screenshots uploaded in /admin, then the bundled ones, then the older bundled cover
+ * (often just a sign-in screen), so the first thing a visitor sees is the real product.
+ */
+export function withGallery(p: Project): Project {
+    const extra = GALLERY[p.link];
+    if (!extra) return p;
+    const bundled = (src: string) => src.startsWith("/images/projects/");
+    const uploaded = p.images.filter((src) => !bundled(src));
+    const older = p.images.filter((src) => bundled(src) && !extra.includes(src));
+    return { ...p, images: [...uploaded, ...extra, ...older] };
+}
+
 export interface ProjectText {
     title: string;
     category: string;
@@ -226,5 +272,5 @@ export function useProjects() {
         };
     }, []);
 
-    return projects;
+    return useMemo(() => projects.map(withGallery), [projects]);
 }
