@@ -17,7 +17,7 @@ import {
   TIMELINES,
   validate,
   type StartProjectPayload,
-} from "../src/lib/startProject";
+} from "../src/lib/startProject.js";
 
 interface Req {
   method?: string;
