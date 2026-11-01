@@ -150,7 +150,6 @@ const BUILT_IN: Record<string, Partial<Record<"en" | "tr", { title?: string; cat
  */
 const GALLERY: Record<string, string[]> = {
     "https://clinova.novanoai.online/": [
-        "/images/projects/clinova-1.jpeg",
         "/images/projects/clinova-2.jpeg",
         "/images/projects/clinova-3.jpeg",
         "/images/projects/clinova-4.jpeg",
@@ -166,20 +165,21 @@ const GALLERY: Record<string, string[]> = {
         "/images/projects/university-3.jpeg",
     ],
     "https://wird-platform.vercel.app/": [
-        "/images/projects/wird-1.jpeg",
         "/images/projects/wird-2.jpeg",
         "/images/projects/wird-3.jpeg",
     ],
     "https://rpanyon.com/": [
-        "/images/projects/rabbanioon-1.jpeg",
         "/images/projects/rabbanioon-2.jpeg",
         "/images/projects/rabbanioon-3.jpeg",
     ],
 };
 
+/* covers that are only a sign-in screen: kept, but shown last */
+const WEAK_COVERS = new Set(["/images/projects/novasales.png", "/images/projects/university-system.png"]);
+
 /*
- * Order: screenshots uploaded in /admin, then the bundled ones, then the older bundled cover
- * (often just a sign-in screen), so the first thing a visitor sees is the real product.
+ * Order: screenshots uploaded in /admin, the bundled cover, the bundled gallery, and last any
+ * cover that is just a sign-in screen, so the first thing a visitor sees is the real product.
  */
 export function withGallery(p: Project): Project {
     const extra = GALLERY[p.link];
@@ -187,7 +187,15 @@ export function withGallery(p: Project): Project {
     const bundled = (src: string) => src.startsWith("/images/projects/");
     const uploaded = p.images.filter((src) => !bundled(src));
     const older = p.images.filter((src) => bundled(src) && !extra.includes(src));
-    return { ...p, images: [...uploaded, ...extra, ...older] };
+    return {
+        ...p,
+        images: [
+            ...uploaded,
+            ...older.filter((src) => !WEAK_COVERS.has(src)),
+            ...extra,
+            ...older.filter((src) => WEAK_COVERS.has(src)),
+        ],
+    };
 }
 
 export interface ProjectText {
