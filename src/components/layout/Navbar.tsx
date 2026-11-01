@@ -414,6 +414,8 @@ function StartButton({ onClick, full = false }: { onClick?: () => void; full?: b
       onClick={onClick}
       endIcon={<Arrow />}
       sx={{
+        // the header ignores the pointer so the page stays clickable around the islands
+        pointerEvents: "auto",
         position: "relative",
         overflow: "hidden",
         height: full ? 56 : { xs: 52, md: 56 },
