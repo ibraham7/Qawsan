@@ -11,7 +11,7 @@ import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 
 import ScrollReveal from "../common/ScrollReveal";
 import { useI18n } from "../../i18n";
-import { bob, breathe, drift, floatTilt, seeded, shimmerText, spin } from "../../theme/animations";
+import { bob, breathe, drift, seeded, shimmerText, spin } from "../../theme/animations";
 import { EASE, GREEN, fade } from "../../theme/motion";
 
 /*
@@ -27,10 +27,10 @@ const ripple = keyframes`
 `;
 
 const SATELLITES = [
-  { Icon: LightbulbOutlinedIcon, angle: 0 },
-  { Icon: BrandingWatermarkOutlinedIcon, angle: 90 },
-  { Icon: CodeOutlinedIcon, angle: 180 },
-  { Icon: RocketLaunchOutlinedIcon, angle: 270 },
+  { Icon: LightbulbOutlinedIcon, angle: 0, name: "IDEA" },
+  { Icon: BrandingWatermarkOutlinedIcon, angle: 90, name: "BRAND" },
+  { Icon: CodeOutlinedIcon, angle: 180, name: "CODE" },
+  { Icon: RocketLaunchOutlinedIcon, angle: 270, name: "LAUNCH" },
 ];
 
 const PARTICLES = Array.from({ length: 9 }, (_, i) => ({
@@ -46,7 +46,14 @@ function OrbitArt() {
     <Box
       dir="ltr"
       aria-hidden="true"
-      sx={{ position: "relative", mx: "auto", width: { xs: 270, sm: 340, md: 400 }, height: { xs: 270, sm: 340, md: 400 } }}
+      sx={{
+        position: "relative",
+        mx: "auto",
+        width: { xs: 270, sm: 340, md: 400 },
+        height: { xs: 270, sm: 340, md: 400 },
+        // the ring (and the counter-turn that keeps icons upright) stop together while you point at it
+        "&:hover .orbit-ring, &:hover .orbit-counter": { animationPlayState: "paused" },
+      }}
     >
       {/* light spreading outward */}
       {[0, 1.5, 3].map((d) => (
@@ -65,6 +72,7 @@ function OrbitArt() {
 
       {/* outer ring with the four stages */}
       <Box
+        className="orbit-ring"
         sx={{
           position: "absolute",
           inset: "10%",
@@ -74,30 +82,68 @@ function OrbitArt() {
           animation: `${spin} 38s linear infinite`,
         }}
       >
-        {SATELLITES.map(({ Icon, angle }) => (
+        {SATELLITES.map(({ Icon, angle, name }) => (
           <Box key={angle} style={{ rotate: `${angle}deg` }} sx={{ position: "absolute", inset: 0 }}>
             <Box
               style={{ position: "absolute", top: 0, left: "50%", marginLeft: -24, marginTop: -24 }}
               sx={{ width: 48, height: 48 }}
             >
               {/* cancels the ring's turn and the slot's angle so the icon stays upright */}
-              <Box sx={{ width: "100%", height: "100%", animation: `${spin} 38s linear reverse infinite` }}>
+              <Box className="orbit-counter" sx={{ width: "100%", height: "100%", animation: `${spin} 38s linear reverse infinite` }}>
                 <Box
                   style={{ rotate: `${-angle}deg` }}
                   sx={{
+                    position: "relative",
                     width: "100%",
                     height: "100%",
                     borderRadius: "16px",
                     display: "grid",
                     placeItems: "center",
+                    cursor: "default",
                     color: "primary.main",
                     bgcolor: (th) => alpha(th.palette.background.paper, 0.9),
                     border: "1px solid",
                     borderColor: `rgba(${GREEN}, 0.4)`,
                     boxShadow: `0 12px 30px -12px rgba(${GREEN}, 0.7)`,
+                    outline: "none",
+                    transition: fade(["scale", "background-color", "color", "border-color", "box-shadow"], 450),
+                    "& .sat-label": {
+                      opacity: 0,
+                      translate: "-50% 6px",
+                      transition: fade(["opacity", "translate"], 400),
+                    },
+                    "&:hover, &:focus-visible": {
+                      scale: "1.22",
+                      color: "#04110C",
+                      bgcolor: "primary.main",
+                      borderColor: "primary.main",
+                      boxShadow: `0 0 0 7px rgba(${GREEN}, 0.16), 0 20px 44px -12px rgba(${GREEN}, 0.95)`,
+                      "& .sat-label": { opacity: 1, translate: "-50% 0" },
+                    },
                   }}
                 >
                   <Icon sx={{ fontSize: 24 }} />
+                  <Box
+                    className="sat-label"
+                    style={{ position: "absolute", top: "calc(100% + 10px)", left: "50%" }}
+                    sx={{
+                      px: 1.25,
+                      py: 0.4,
+                      borderRadius: 99,
+                      border: "1px solid",
+                      borderColor: `rgba(${GREEN}, 0.45)`,
+                      bgcolor: (th) => alpha(th.palette.background.default, 0.92),
+                      color: "primary.main",
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {name}
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -126,7 +172,7 @@ function OrbitArt() {
         ))}
       </Box>
 
-      {/* the idea */}
+      {/* the idea: the mark stays put; only the light behind it breathes */}
       <Box
         sx={{
           position: "absolute",
@@ -134,18 +180,26 @@ function OrbitArt() {
           borderRadius: "50%",
           display: "grid",
           placeItems: "center",
-          background: `radial-gradient(circle, rgba(${GREEN}, 0.55) 0%, rgba(${GREEN}, 0.12) 60%, transparent 72%)`,
-          animation: `${breathe} 4s ease-in-out infinite`,
         }}
       >
+        <Box
+          aria-hidden="true"
+          sx={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, rgba(${GREEN}, 0.55) 0%, rgba(${GREEN}, 0.12) 60%, transparent 72%)`,
+            animation: `${breathe} 4s ease-in-out infinite`,
+          }}
+        />
         <Box
           sx={{
             fontFamily: "Inter, sans-serif",
             fontSize: { xs: 40, md: 54 },
             fontWeight: 600,
             lineHeight: 1,
+            position: "relative",
             color: "text.primary",
-            animation: `${floatTilt} 7s ease-in-out infinite`,
           }}
         >
           {"{ }"}
