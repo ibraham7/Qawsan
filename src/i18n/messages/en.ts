@@ -137,7 +137,7 @@ const en: Messages = {
     submit: "Send my review",
     sending: "Sending…",
     successTitle: "Thank you!",
-    successText: "We've received your feedback. It will appear on the site after review.",
+    successText: "We've received your feedback and it is now shown on the site.",
     back: "Back to Home",
     error: "We couldn't send your review right now. Please try again in a moment.",
     errors: {
