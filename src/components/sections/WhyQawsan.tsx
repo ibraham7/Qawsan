@@ -6,62 +6,50 @@ import { keyframes } from "@mui/material/styles";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
-import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 import CountUp from "../common/CountUp";
 import ScrollReveal from "../common/ScrollReveal";
-import SpotCard from "../common/SpotCard";
-import { useProjects } from "../../data/projects";
+import { pickReviews, satisfactionPercent } from "../../data/reviews";
 import { useI18n } from "../../i18n";
 import { bob, drift, seeded, shimmerText } from "../../theme/animations";
 import { EASE, GREEN, fade } from "../../theme/motion";
-
-// titles and texts come from t.why.items, in this order
-const reasonIcons = [LightbulbOutlinedIcon, GroupsOutlinedIcon, DesignServicesOutlinedIcon, SearchOutlinedIcon];
 
 const rise = keyframes`
   from { opacity: 0; translate: 0 14px; }
   to { opacity: 1; translate: 0 0; }
 `;
 
-/** One short, plain statement of what the studio has done. */
-function Achievement({ value, label }: { value: number; label: string }) {
+/** A big shimmering number that counts up, with an optional + or % after it. */
+function BigNumber({ value, suffix }: { value: number; suffix?: string }) {
   return (
-    <Box sx={{ textAlign: "center", px: { xs: 1, md: 3 }, py: { xs: 3, md: 4.5 } }}>
-      <Typography
-        component="div"
-        dir="ltr"
-        sx={{
-          fontFamily: "Inter, sans-serif",
-          fontSize: { xs: 56, md: 84 },
-          fontWeight: 800,
-          lineHeight: 1,
-          letterSpacing: "-0.04em",
-          ...shimmerText(),
-        }}
-      >
-        <CountUp to={value} />
-      </Typography>
-      <Typography sx={{ m: 0, mt: 1.5, mx: "auto", maxWidth: 260, fontSize: { xs: 14.5, md: 16.5 }, lineHeight: 1.7, color: "text.secondary" }}>
-        {label}
-      </Typography>
-    </Box>
+    <Typography
+      component="div"
+      dir="ltr"
+      sx={{
+        fontFamily: "Inter, sans-serif",
+        fontSize: { xs: 64, md: 96 },
+        fontWeight: 800,
+        lineHeight: 1,
+        letterSpacing: "-0.04em",
+        ...shimmerText(),
+      }}
+    >
+      <CountUp to={value} />
+      {suffix}
+    </Typography>
   );
 }
 
 function WhyQawsan() {
   const { t, to, dir } = useI18n();
-  const projects = useProjects();
+  const { list: reviews } = pickReviews();
+  const satisfaction = satisfactionPercent(reviews);
+  const hasSatisfaction = reviews.length > 0;
   const isDark = useTheme().palette.mode === "dark";
   const [picked, setPicked] = useState(0);
   const Arrow = dir === "rtl" ? ArrowBackRoundedIcon : ArrowForwardRoundedIcon;
 
   const option = t.why.pick.options[picked];
-  // the first number follows the real portfolio, the rest come from the dictionary
-  const achievements = t.why.achievements.map((a, i) => ({ ...a, value: i === 0 ? projects.length : a.value }));
 
   return (
     <Box component="section" id="why-qawsan" sx={{ position: "relative", py: { xs: 10, md: 16 }, bgcolor: "transparent" }}>
@@ -112,104 +100,80 @@ function WhyQawsan() {
           </Typography>
         </Box>
 
-        {/* what we've done: three plain numbers in one band */}
+        {/* what we've done: the numbers, one big band */}
         <ScrollReveal variant="scale">
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-              borderRadius: { xs: "26px", md: "34px" },
+              gridTemplateColumns: { xs: "1fr", md: hasSatisfaction ? "1fr 1.25fr 1fr" : "1fr 1.25fr" },
+              borderRadius: { xs: "26px", md: "36px" },
               border: "1px solid",
-              borderColor: `rgba(${GREEN}, 0.25)`,
+              borderColor: `rgba(${GREEN}, 0.28)`,
               bgcolor: "background.paper",
               overflow: "hidden",
               mb: { xs: 2.5, md: 3.5 },
-              // thin dividers between the numbers (explicit colour: the theme token is lost in nested selectors)
+              // thin dividers between the cells (explicit colour: theme tokens are lost in nested selectors)
               "& > *:not(:first-of-type)": {
                 borderTop: { xs: `1px solid rgba(${GREEN}, 0.16)`, md: 0 },
                 borderInlineStart: { md: `1px solid rgba(${GREEN}, 0.16)` },
               },
             }}
           >
-            {achievements.map((a) => (
-              <Achievement key={a.label} value={a.value} label={a.label} />
-            ))}
+            {/* live projects */}
+            <Box sx={{ textAlign: "center", px: { xs: 2, md: 4 }, py: { xs: 4, md: 6 } }}>
+              <BigNumber value={t.why.stats.projects.value} />
+              <Typography sx={{ m: 0, mt: 1.75, fontSize: { xs: 16, md: 18 }, fontWeight: 600, lineHeight: 1.6, color: "text.primary" }}>
+                {t.why.stats.projects.label}
+              </Typography>
+              <Typography sx={{ m: 0, mt: 0.75, fontSize: { xs: 13.5, md: 15 }, color: "text.secondary" }}>
+                {t.why.stats.projects.sub}
+              </Typography>
+            </Box>
+
+            {/* industries: a floating cloud of tags instead of a small number */}
+            <Box sx={{ position: "relative", px: { xs: 2, md: 4 }, py: { xs: 4, md: 6 }, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+              <Typography sx={{ m: 0, mb: 2.5, fontSize: { xs: 16, md: 18 }, fontWeight: 600, color: "text.primary" }}>
+                {t.why.stats.sectors.label}
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: { xs: 1, md: 1.5 }, maxWidth: 520 }}>
+                {t.why.stats.sectors.items.map((item, i) => (
+                  <Box
+                    key={item}
+                    sx={{
+                      px: { xs: 1.75, md: 2.5 },
+                      py: { xs: 0.9, md: 1.2 },
+                      borderRadius: 99,
+                      border: "1px solid",
+                      borderColor: `rgba(${GREEN}, 0.3)`,
+                      bgcolor: `rgba(${GREEN}, 0.08)`,
+                      color: "primary.main",
+                      fontSize: { xs: 14.5, md: 17 },
+                      fontWeight: 600,
+                      transition: fade(["background-color", "border-color", "color"], 420),
+                      animation: `${bob} ${(3.6 + seeded(i, 5) * 2.6).toFixed(2)}s ease-in-out ${(-seeded(i, 8) * 4).toFixed(2)}s infinite`,
+                      "&:hover": { bgcolor: "primary.main", color: "#04110C", borderColor: "primary.main" },
+                    }}
+                  >
+                    {item}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* satisfaction, from the real ratings; shown only when there are reviews */}
+            {hasSatisfaction && (
+              <Box sx={{ textAlign: "center", px: { xs: 2, md: 4 }, py: { xs: 4, md: 6 } }}>
+                <BigNumber value={satisfaction} suffix="%" />
+                <Typography sx={{ m: 0, mt: 1.75, fontSize: { xs: 16, md: 18 }, fontWeight: 600, lineHeight: 1.6, color: "text.primary" }}>
+                  {t.why.stats.satisfaction.label}
+                </Typography>
+                <Typography sx={{ m: 0, mt: 0.75, fontSize: { xs: 13.5, md: 15 }, color: "text.secondary" }}>
+                  {t.why.stats.satisfaction.sub}
+                </Typography>
+              </Box>
+            )}
           </Box>
         </ScrollReveal>
-
-        {/* four reasons, in reading order */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
-            gap: { xs: 1.75, md: 2.5 },
-            mb: { xs: 2.5, md: 3.5 },
-          }}
-        >
-          {t.why.items.map((reason, i) => {
-            const Icon = reasonIcons[i];
-            return (
-              <ScrollReveal key={reason.title} variant={(["up", "blur", "tilt", "scale"] as const)[i]} delay={i * 100}>
-                <SpotCard
-                  sx={{
-                    p: { xs: 3, md: 3.5 },
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2.5,
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      top: 0,
-                      insetInline: 0,
-                      height: "2px",
-                      background: "linear-gradient(90deg, transparent, #00D084, transparent)",
-                      scale: "0 1",
-                      transition: `scale 700ms ${EASE}`,
-                    },
-                    "&:hover::after": { scale: "1 1" },
-                    "&:hover .reason-icon": { bgcolor: `rgba(${GREEN}, 0.16)`, borderColor: `rgba(${GREEN}, 0.5)` },
-                  }}
-                >
-                  <Box sx={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Box
-                      className="reason-icon"
-                      sx={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: "18px",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "primary.main",
-                        bgcolor: `rgba(${GREEN}, 0.06)`,
-                        border: "1px solid",
-                        borderColor: `rgba(${GREEN}, 0.22)`,
-                        transition: fade(["background-color", "border-color"], 480),
-                        animation: `${bob} ${(4.4 + seeded(i, 9) * 2).toFixed(2)}s ease-in-out ${(-seeded(i, 2) * 5).toFixed(2)}s infinite`,
-                      }}
-                    >
-                      <Icon sx={{ fontSize: 28 }} />
-                    </Box>
-                    <Typography
-                      dir="ltr"
-                      sx={{ fontFamily: "Inter, sans-serif", fontSize: 40, fontWeight: 700, lineHeight: 1, color: "text.secondary", opacity: 0.2 }}
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ position: "relative" }}>
-                    <Typography component="h3" sx={{ m: 0, mb: 1, fontSize: { xs: 19, md: 20 }, fontWeight: 600, lineHeight: 1.4, color: "text.primary" }}>
-                      {reason.title}
-                    </Typography>
-                    <Typography sx={{ m: 0, fontSize: { xs: 14.5, md: 15 }, lineHeight: 1.85, color: "text.secondary" }}>
-                      {reason.text}
-                    </Typography>
-                  </Box>
-                </SpotCard>
-              </ScrollReveal>
-            );
-          })}
-        </Box>
 
         {/* pick your project and see what you get */}
         <ScrollReveal variant="tilt">
