@@ -169,10 +169,14 @@ const GALLERY: Record<string, string[]> = {
         "/images/projects/wird-3.jpeg",
     ],
     "https://rpanyon.com/": [
+        "/images/projects/rabbanioon-1.jpeg",
         "/images/projects/rabbanioon-2.jpeg",
         "/images/projects/rabbanioon-3.jpeg",
     ],
 };
+
+/* old covers replaced by the screenshots above: not shown any more */
+const RETIRED = new Set(["/images/projects/rabbanioon.jpg"]);
 
 /* covers that are only a sign-in screen: kept, but shown last */
 const WEAK_COVERS = new Set(["/images/projects/novasales.png", "/images/projects/university-system.png"]);
@@ -186,7 +190,7 @@ export function withGallery(p: Project): Project {
     if (!extra) return p;
     const bundled = (src: string) => src.startsWith("/images/projects/");
     const uploaded = p.images.filter((src) => !bundled(src));
-    const older = p.images.filter((src) => bundled(src) && !extra.includes(src));
+    const older = p.images.filter((src) => bundled(src) && !extra.includes(src) && !RETIRED.has(src));
     return {
         ...p,
         images: [
