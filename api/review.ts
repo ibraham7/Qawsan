@@ -9,8 +9,8 @@
  *   SUPABASE_URL                optional: defaults to the project the site already uses
  *   RESEND_API_KEY, NOTIFY_EMAIL_TO, [NOTIFY_EMAIL_FROM]   optional: new-review email
  */
-import { validateReview } from "../src/lib/review";
-import type { ReviewPayload } from "../src/lib/review";
+import { validateReview } from "../src/lib/review.js";
+import type { ReviewPayload } from "../src/lib/review.js";
 
 interface Req {
   method?: string;
