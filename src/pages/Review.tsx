@@ -152,7 +152,7 @@ function Review({ mode, onToggleTheme }: Props) {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh" }}>
       <Navbar mode={mode} onToggleTheme={onToggleTheme} />
 
       <Container component="main" maxWidth="sm" sx={{ pt: { xs: 6, md: 9 }, pb: { xs: 8, md: 12 } }}>

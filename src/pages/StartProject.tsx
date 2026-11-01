@@ -220,7 +220,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
   );
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh" }}>
       <Navbar mode={mode} onToggleTheme={onToggleTheme} />
 
       <Container

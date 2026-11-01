@@ -94,7 +94,7 @@ function Blog({ mode, onToggleTheme }: Props) {
   }, [t.meta.blogTitle]);
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh" }}>
       <Navbar mode={mode} onToggleTheme={onToggleTheme} />
 
       <Container
