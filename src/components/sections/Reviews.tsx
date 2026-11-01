@@ -115,8 +115,8 @@ function Reviews() {
   const isDark = useTheme().palette.mode === "dark";
   const rtl = dir === "rtl";
 
-  // real reviews are in the prerendered page; sample ones only ever appear in the browser (?demo)
-  const { list, demo } = useReviews();
+  // real reviews are in the prerendered page
+  const { list } = useReviews();
 
   const track = useRef<HTMLDivElement | null>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
@@ -246,14 +246,6 @@ function Reviews() {
             </Box>
           </Box>
         </Box>
-
-        {demo && (
-          <Typography
-            sx={{ m: 0, mb: 2.5, px: 2, py: 1, borderRadius: 2, border: "1px dashed", borderColor: "warning.main", color: "warning.main", fontSize: 13.5 }}
-          >
-            {t.reviews.demo}
-          </Typography>
-        )}
 
         {/* the scroller */}
         <ScrollReveal variant="up">

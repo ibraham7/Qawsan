@@ -119,7 +119,6 @@ const en: Messages = {
     prev: "Previous review",
     next: "Next review",
     rate: "Rate your experience",
-    demo: "Sample content to preview the layout — not real reviews",
   },
 
   review: {
