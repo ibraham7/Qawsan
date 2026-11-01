@@ -119,7 +119,6 @@ const tr: Messages = {
     prev: "Önceki yorum",
     next: "Sonraki yorum",
     rate: "Deneyiminizi değerlendirin",
-    demo: "Görünümü önizlemek için örnek içerik — gerçek yorumlar değildir",
   },
 
   review: {
