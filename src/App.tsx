@@ -5,6 +5,7 @@ import Hero from "./components/sections/Hero";
 import Services from "./components/sections/Services";
 import Projects from "./components/sections/Projects";
 import WhyQawsan from "./components/sections/WhyQawsan";
+import Reviews from "./components/sections/Reviews";
 import About from "./components/sections/About";
 import CTA from "./components/sections/CTA";
 import Footer from "./components/layout/Footer";
@@ -425,6 +426,10 @@ function App({
           >
             <WhyQawsan />
           </ScrollReveal>
+
+          {/* REVIEWS: only renders when there are reviews */}
+
+          <Reviews />
 
           {/* ABOUT */}
 

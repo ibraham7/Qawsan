@@ -78,17 +78,11 @@ const tr: Messages = {
     title1: "Çünkü iyi bir ürün",
     title2: "detaylarda başlar.",
     lead: "Tasarımı teknolojiyle buluşturarak net, tutarlı ve büyümeye hazır ürünler ortaya koyuyoruz.",
-    items: [
-      { title: "Önce fikriniz", text: "Önce sizi dinliyoruz; herhangi bir tasarımdan önce fikrinizi net bir plana dönüştürüyoruz." },
-      { title: "Tek ekip, baştan sona", text: "Marka, tasarım, yazılım ve lansman hep bizde; birden fazla tedarikçinin peşinden koşmanız gerekmez." },
-      { title: "Yapılmadan önce görün", text: "Tek satır kod yazılmadan tasarımın tamamını görüp onaylarsınız; sonunda sürpriz yaşamazsınız." },
-      { title: "Bulunmaya hazır", text: "Hızlı, her cihazda çalışan ve Google'da ve yapay zekâ yanıtlarında görünen bir site." },
-    ],
-    achievements: [
-      { value: 5, label: "Bugün internette yayında olan gerçek proje" },
-      { value: 3, label: "Çalıştığımız sektör: sağlık, satış ve eğitim" },
-      { value: 6, label: "Fikrinizden lansmana net adım" },
-    ],
+    stats: {
+      projects: { value: 10, label: "proje şu anda internette yayında", sub: "sistemler, web siteleri ve mağazalar" },
+      sectors: { label: "Çalıştığımız sektörler", items: ["Sağlık", "Satış", "Eğitim", "Online mağazalar", "Kurumsal siteler", "Dijital platformlar"] },
+      satisfaction: { label: "Müşteri memnuniyeti", sub: "değerlendirmelerine göre" },
+    },
     pick: {
       label: "Neler kazanırsınız",
       title: "Sizin için ne inşa edelim?",
@@ -114,6 +108,17 @@ const tr: Messages = {
         },
       ],
     },
+  },
+
+  reviews: {
+    label: "Müşteri yorumları",
+    title1: "Müşterilerimiz",
+    title2: "bizim için ne diyor?",
+    overall: "Genel puan",
+    based: (n: number) => `${n} değerlendirmeden`,
+    prev: "Önceki yorum",
+    next: "Sonraki yorum",
+    demo: "Görünümü önizlemek için örnek içerik — gerçek yorumlar değildir",
   },
 
   about: {

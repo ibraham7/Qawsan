@@ -78,17 +78,11 @@ const en: Messages = {
     title1: "Because great products",
     title2: "start with the details.",
     lead: "We bring design and technology together to create products that are clear, consistent and built to grow.",
-    items: [
-      { title: "Your idea comes first", text: "We start by listening, and turn your idea into a clear plan before any design." },
-      { title: "One team, start to finish", text: "Brand, design, development and launch all happen here, so you never chase several suppliers." },
-      { title: "See it before it's built", text: "You review and approve the full design before a line of code is written, so there are no surprises at the end." },
-      { title: "Ready to be found", text: "A fast site that works on every device and shows up on Google and in AI answers." },
-    ],
-    achievements: [
-      { value: 5, label: "Real projects live on the internet today" },
-      { value: 3, label: "Industries we've worked in: health, sales and education" },
-      { value: 6, label: "Clear steps from your idea to launch" },
-    ],
+    stats: {
+      projects: { value: 10, label: "projects live on the internet today", sub: "systems, websites and stores" },
+      sectors: { label: "Industries we work in", items: ["Health", "Sales", "Education", "Online stores", "Company websites", "Digital platforms"] },
+      satisfaction: { label: "Client satisfaction", sub: "based on their ratings" },
+    },
     pick: {
       label: "What you get",
       title: "What would you like us to build?",
@@ -114,6 +108,17 @@ const en: Messages = {
         },
       ],
     },
+  },
+
+  reviews: {
+    label: "Client reviews",
+    title1: "What our clients",
+    title2: "say about us.",
+    overall: "Overall rating",
+    based: (n: number) => `from ${n} reviews`,
+    prev: "Previous review",
+    next: "Next review",
+    demo: "Sample content to preview the layout — not real reviews",
   },
 
   about: {
