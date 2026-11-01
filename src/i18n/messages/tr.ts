@@ -137,7 +137,7 @@ const tr: Messages = {
     submit: "Değerlendirmeyi Gönder",
     sending: "Gönderiliyor…",
     successTitle: "Teşekkürler!",
-    successText: "Geri bildiriminizi aldık. İncelendikten sonra sitede yayımlanacak.",
+    successText: "Geri bildiriminizi aldık ve artık sitede görünüyor.",
     back: "Ana Sayfaya Dön",
     error: "Değerlendirmeniz şu anda gönderilemedi. Lütfen biraz sonra tekrar deneyin.",
     errors: {
