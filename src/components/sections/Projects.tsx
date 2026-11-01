@@ -38,7 +38,7 @@ const barFill = keyframes`
 `;
 const pan = keyframes`
     from { translate: 0 0; scale: 1; }
-    to { translate: 0 -1.2%; scale: 1.035; }
+    to { translate: 0 -0.6%; scale: 1.012; }
 `;
 const sheen = keyframes`
     0%, 70% { translate: -130% 0; }
@@ -239,7 +239,7 @@ function Stage({
                         alignItems: "center",
                         gap: 1.5,
                         px: 2,
-                        height: 40,
+                        height: 34,
                         borderBottom: "1px solid",
                         borderColor: "divider",
                         bgcolor: "rgba(127,127,127,0.06)",
@@ -306,7 +306,7 @@ function Stage({
                     }}
                     sx={{
                         position: "relative",
-                        aspectRatio: "2.25 / 1",
+                        aspectRatio: "1.97 / 1",
                         overflow: "hidden",
                         cursor: "zoom-in",
                         outline: "none",
@@ -329,7 +329,7 @@ function Stage({
                                 width: "100%",
                                 height: "100%",
                                 objectFit: "cover",
-                                objectPosition: "top center",
+                                objectPosition: "right top",
                                 userSelect: "none",
                                 // arrives with a soft zoom, then keeps panning slowly
                                 animation: `${shotIn} 900ms ${EASE} both, ${pan} 18s ease-in-out 900ms infinite alternate`,
@@ -698,7 +698,7 @@ function Projects() {
                                                 sx={{
                                                     p: 0,
                                                     width: { xs: 56, sm: 76 },
-                                                    aspectRatio: "2.25 / 1",
+                                                    aspectRatio: "1.97 / 1",
                                                     borderRadius: "10px",
                                                     overflow: "hidden",
                                                     cursor: "pointer",
