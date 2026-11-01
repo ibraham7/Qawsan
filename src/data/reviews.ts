@@ -91,6 +91,50 @@ export const SAMPLE_REVIEWS: Review[] = [
             tr: "Düzenli çalışma ve detaylara özen. Fikrini ürüne dönüştürmek isteyen herkese tavsiye ederim.",
         },
     },
+    {
+        id: "s7",
+        name: "عميل تجريبي ٧",
+        role: "صالون تجميل",
+        rating: 5,
+        text: {
+            ar: "الحجز الإلكتروني وفّر علينا مكالمات كثيرة. التصميم أنيق ويشبه هوية الصالون تمامًا.",
+            en: "Online booking saved us a lot of phone calls. The design is elegant and matches the salon's identity perfectly.",
+            tr: "Online rezervasyon bize çok sayıda telefon görüşmesinden tasarruf sağladı. Tasarım şık ve salonun kimliğiyle tam uyumlu.",
+        },
+    },
+    {
+        id: "s8",
+        name: "عميل تجريبي ٨",
+        role: "شركة لوجستية",
+        rating: 4,
+        text: {
+            ar: "النظام يعطينا تقارير واضحة نفهمها بسرعة. طلبنا تعديلات أثناء العمل وتعاملوا معها بمرونة.",
+            en: "The system gives us clear reports we understand quickly. We asked for changes along the way and they handled them flexibly.",
+            tr: "Sistem hızlıca anlayabildiğimiz net raporlar sunuyor. Süreç içinde değişiklik istedik, esnek bir şekilde ele aldılar.",
+        },
+    },
+    {
+        id: "s9",
+        name: "عميل تجريبي ٩",
+        role: "مطعم",
+        rating: 5,
+        text: {
+            ar: "موقع سريع على الجوال وقائمة الطعام واضحة. زاد عدد الطلبات بعد الإطلاق بشكل ملحوظ.",
+            en: "A fast mobile site with a clear menu. Orders increased noticeably after launch.",
+            tr: "Mobilde hızlı bir site ve net bir menü. Lansmandan sonra siparişler gözle görülür şekilde arttı.",
+        },
+    },
+    {
+        id: "s10",
+        name: "عميل تجريبي ١٠",
+        role: "رائد أعمال",
+        rating: 5,
+        text: {
+            ar: "جئتهم بفكرة على ورقة وخرجت بمنتج حقيقي. شرحوا لي كل مرحلة بلغة بسيطة.",
+            en: "I came with an idea on paper and left with a real product. They explained every stage in plain language.",
+            tr: "Kâğıt üzerinde bir fikirle geldim, gerçek bir ürünle ayrıldım. Her aşamayı sade bir dille anlattılar.",
+        },
+    },
 ];
 
 /** the review's text in the visitor's language, falling back to whatever language it was written in */
