@@ -79,16 +79,40 @@ const tr: Messages = {
     title2: "detaylarda başlar.",
     lead: "Tasarımı teknolojiyle buluşturarak net, tutarlı ve büyümeye hazır ürünler ortaya koyuyoruz.",
     items: [
-      { title: "Fikirden başlıyoruz", text: "Fikrinizi net ve uygulanabilir bir yol haritasına dönüştürüyoruz." },
-      { title: "Tasarım ve geliştirme", text: "Deneyimin tamamını tasarımdan koda kadar biz inşa ediyoruz." },
-      { title: "Detaylara önem veriyoruz", text: "Her parçada tutarlı ve profesyonel bir deneyim yaratıyoruz." },
-      { title: "Kullanıcı için üretiyoruz", text: "Net, kolay ve hızlı bir deneyime odaklanıyoruz." },
+      { title: "Önce fikriniz", text: "Önce sizi dinliyoruz; herhangi bir tasarımdan önce fikrinizi net bir plana dönüştürüyoruz." },
+      { title: "Tek ekip, baştan sona", text: "Marka, tasarım, yazılım ve lansman hep bizde; birden fazla tedarikçinin peşinden koşmanız gerekmez." },
+      { title: "Yapılmadan önce görün", text: "Tek satır kod yazılmadan tasarımın tamamını görüp onaylarsınız; sonunda sürpriz yaşamazsınız." },
+      { title: "Bulunmaya hazır", text: "Hızlı, her cihazda çalışan ve Google'da ve yapay zekâ yanıtlarında görünen bir site." },
     ],
-    stats: {
-      projects: "Portföyümüzdeki proje",
-      languages: "Sitedeki dil",
-      stages: "Fikirden lansmana aşama",
-      articles: "Yayımlanan rehber",
+    achievements: [
+      { value: 5, label: "Bugün internette yayında olan gerçek proje" },
+      { value: 3, label: "Çalıştığımız sektör: sağlık, satış ve eğitim" },
+      { value: 6, label: "Fikrinizden lansmana net adım" },
+    ],
+    pick: {
+      label: "Neler kazanırsınız",
+      title: "Sizin için ne inşa edelim?",
+      lead: "Bizimle neler elde edeceğinizi görmek için proje türünüzü seçin.",
+      cta: "Bu projeyi başlat",
+      note: "Fikrinizi bize yazın, size dönelim.",
+      options: [
+        {
+          label: "İşletmeniz için web sitesi",
+          items: ["Markanızı yansıtan, her cihazda çalışan bir tasarım", "Google'da ve yapay zekâ yanıtlarında görünür", "Türkçe ve isterseniz başka dillerde"],
+        },
+        {
+          label: "İşinizi yönetecek bir sistem",
+          items: ["Sizin çalışma şeklinize göre tasarlanmış ekranlar", "Her ekip üyesi için göreve göre yetkiler", "İlk bakışta anlayacağınız raporlar"],
+        },
+        {
+          label: "Fikriniz için platform veya uygulama",
+          items: ["Fikri test etmek için odaklı bir ilk sürümle başlıyoruz", "Tasarım, yazılım ve lansman tek ekipte", "İş tuttuğunda sizinle birlikte büyür"],
+        },
+        {
+          label: "Marka kimliği",
+          items: ["Net bir kullanım rehberiyle logo, renk ve yazı tipleri", "Web sitenize ve paylaşımlarınıza uygulanır", "Sizi rakiplerinizden ayıran bir kimlik"],
+        },
+      ],
     },
   },
 

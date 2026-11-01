@@ -79,16 +79,40 @@ const en: Messages = {
     title2: "start with the details.",
     lead: "We bring design and technology together to create products that are clear, consistent and built to grow.",
     items: [
-      { title: "We start from the idea", text: "We turn your idea into a clear, actionable direction." },
-      { title: "Design and development", text: "We build the whole experience, from design to code." },
-      { title: "We care about details", text: "We craft a consistent, professional experience in every part." },
-      { title: "We build for the user", text: "We focus on an experience that is clear, simple and fast." },
+      { title: "Your idea comes first", text: "We start by listening, and turn your idea into a clear plan before any design." },
+      { title: "One team, start to finish", text: "Brand, design, development and launch all happen here, so you never chase several suppliers." },
+      { title: "See it before it's built", text: "You review and approve the full design before a line of code is written, so there are no surprises at the end." },
+      { title: "Ready to be found", text: "A fast site that works on every device and shows up on Google and in AI answers." },
     ],
-    stats: {
-      projects: "Projects in our portfolio",
-      languages: "Languages on this site",
-      stages: "Stages from idea to launch",
-      articles: "Guides published",
+    achievements: [
+      { value: 5, label: "Real projects live on the internet today" },
+      { value: 3, label: "Industries we've worked in: health, sales and education" },
+      { value: 6, label: "Clear steps from your idea to launch" },
+    ],
+    pick: {
+      label: "What you get",
+      title: "What would you like us to build?",
+      lead: "Pick your kind of project to see what you get with us.",
+      cta: "Start this project",
+      note: "Tell us your idea and we'll get back to you.",
+      options: [
+        {
+          label: "A website for your business",
+          items: ["A design that reflects your brand and works on every device", "Shows up on Google and in AI answers", "In your language, and others if you like"],
+        },
+        {
+          label: "A system to run your business",
+          items: ["Screens designed around how you work, not the other way round", "Permissions for each team member by role", "Reports you understand at a glance"],
+        },
+        {
+          label: "A platform or app for your idea",
+          items: ["We start with a focused first version to test your idea", "Design, development and launch with one team", "It grows with you when it works"],
+        },
+        {
+          label: "A brand identity",
+          items: ["Logo, colours and fonts with a clear usage guide", "Applied to your website and posts", "An identity that sets you apart from competitors"],
+        },
+      ],
     },
   },
 
