@@ -57,21 +57,15 @@ const STARS = Array.from({ length: 120 }, (_, i) => ({
   group: i % 3,
 }));
 
-/** two logarithmic spiral arms of tiny stars */
-const ARMS = [0, Math.PI].flatMap((offset, arm) =>
-  Array.from({ length: 150 }, (_, i) => {
-    const t = i / 149;
-    const theta = offset + t * 5.2;
-    const radius = 14 + 170 * t ** 1.05;
-    const spread = (seeded(i, 19 + arm) - 0.5) * (10 + 26 * t);
-    return {
-      x: f(200 + Math.cos(theta) * radius + Math.cos(theta + 1.57) * spread),
-      y: f(200 + Math.sin(theta) * radius + Math.sin(theta + 1.57) * spread),
-      r: f(0.5 + seeded(i, 23 + arm) * 1.4),
-      o: f((0.85 - t * 0.55) * (0.5 + seeded(i, 29) * 0.5)),
-    };
-  })
-);
+/** a logarithmic spiral arm as one line */
+const arm = (offset: number) =>
+  Array.from({ length: 60 }, (_, i) => {
+    const t = i / 59;
+    const theta = offset + t * 5.4;
+    const radius = 10 + 180 * t ** 1.05;
+    return `${i ? "L" : "M"} ${f(200 + Math.cos(theta) * radius)} ${f(200 + Math.sin(theta) * radius)}`;
+  }).join(" ");
+const ARMS = [arm(0), arm(Math.PI)];
 
 const NODES: [number, number][] = [
   [60, 90],
@@ -92,21 +86,21 @@ const LINKS: [number, number][] = [
 
 /* ── pieces ───────────────────────────────────────────────────────────────────────────── */
 
+/* every body is drawn as a thin line, no fills and no glow */
+const LINE = { fill: "none", stroke: "rgb(var(--sp-accent))", strokeWidth: 0.8 } as const;
+
 function Galaxy() {
   return (
     <svg viewBox="0 0 400 400" width="100%" height="100%" aria-hidden="true">
-      <defs>
-        <radialGradient id="sp-core">
-          <stop offset="0%" stopColor="rgb(var(--sp-ink))" stopOpacity="0.85" />
-          <stop offset="18%" stopColor="rgb(var(--sp-accent))" stopOpacity="0.45" />
-          <stop offset="60%" stopColor="rgb(var(--sp-accent))" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="rgb(var(--sp-accent))" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="200" cy="200" r="190" fill="url(#sp-core)" />
-      {ARMS.map((s, i) => (
-        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="rgb(var(--sp-ink))" opacity={s.o} />
-      ))}
+      <g {...LINE}>
+        {[34, 78, 124, 172].map((r) => (
+          <circle key={r} cx="200" cy="200" r={r} opacity={0.35} strokeDasharray={r % 2 ? "2 8" : undefined} />
+        ))}
+        {ARMS.map((d, i) => (
+          <path key={i} d={d} opacity={0.7} />
+        ))}
+        <circle cx="200" cy="200" r="5" opacity={0.9} />
+      </g>
     </svg>
   );
 }
@@ -121,15 +115,7 @@ function WirePlanet() {
   const orbit = "M 330 150 a 180 46 0 1 1 -360 0 a 180 46 0 1 1 360 0";
   return (
     <svg viewBox="0 0 300 300" width="100%" height="100%" overflow="visible" aria-hidden="true">
-      <defs>
-        <radialGradient id="sp-sphere" cx="35%" cy="32%" r="75%">
-          <stop offset="0%" stopColor="rgb(var(--sp-accent))" stopOpacity="0.22" />
-          <stop offset="70%" stopColor="rgb(var(--sp-accent))" stopOpacity="0.04" />
-          <stop offset="100%" stopColor="rgb(var(--sp-accent))" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="150" cy="150" r="110" fill="url(#sp-sphere)" />
-      <g fill="none" stroke="rgb(var(--sp-accent))" strokeWidth="0.7" opacity="0.5">
+      <g {...LINE} opacity="0.55">
         <circle cx="150" cy="150" r="110" />
         {lat.map((l) => (
           <ellipse key={l.y} cx="150" cy={l.y} rx={l.rx} ry={l.ry} opacity="0.7" />
@@ -139,8 +125,8 @@ function WirePlanet() {
         ))}
       </g>
       <g transform="rotate(-22 150 150)">
-        <path d={orbit} fill="none" stroke="rgb(var(--sp-accent))" strokeWidth="0.8" strokeDasharray="3 7" opacity="0.55" />
-        <circle r="5" fill="rgb(var(--sp-ink))" opacity="0.9">
+        <path d={orbit} {...LINE} strokeDasharray="3 7" opacity="0.55" />
+        <circle r="5" {...LINE} strokeWidth="1.2">
           <animateMotion dur="38s" repeatCount="indefinite" path={orbit} />
         </circle>
       </g>
@@ -151,16 +137,11 @@ function WirePlanet() {
 function RingedPlanet() {
   return (
     <svg viewBox="0 0 200 200" width="100%" height="100%" overflow="visible" aria-hidden="true">
-      <defs>
-        <radialGradient id="sp-ringed" cx="35%" cy="30%" r="80%">
-          <stop offset="0%" stopColor="rgb(var(--sp-violet))" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="rgb(var(--sp-violet))" stopOpacity="0.05" />
-        </radialGradient>
-      </defs>
-      <g transform="rotate(-24 100 100)">
-        <ellipse cx="100" cy="100" rx="92" ry="22" fill="none" stroke="rgb(var(--sp-violet))" strokeWidth="1.2" opacity="0.35" />
-        <circle cx="100" cy="100" r="46" fill="url(#sp-ringed)" stroke="rgb(var(--sp-violet))" strokeWidth="0.6" strokeOpacity="0.5" />
-        <path d="M 8 100 A 92 22 0 0 0 192 100" fill="none" stroke="rgb(var(--sp-violet))" strokeWidth="1.6" opacity="0.5" />
+      <g transform="rotate(-24 100 100)" {...LINE}>
+        <circle cx="100" cy="100" r="46" opacity="0.7" />
+        <ellipse cx="100" cy="100" rx="92" ry="22" opacity="0.5" />
+        <ellipse cx="100" cy="100" rx="72" ry="17" opacity="0.35" />
+        <ellipse cx="100" cy="100" rx="46" ry="11" opacity="0.4" />
       </g>
     </svg>
   );
@@ -222,7 +203,6 @@ function SpaceBackdrop() {
       sx={{
         "--sp-ink": dark ? "255, 255, 255" : "11, 60, 42",
         "--sp-accent": dark ? "0, 208, 132" : "0, 140, 92",
-        "--sp-violet": dark ? "140, 150, 255" : "90, 100, 200",
         position: "fixed",
         inset: 0,
         zIndex: 0,
@@ -242,17 +222,6 @@ function SpaceBackdrop() {
         "& .node": { animation: `${pulse} 5s ease-in-out infinite` },
       }}
     >
-      {/* soft nebula washes */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          background: dark
-            ? "radial-gradient(60% 45% at 85% 12%, rgba(120,110,255,0.10), transparent 70%), radial-gradient(55% 45% at 8% 88%, rgba(0,208,132,0.08), transparent 70%)"
-            : "radial-gradient(60% 45% at 85% 12%, rgba(120,110,255,0.07), transparent 70%)",
-        }}
-      />
-
       {[0, 1].map((layer) => (
         <Box key={layer} className={`stars ${layer ? "stars-near" : "stars-far"}`}>
           <svg viewBox="0 0 1000 1000" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
@@ -270,7 +239,7 @@ function SpaceBackdrop() {
         </Box>
       ))}
 
-      {/* galaxy, top right, turning once in about six minutes */}
+      {/* galaxy as a line drawing, turning once in about six minutes */}
       <Box
         sx={{
           position: "absolute",
@@ -288,7 +257,7 @@ function SpaceBackdrop() {
         </Box>
       </Box>
 
-      {/* wireframe planet with a moon, bottom left */}
+      {/* wireframe planet with a moon */}
       <Box
         sx={{
           position: "absolute",
@@ -303,7 +272,7 @@ function SpaceBackdrop() {
         <WirePlanet />
       </Box>
 
-      {/* small ringed planet, mid right */}
+      {/* small ringed planet */}
       <Box
         sx={{
           position: "absolute",
