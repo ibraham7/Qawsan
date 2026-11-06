@@ -15,6 +15,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Review = lazy(() => import("./pages/Review"));
+const Legal = lazy(() => import("./pages/Legal"));
 
 interface RootProps {
   path: string;
@@ -60,6 +61,7 @@ function Root({ path, cache }: RootProps) {
   const isAdmin = route === "/admin";
   const isBlog = route === "/blog";
   const isReview = route === "/review";
+  const legalKind = route === "/privacy" ? "privacy" : route === "/terms" ? "terms" : route === "/cookies" ? "cookies" : null;
   const postSlug = route.startsWith("/blog/") ? route.slice("/blog/".length) : null;
 
   return (
@@ -76,6 +78,10 @@ function Root({ path, cache }: RootProps) {
           {isAdmin ? (
             <Suspense fallback={null}>
               <Admin />
+            </Suspense>
+          ) : legalKind ? (
+            <Suspense fallback={null}>
+              <Legal kind={legalKind} mode={mode} onToggleTheme={handleToggleTheme} />
             </Suspense>
           ) : isReview ? (
             <Suspense fallback={null}>

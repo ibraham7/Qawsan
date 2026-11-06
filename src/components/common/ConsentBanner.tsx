@@ -1,8 +1,9 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { Box, Button, Switch, Typography } from "@mui/material";
 
 import { useI18n } from "../../i18n";
+import { LEGAL } from "../../i18n/legal";
 import { TRACKING } from "../../lib/analytics";
 import { onConsentChange, onOpenConsentSettings, readConsent, saveConsent } from "../../lib/consent";
 
@@ -13,7 +14,8 @@ import { onConsentChange, onOpenConsentSettings, readConsent, saveConsent } from
  * be changed or withdrawn at any time.
  */
 function ConsentBanner() {
-  const { t } = useI18n();
+  const { t, to, locale } = useI18n();
+  const legal = LEGAL[locale].ui;
   const c = t.consent;
 
   // true until the visitor has chosen; false on the server so the prerendered HTML has no banner
@@ -23,6 +25,7 @@ function ConsentBanner() {
     () => false
   );
   const [reopened, setReopened] = useState(false);
+  const panel = useRef<HTMLDivElement | null>(null);
   const open = undecided || reopened;
   const [details, setDetails] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -40,6 +43,11 @@ function ConsentBanner() {
       }),
     []
   );
+
+  // when reopened from the footer, move keyboard focus into the panel
+  useEffect(() => {
+    if (reopened) panel.current?.focus();
+  }, [reopened]);
 
   if (!open) return null;
 
@@ -71,6 +79,15 @@ function ConsentBanner() {
 
   return (
     <Box
+      ref={panel}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        // Escape only closes the settings view the visitor opened; it never counts as a choice
+        if (e.key === "Escape" && reopened) {
+          setReopened(false);
+          setDetails(false);
+        }
+      }}
       role="dialog"
       aria-modal="false"
       aria-label={c.title}
@@ -83,6 +100,7 @@ function ConsentBanner() {
         width: { md: 560 },
         maxHeight: "calc(100vh - 24px)",
         overflowY: "auto",
+        outline: "none",
         p: { xs: 2.5, md: 3.5 },
         borderRadius: 3,
         border: "1px solid",
@@ -93,6 +111,16 @@ function ConsentBanner() {
     >
       <Typography sx={{ fontSize: { xs: 19, md: 22 }, fontWeight: 700, mb: 1 }}>{c.title}</Typography>
       <Typography sx={{ fontSize: { xs: 14.5, md: 16 }, lineHeight: 1.9, color: "text.secondary" }}>{c.text}</Typography>
+      <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 2, fontSize: 13.5 }}>
+        {[
+          { label: legal.cookies, href: to("/cookies") },
+          { label: legal.privacy, href: to("/privacy") },
+        ].map((l) => (
+          <Box key={l.href} component="a" href={l.href} sx={{ color: "primary.main", textUnderlineOffset: 3 }}>
+            {l.label}
+          </Box>
+        ))}
+      </Box>
 
       {details && (
         <Box sx={{ mt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>

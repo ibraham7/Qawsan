@@ -18,6 +18,7 @@ export { fetchProjects, localize } from "./data/projects";
 export { postsByLocale, translationsOf } from "./data/blog";
 export { fetchReviews } from "./data/reviews";
 export { MESSAGES } from "./i18n";
+export { LEGAL } from "./i18n/legal";
 export { LOCALES, LOCALE_META, localizePath } from "./i18n/locales";
 
 export async function render(path: string, projects: Project[], reviews: Review[] = []) {
