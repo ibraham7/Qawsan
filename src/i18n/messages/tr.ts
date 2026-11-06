@@ -177,6 +177,22 @@ const tr: Messages = {
     products: "Dijital Ürünler",
     rate: "Deneyiminizi değerlendirin",
     motto: "Fikirleri şekillendiriyor, deneyimler inşa ediyoruz.",
+    cookies: "Çerez ayarları",
+  },
+
+  consent: {
+    title: "Gizliliğinize saygı duyuyoruz",
+    text: "Siteyi çalıştırmak için gerekli depolamayı kullanırız. İzninizle ziyaretleri ölçen ve deneyimi iyileştiren araçları, ayrıca reklamlarımızı ölçen pazarlama araçlarını da kullanırız. Adınızı, e-postanızı veya formlara yazdıklarınızı asla göndermeyiz. Tercihinizi istediğiniz zaman değiştirebilirsiniz.",
+    acceptAll: "Tümünü kabul et",
+    rejectAll: "Gerekli olmayanları reddet",
+    customize: "Özelleştir",
+    save: "Seçimleri kaydet",
+    necessary: "Gerekli",
+    necessaryText: "Dil ve tema tercihinizi hatırlar, siteyi çalışır tutar. Her zaman açık.",
+    analytics: "Analitik",
+    analyticsText: "Google Analytics ve Microsoft Clarity: hangi sayfaların ziyaret edildiğini ve sitenin nasıl kullanıldığını gösterir.",
+    marketing: "Pazarlama",
+    marketingText: "Meta Pixel: Facebook ve Instagram reklamlarımızın performansını ölçer.",
   },
 
   blog: {

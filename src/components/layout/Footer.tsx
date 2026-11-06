@@ -2,6 +2,8 @@ import { Box, Container, Typography } from "@mui/material";
 
 import { useI18n } from "../../i18n";
 import { fade } from "../../theme/motion";
+import { openConsentSettings } from "../../lib/consent";
+import { TRACKING } from "../../lib/analytics";
 
 const socialLinks = [
   {
@@ -31,10 +33,10 @@ function Footer() {
   ];
 
   const serviceLinks = [
-    { label: t.footer.identity, href: to("/#services") },
-    { label: t.footer.uiux, href: to("/#services") },
-    { label: t.footer.development, href: to("/#services") },
-    { label: t.footer.products, href: to("/#services") },
+    { label: t.footer.identity, href: to("/#services"), key: "identity" },
+    { label: t.footer.uiux, href: to("/#services"), key: "uiux" },
+    { label: t.footer.development, href: to("/#services"), key: "development" },
+    { label: t.footer.products, href: to("/#services"), key: "products" },
   ];
 
   const rateLink = { label: t.footer.rate, href: to("/review") };
@@ -332,6 +334,7 @@ function Footer() {
                   key={service.label}
                   component="a"
                   href={service.href}
+                  data-track-service={service.key}
                   sx={{
                     width: "fit-content",
 
@@ -606,6 +609,26 @@ function Footer() {
             © {new Date().getFullYear()} QAWSAN.
             All rights reserved.
           </Typography>
+
+          {TRACKING.any && (
+            <Box
+              component="button"
+              type="button"
+              onClick={openConsentSettings}
+              sx={{
+                all: "unset",
+                cursor: "pointer",
+                fontSize: { xs: 11, sm: 12 },
+                color: "text.secondary",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+                "&:hover": { color: "primary.main" },
+                "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 3 },
+              }}
+            >
+              {t.footer.cookies}
+            </Box>
+          )}
 
           <Typography
             sx={{

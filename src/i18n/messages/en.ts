@@ -177,6 +177,22 @@ const en: Messages = {
     products: "Digital Products",
     rate: "Rate your experience",
     motto: "We shape ideas. We build experiences.",
+    cookies: "Cookie settings",
+  },
+
+  consent: {
+    title: "We respect your privacy",
+    text: "We use essential storage to run the site. With your consent we also use tools that measure visits and improve the experience, and marketing tools that measure our ads. We never send your name, email or anything you type into forms. You can change your choice at any time.",
+    acceptAll: "Accept all",
+    rejectAll: "Reject non-essential",
+    customize: "Customize",
+    save: "Save choices",
+    necessary: "Necessary",
+    necessaryText: "Remember your language and theme and keep the site working. Always on.",
+    analytics: "Analytics",
+    analyticsText: "Google Analytics and Microsoft Clarity: show us which pages are visited and how people use the site.",
+    marketing: "Marketing",
+    marketingText: "Meta Pixel: measures how our Facebook and Instagram ads perform.",
   },
 
   blog: {
