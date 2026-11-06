@@ -1,23 +1,86 @@
 {
   "rewrites": [
-    { "source": "/start-project", "destination": "/start-project/index.html" },
-    { "source": "/review", "destination": "/review/index.html" },
-    { "source": "/:lang(en|tr)/review", "destination": "/:lang/review/index.html" },
-    { "source": "/blog", "destination": "/blog/index.html" },
-    { "source": "/blog/:slug", "destination": "/blog/:slug/index.html" },
-    { "source": "/:lang(en|tr)", "destination": "/:lang/index.html" },
-    { "source": "/:lang(en|tr)/start-project", "destination": "/:lang/start-project/index.html" },
-    { "source": "/:lang(en|tr)/blog", "destination": "/:lang/blog/index.html" },
-    { "source": "/:lang(en|tr)/blog/:slug", "destination": "/:lang/blog/:slug/index.html" },
-    { "source": "/admin", "destination": "/index.html" }
+    {
+      "source": "/start-project",
+      "destination": "/start-project/index.html"
+    },
+    {
+      "source": "/review",
+      "destination": "/review/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/review",
+      "destination": "/:lang/review/index.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog/:slug/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)",
+      "destination": "/:lang/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/start-project",
+      "destination": "/:lang/start-project/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/blog",
+      "destination": "/:lang/blog/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/blog/:slug",
+      "destination": "/:lang/blog/:slug/index.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/privacy",
+      "destination": "/:lang/privacy/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/terms",
+      "destination": "/:lang/terms/index.html"
+    },
+    {
+      "source": "/cookies",
+      "destination": "/cookies/index.html"
+    },
+    {
+      "source": "/:lang(en|tr)/cookies",
+      "destination": "/:lang/cookies/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
       ]
     }
   ]

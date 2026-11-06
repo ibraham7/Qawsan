@@ -4,6 +4,7 @@ import { useI18n } from "../../i18n";
 import { fade } from "../../theme/motion";
 import { openConsentSettings } from "../../lib/consent";
 import { TRACKING } from "../../lib/analytics";
+import { LEGAL } from "../../i18n/legal";
 
 const socialLinks = [
   {
@@ -21,7 +22,13 @@ const socialLinks = [
 ];
 
 function Footer() {
-  const { t, to, dir } = useI18n();
+  const { t, to, dir, locale } = useI18n();
+  const legal = LEGAL[locale].ui;
+  const legalLinks = [
+    { label: legal.privacy, href: to("/privacy") },
+    { label: legal.terms, href: to("/terms") },
+    { label: legal.cookies, href: to("/cookies") },
+  ];
   const ltr = dir === "ltr";
 
   const navigationLinks = [
@@ -610,7 +617,25 @@ function Footer() {
             All rights reserved.
           </Typography>
 
-          {TRACKING.any && (
+          <Box component="nav" aria-label="Legal" sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: { xs: 1.5, sm: 2.5 } }}>
+            {legalLinks.map((l) => (
+              <Box
+                key={l.href}
+                component="a"
+                href={l.href}
+                sx={{
+                  fontSize: { xs: 11, sm: 12 },
+                  color: "text.secondary",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                  "&:hover": { color: "primary.main" },
+                  "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 3 },
+                }}
+              >
+                {l.label}
+              </Box>
+            ))}
+            {TRACKING.any && (
             <Box
               component="button"
               type="button"
@@ -628,7 +653,8 @@ function Footer() {
             >
               {t.footer.cookies}
             </Box>
-          )}
+            )}
+          </Box>
 
           <Typography
             sx={{

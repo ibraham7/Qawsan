@@ -20,7 +20,7 @@ const SITE = "https://qawsan.website";
 // production builds of React/MUI (set before the renderer is imported)
 process.env.NODE_ENV ??= "production";
 
-const { render, fetchProjects, fetchReviews, postsByLocale, translationsOf, localize, MESSAGES, LOCALES, LOCALE_META, localizePath } =
+const { render, fetchProjects, fetchReviews, postsByLocale, translationsOf, localize, MESSAGES, LEGAL, LOCALES, LOCALE_META, localizePath } =
   await import(pathToFileURL(path.join(SSR, "entry-server.js")).href);
 
 const ORG = { "@id": `${SITE}/#organization` };
@@ -54,6 +54,9 @@ const PAGES = [
   { page: "/", kind: "home", priority: "1.0" },
   { page: "/start-project", kind: "start", priority: "0.8" },
   { page: "/blog", kind: "blog", priority: "0.8" },
+  { page: "/privacy", kind: "privacy", priority: "0.3" },
+  { page: "/terms", kind: "terms", priority: "0.3" },
+  { page: "/cookies", kind: "cookies", priority: "0.3" },
   // shared by link with customers: prerendered, but kept out of the sitemap and of search results
   { page: "/review", kind: "review", priority: "0.3", noindex: true },
 ];
@@ -212,6 +215,11 @@ function pageSchemas(route, locale, t) {
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 
 // replace the value of a tag whose opening matches `re` (group 1 = everything before the value)
+const legalCopy = (locale, kind) => {
+  const d = LEGAL[locale][kind];
+  return { title: d.metaTitle, description: d.metaDescription, ogTitle: d.metaTitle, ogDescription: d.metaDescription };
+};
+
 const setTag = (page, re, value) => page.replace(re, (_m, before) => before + value);
 
 for (const route of routes) {
@@ -227,6 +235,9 @@ for (const route of routes) {
     start: { title: t.meta.startTitle, description: t.meta.startDescription, ogTitle: t.meta.startTitle, ogDescription: t.meta.startDescription },
     review: { title: t.review.metaTitle, description: t.review.metaDescription, ogTitle: t.review.metaTitle, ogDescription: t.review.metaDescription },
     blog: { title: t.meta.blogTitle, description: t.meta.blogDescription, ogTitle: t.meta.blogTitle, ogDescription: t.meta.blogDescription },
+    privacy: legalCopy(locale, "privacy"),
+    terms: legalCopy(locale, "terms"),
+    cookies: legalCopy(locale, "cookies"),
     post: route.post && {
       title: `${route.post.title} | ${t.meta.postSuffix}`,
       description: route.post.description,
