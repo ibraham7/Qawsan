@@ -21,7 +21,7 @@ interface Row {
 
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
 
-/** Moderation of the reviews customers send from /review: approve, hide or delete. */
+/** The reviews customers send from /review go live at once; here they can be hidden, shown again or deleted. */
 function ReviewsAdmin() {
     const [rows, setRows] = useState<Row[]>([]);
     const [loading, setLoading] = useState(true);
@@ -69,7 +69,7 @@ function ReviewsAdmin() {
         load();
     };
 
-    const pending = rows.filter((r) => !r.approved).length;
+    const hidden = rows.filter((r) => !r.approved).length;
 
     return (
         <Box sx={{ mt: 8 }}>
@@ -77,14 +77,15 @@ function ReviewsAdmin() {
                 <Typography component="h2" sx={{ m: 0, fontSize: { xs: 22, md: 28 }, fontWeight: 700 }}>
                     تقييمات العملاء
                 </Typography>
-                {pending > 0 && <Chip color="warning" size="small" label={`${pending} بانتظار الموافقة`} />}
+                <Chip size="small" variant="outlined" label={`${rows.length - hidden} ظاهر`} />
+                {hidden > 0 && <Chip size="small" label={`${hidden} مخفي`} />}
             </Box>
             <Typography sx={{ color: "text.secondary", fontSize: 14, mb: 3 }}>
                 رابط التقييم الذي ترسله لعملائك:{" "}
                 <Box component="span" dir="ltr" sx={{ fontWeight: 600 }}>
                     qawsan.website/review
                 </Box>
-                . لا يظهر أي تقييم للزوار قبل أن توافق عليه هنا.
+                . يظهر كل تقييم جديد على الموقع فور إرساله، ويمكنك إخفاءه أو حذفه من هنا.
             </Typography>
 
             {error && (
@@ -108,7 +109,8 @@ function ReviewsAdmin() {
                                 p: 2.5,
                                 borderRadius: 3,
                                 border: "1px solid",
-                                borderColor: r.approved ? "divider" : "warning.main",
+                                borderColor: "divider",
+                                opacity: r.approved ? 1 : 0.6,
                                 bgcolor: "background.paper",
                             }}
                         >
@@ -119,7 +121,7 @@ function ReviewsAdmin() {
                                 <Typography sx={{ fontWeight: 600 }}>{r.name}</Typography>
                                 {r.role && <Typography sx={{ color: "text.secondary", fontSize: 14 }}>{r.role}</Typography>}
                                 <Chip size="small" variant="outlined" label={r.locale.toUpperCase()} />
-                                <Chip size="small" color={r.approved ? "success" : "warning"} label={r.approved ? "منشور" : "بانتظار الموافقة"} />
+                                <Chip size="small" color={r.approved ? "success" : "default"} label={r.approved ? "ظاهر" : "مخفي"} />
                                 <Typography sx={{ color: "text.secondary", fontSize: 12.5, marginInlineStart: "auto" }} dir="ltr">
                                     {new Date(r.created_at).toLocaleString()}
                                 </Typography>
@@ -134,7 +136,7 @@ function ReviewsAdmin() {
                                     </Button>
                                 ) : (
                                     <Button size="small" variant="contained" startIcon={<CheckRoundedIcon />} disabled={busy === r.id} onClick={() => setApproved(r.id, true)}>
-                                        موافقة ونشر
+                                        إظهار
                                     </Button>
                                 )}
                                 <Button size="small" color="error" startIcon={<DeleteOutlineRoundedIcon />} disabled={busy === r.id} onClick={() => remove(r.id)}>
