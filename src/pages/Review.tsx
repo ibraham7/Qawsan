@@ -198,6 +198,7 @@ function Review({ mode, onToggleTheme }: Props) {
         ) : (
           <Box
             component="form"
+            data-clarity-mask="true"
             onSubmit={submit}
             noValidate
             aria-busy={status === "sending"}

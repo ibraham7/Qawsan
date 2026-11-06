@@ -25,6 +25,7 @@ import {
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 import { useI18n } from "../i18n";
+import { trackLead, trackSelectService, trackStartProject } from "../lib/analytics";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
@@ -108,6 +109,8 @@ function StartProject({ mode, onToggleTheme }: Props) {
     value: StartProjectPayload[K]
   ) => {
     setValues((v) => ({ ...v, [key]: value }));
+    trackStartProject(); // first edit only; the helper counts it once
+    if (key === "projectType" && value) trackSelectService(String(value), "start_project_form");
     if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
   };
 
@@ -143,6 +146,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
 
       if (res.ok && data?.ok) {
         setRef(data.ref ?? "");
+        trackLead(data.ref ?? "", { projectType: values.projectType }); // only now: the server accepted it
         setValues(EMPTY);
         setStatus("success");
         return;
@@ -307,6 +311,7 @@ function StartProject({ mode, onToggleTheme }: Props) {
         ) : (
           <Box
             component="form"
+            data-clarity-mask="true"
             onSubmit={submit}
             noValidate
             aria-busy={status === "sending"}

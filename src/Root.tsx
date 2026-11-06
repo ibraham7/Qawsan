@@ -4,6 +4,7 @@ import type { EmotionCache } from "@emotion/cache";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 
 import App from "./App";
+import ConsentBanner from "./components/common/ConsentBanner";
 import SpaceBackdrop from "./components/common/SpaceBackdrop";
 import { I18nProvider, LOCALE_META, splitLocale } from "./i18n";
 import { cacheFor } from "./theme/rtl";
@@ -69,6 +70,7 @@ function Root({ path, cache }: RootProps) {
 
           {/* stars and planets behind every public page */}
           {!isAdmin && <SpaceBackdrop />}
+          {!isAdmin && <ConsentBanner />}
 
           <Box sx={{ position: "relative", zIndex: 1 }}>
           {isAdmin ? (

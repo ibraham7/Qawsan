@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 
 import Root from "./Root";
+import { initAnalytics } from "./lib/analytics";
 
 import "./index.css";
 
@@ -9,3 +10,6 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Root path={window.location.pathname} />
 );
+
+// optional analytics and marketing tags; they start only after the visitor consents
+initAnalytics();
