@@ -60,10 +60,10 @@ function ConsentBanner() {
   ) => (
     <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2, py: 1.25 }}>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography id={id} sx={{ fontSize: 14, fontWeight: 600 }}>
+        <Typography id={id} sx={{ fontSize: 15.5, fontWeight: 600 }}>
           {title}
         </Typography>
-        <Typography sx={{ fontSize: 12.5, lineHeight: 1.8, color: "text.secondary" }}>{text}</Typography>
+        <Typography sx={{ fontSize: 14, lineHeight: 1.8, color: "text.secondary" }}>{text}</Typography>
       </Box>
       {control}
     </Box>
@@ -80,10 +80,10 @@ function ConsentBanner() {
         bottom: { xs: 12, md: 20 },
         insetInline: { xs: 12, md: "auto" },
         insetInlineStart: { md: 20 },
-        width: { md: 460 },
+        width: { md: 560 },
         maxHeight: "calc(100vh - 24px)",
         overflowY: "auto",
-        p: { xs: 2, md: 2.5 },
+        p: { xs: 2.5, md: 3.5 },
         borderRadius: 3,
         border: "1px solid",
         borderColor: "divider",
@@ -91,8 +91,8 @@ function ConsentBanner() {
         boxShadow: "0 24px 64px -20px rgba(0,0,0,0.55)",
       }}
     >
-      <Typography sx={{ fontSize: 16, fontWeight: 700, mb: 0.75 }}>{c.title}</Typography>
-      <Typography sx={{ fontSize: 13, lineHeight: 1.9, color: "text.secondary" }}>{c.text}</Typography>
+      <Typography sx={{ fontSize: { xs: 19, md: 22 }, fontWeight: 700, mb: 1 }}>{c.title}</Typography>
+      <Typography sx={{ fontSize: { xs: 14.5, md: 16 }, lineHeight: 1.9, color: "text.secondary" }}>{c.text}</Typography>
 
       {details && (
         <Box sx={{ mt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
@@ -127,22 +127,36 @@ function ConsentBanner() {
         </Box>
       )}
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
-        {details ? (
-          <Button variant="contained" onClick={() => choose({ analytics, marketing })} sx={{ flex: "1 1 120px" }}>
+      {/* accept is the big button; reject and customize are smaller but still plain to see */}
+      <Box sx={{ display: "grid", gap: 1.25, mt: 2.5 }}>
+        {details && (
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => choose({ analytics, marketing })}
+            sx={{ py: 1.4, fontSize: 16, fontWeight: 700 }}
+          >
             {c.save}
           </Button>
-        ) : (
-          <Button variant="outlined" onClick={() => setDetails(true)} sx={{ flex: "1 1 100%", order: 3 }}>
-            {c.customize}
-          </Button>
         )}
-        <Button variant="contained" onClick={() => choose({ analytics: true, marketing: true })} sx={{ flex: "1 1 120px" }}>
+        <Button
+          variant={details ? "outlined" : "contained"}
+          size="large"
+          onClick={() => choose({ analytics: true, marketing: true })}
+          sx={{ py: 1.4, fontSize: 16, fontWeight: 700 }}
+        >
           {c.acceptAll}
         </Button>
-        <Button variant="outlined" onClick={() => choose({ analytics: false, marketing: false })} sx={{ flex: "1 1 120px" }}>
-          {c.rejectAll}
-        </Button>
+        <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
+          <Button size="small" variant="outlined" onClick={() => choose({ analytics: false, marketing: false })} sx={{ fontSize: 13 }}>
+            {c.rejectAll}
+          </Button>
+          {!details && (
+            <Button size="small" onClick={() => setDetails(true)} sx={{ fontSize: 13 }}>
+              {c.customize}
+            </Button>
+          )}
+        </Box>
       </Box>
     </Box>
   );
