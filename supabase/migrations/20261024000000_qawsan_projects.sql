@@ -1,5 +1,5 @@
 -- Qawsan portfolio: projects table, admin list and public image bucket.
--- Lives in the shared ward-platform project, so every object is prefixed with qawsan_.
+-- Every object is prefixed with qawsan_ (the site first lived in a shared project).
 
 create table if not exists public.qawsan_admins (
     user_id uuid primary key references auth.users (id) on delete cascade,

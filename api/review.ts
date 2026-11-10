@@ -26,7 +26,7 @@ interface Res {
 
 const ALLOWED_ORIGINS = ["https://qawsan.website", "https://www.qawsan.website", "https://qawsan.vercel.app"];
 
-const DEFAULT_SUPABASE_URL = "https://eviqgyfwspemvfoehjfs.supabase.co";
+const DEFAULT_SUPABASE_URL = "https://ghdrumngrpttuihyklnc.supabase.co";
 
 // Best-effort limiter: memory is per serverless instance, so it slows bursts but is not absolute.
 const hits = new Map<string, number[]>();
