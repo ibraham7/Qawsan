@@ -4,10 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 // (read projects; writes need a signed-in qawsan admin).
 const SUPABASE_URL =
     import.meta.env.VITE_SUPABASE_URL ??
-    "https://eviqgyfwspemvfoehjfs.supabase.co";
+    "https://ghdrumngrpttuihyklnc.supabase.co";
 const SUPABASE_KEY =
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-    "sb_publishable_m27zoqw5bQLnEj2Gd6MkVg_mgNlKpZU";
+    "sb_publishable_T_twZtdNi64NoAQJkcz5VQ_GfWl_TyT";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
