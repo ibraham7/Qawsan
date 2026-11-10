@@ -62,7 +62,7 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             domain: `demo${i + 1}.example`,
             website: `https://demo${i + 1}.example`,
             linkedin_url: "",
-            phone: "",
+            phone: r() < 0.7 ? "+0000000000" : "",
             description: `Demo ${industry.toLowerCase()} business in ${city.name}`,
             hq_country: city.country,
             hq_region: city.region,
@@ -102,6 +102,18 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             saved: r() < 0.2,
             source: "demo",
             created_at: daysAgo(Math.floor(r() * 300)),
+            google_place_id: null,
+            google_maps_url: "",
+            address: `Demo street ${i + 1}, ${city.name}`,
+            rating: maybe(Math.round((2.5 + r() * 2.5) * 10) / 10, 0.8),
+            rating_count: maybe(Math.floor(r() * 900), 0.8),
+            place_types: [],
+            search_id: null,
+            emails: r() < 0.45 ? [`info@demo${i + 1}.example`] : [],
+            socials: (r() < 0.4 ? { instagram: `https://instagram.com/demo${i + 1}` } : {}) as Record<string, string>,
+            whatsapp: r() < 0.3 ? "+0000000000" : "",
+            enrich_status: "",
+            enriched_at: null,
         };
     });
 
@@ -149,6 +161,7 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
         people,
         meta: {
             lists: [{ id: "demo-list", name: "Demo list (empty)", kind: "people" }],
+            searches: [],
             sequences,
             owners,
         },

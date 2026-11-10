@@ -55,6 +55,12 @@ export interface Filters {
     founded?: Range;
     retail?: Range;
     lookalike?: string;
+    /** company has a website / phone / email / WhatsApp (all chosen must be present) */
+    contactData?: string[];
+    /** Google Maps rating, 0-5 */
+    googleRating?: Range;
+    /** found by these Google searches */
+    searches?: string[];
 
     // ---- intent & signals ----
     intent?: { topics: string[]; levels: string[] };
@@ -118,6 +124,18 @@ export interface CompanyRow {
     saved: boolean;
     source: string;
     created_at: string;
+    google_place_id: string | null;
+    google_maps_url: string;
+    address: string;
+    rating: number | null;
+    rating_count: number | null;
+    place_types: string[];
+    search_id: string | null;
+    emails: string[];
+    socials: Record<string, string>;
+    whatsapp: string;
+    enrich_status: string;
+    enriched_at: string | null;
 }
 
 export interface PersonRow {

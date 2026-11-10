@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:prospects": "node scripts/test-prospects.ts"
+    "test:prospects": "node scripts/test-prospects.ts",
+    "test:discovery": "node scripts/test-discovery.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

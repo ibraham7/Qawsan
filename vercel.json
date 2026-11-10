@@ -96,5 +96,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/prospects/enrich.ts": {
+      "maxDuration": 60
+    }
+  }
 }

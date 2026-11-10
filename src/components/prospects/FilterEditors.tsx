@@ -6,6 +6,7 @@ import {
     ACCOUNT_STAGES,
     CITY_OPTS,
     CONTACT_STAGES,
+    CONTACT_DATA,
     COUNTRIES,
     DEPARTMENTS,
     EMPTY_IE,
@@ -149,6 +150,21 @@ export function FilterEditor({
         case "languages":
             return <Multi label="اللغات" value={f.languages ?? []} onChange={(v) => set("languages", v)} options={LANGUAGES} free />;
 
+        case "searches":
+            return meta.searches.length ? (
+                <Multi label="عمليات البحث" value={f.searches ?? []} onChange={(v) => set("searches", v)} options={meta.searches.map((s) => ({ value: s.id, label: s.name }))} />
+            ) : (
+                <Hint>لا توجد عمليات بحث في Google بعد.</Hint>
+            );
+        case "contactData":
+            return (
+                <>
+                    <Toggles options={CONTACT_DATA} value={f.contactData ?? []} onChange={(v) => set("contactData", v)} />
+                    <Hint>تظهر الجهات التي تملك كل ما اخترته. الإيميل والواتساب يأتيان من زر «إثراء».</Hint>
+                </>
+            );
+        case "googleRating":
+            return <RangeInput value={f.googleRating} onChange={(v) => set("googleRating", v)} minLabel="من" maxLabel="إلى" unit="★ (0-5)" />;
         case "company":
             return (
                 <>

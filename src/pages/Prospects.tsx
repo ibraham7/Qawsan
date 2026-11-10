@@ -27,17 +27,23 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
+import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import TravelExploreRoundedIcon from "@mui/icons-material/TravelExploreRounded";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 
 import AdminGate from "../components/admin/AdminGate";
 import Logo from "../components/common/Logo";
+import CompanyDrawer from "../components/prospects/CompanyDrawer";
+import DiscoverDialog from "../components/prospects/DiscoverDialog";
 import FilterSidebar from "../components/prospects/FilterSidebar";
 import Results, { ActiveChips } from "../components/prospects/Results";
 import { Select } from "../components/prospects/controls";
+import { runEnrich } from "../lib/discovery/client";
+import type { EnrichOutcome, SearchOutcome } from "../lib/discovery/client";
 import { supabaseBackend } from "../lib/prospects/data";
 import type { Backend, Meta, Sort } from "../lib/prospects/data";
 import { PRESETS } from "../lib/prospects/options";
@@ -47,7 +53,7 @@ import type { CompanyRow, Filters, PersonRow, SavedSearch, Tab } from "../lib/pr
 import { supabase } from "../lib/supabase";
 
 const SIDEBAR = 340;
-const NO_META: Meta = { lists: [], sequences: [], owners: [] };
+const NO_META: Meta = { lists: [], sequences: [], owners: [], searches: [] };
 const nf = new Intl.NumberFormat("en-US");
 
 const SORTS = [
@@ -77,6 +83,12 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [naming, setNaming] = useState<null | "search" | "persona">(null);
     const [name, setName] = useState("");
     const [toast, setToast] = useState("");
+    const [selected, setSelected] = useState<Set<string>>(new Set());
+    const [opened, setOpened] = useState<CompanyRow | null>(null);
+    const [discover, setDiscover] = useState(false);
+    const [enriching, setEnriching] = useState(false);
+    // bumped to re-run the current search after data changed on the server
+    const [reload, setReload] = useState(0);
 
     const { tab } = state;
     const filters = state[tab];
@@ -99,7 +111,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
 
     /* ---- live search: debounced, last request wins ---- */
     const filterKey = JSON.stringify(clean(filters, tab));
-    const searchKey = JSON.stringify([tab, filterKey, page, size, sort]);
+    const searchKey = JSON.stringify([tab, filterKey, page, size, sort, reload]);
     const loading = doneKey !== searchKey;
     const seq = useRef(0);
     useEffect(() => {
@@ -116,7 +128,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                 .finally(() => id === seq.current && setDoneKey(searchKey));
         }, 300);
         return () => clearTimeout(t);
-    }, [backend, tab, filterKey, page, size, sort, searchKey]);
+    }, [backend, tab, filterKey, page, size, sort, reload, searchKey]);
 
     /* ---- actions ---- */
     const setFilters = (f: Filters) => {
@@ -126,6 +138,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const clearAll = () => setFilters({});
     const setTab = (t: Tab) => {
         setPage(0);
+        setSelected(new Set());
         setState((s) => ({ ...s, tab: t }));
     };
     const apply = (t: Tab, f: Filters) => {
@@ -137,6 +150,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
         () => ({
             lists: Object.fromEntries(meta.lists.map((l) => [l.id, l.name])),
             sequences: Object.fromEntries(meta.sequences.map((l) => [l.id, l.name])),
+            searches: Object.fromEntries(meta.searches.map((l) => [l.id, l.name])),
         }),
         [meta]
     );
@@ -159,6 +173,49 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             setError((e as Error).message);
         }
     };
+    const toggle = (id: string) =>
+        setSelected((cur) => {
+            const next = new Set(cur);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    const toggleAll = (ids: string[], on: boolean) =>
+        setSelected((cur) => {
+            const next = new Set(cur);
+            ids.forEach((id) => (on ? next.add(id) : next.delete(id)));
+            return next;
+        });
+
+    const afterDiscovery = (r: SearchOutcome) => {
+        backend.meta().then(setMeta).catch(() => {});
+        // show exactly what this search found
+        apply("companies", { searches: [r.searchId] });
+        setReload((n) => n + 1);
+    };
+
+    const enrich = async () => {
+        let ids = [...selected].slice(0, 25);
+        setEnriching(true);
+        const all: EnrichOutcome["results"] = [];
+        try {
+            // the server stops before its time limit and hands back what it did not reach
+            for (let round = 0; round < 3 && ids.length; round++) {
+                const r = await runEnrich(ids);
+                all.push(...r.results);
+                ids = r.pending;
+            }
+            const n = (s: string) => all.filter((x) => x.status === s).length;
+            setToast(`الإثراء: ${n("done")} وجدنا بيانات · ${n("nothing_found")} بلا بيانات · ${n("no_website")} بلا موقع · ${n("failed")} تعذّر فتحها`);
+            setSelected(new Set());
+            setReload((x) => x + 1);
+        } catch (e) {
+            setError((e as Error).message);
+        } finally {
+            setEnriching(false);
+        }
+    };
+
     const remove = async (s: SavedSearch) => {
         try {
             await backend.savedRemove(s.id);
@@ -270,13 +327,16 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             </Box>
                         </Typography>
                         <Box sx={{ flex: 1 }} />
+                        <Button variant="contained" startIcon={<TravelExploreRoundedIcon />} onClick={() => setDiscover(true)}>
+                            اكتشاف من Google Maps
+                        </Button>
                         <Box sx={{ width: 160 }}>
                             <Select label="الترتيب" value={sort} onChange={(v) => setSort((v ?? "newest") as Sort)} options={SORTS} none={null} />
                         </Box>
                         <Button variant="outlined" startIcon={<BookmarksRoundedIcon />} onClick={(e) => setSavedMenu(e.currentTarget)}>
                             البحوث المحفوظة
                         </Button>
-                        <Button variant="contained" startIcon={<BookmarkAddRoundedIcon />} onClick={() => setNaming("search")} disabled={!count}>
+                        <Button variant="outlined" startIcon={<BookmarkAddRoundedIcon />} onClick={() => setNaming("search")} disabled={!count}>
                             حفظ البحث
                         </Button>
                         <Tooltip title="نسخ رابط هذا البحث">
@@ -295,6 +355,29 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                     </Box>
 
                     <ActiveChips chips={activeChips} filters={filters} onChange={setFilters} onClearAll={clearAll} />
+
+                    {tab === "companies" && selected.size > 0 && (
+                        <Box
+                            role="region"
+                            aria-label="الجهات المحددة"
+                            sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.5, p: 1.5, borderRadius: "12px", border: "1px solid", borderColor: "primary.main", bgcolor: "action.hover" }}
+                        >
+                            <Typography sx={{ fontWeight: 700 }}>{selected.size} محدد</Typography>
+                            <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={enrich} disabled={enriching || backend.demo || selected.size > 25}>
+                                {enriching ? "جارٍ الإثراء…" : "إثراء من المواقع"}
+                            </Button>
+                            <Button onClick={() => setSelected(new Set())} disabled={enriching}>
+                                إلغاء التحديد
+                            </Button>
+                            <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+                                {selected.size > 25
+                                    ? "الحد 25 جهة في المرة الواحدة."
+                                    : backend.demo
+                                      ? "الإثراء غير متاح في الوضع التجريبي."
+                                      : "يفتح موقع كل جهة ويستخرج الإيميل والسوشيال والواتساب. مجاني ولا يستخدم Google."}
+                            </Typography>
+                        </Box>
+                    )}
 
                     {error && <Alert severity="error">{error}</Alert>}
                     {result.warnings.map((w) => (
@@ -315,6 +398,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             setSize(s);
                             setPage(0);
                         }}
+                        selected={selected}
+                        onToggle={toggle}
+                        onToggleAll={toggleAll}
+                        onOpen={setOpened}
                     />
                 </Box>
             </Box>
@@ -383,7 +470,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                 </DialogActions>
             </Dialog>
 
-            <Snackbar open={!!toast} autoHideDuration={2500} onClose={() => setToast("")} message={toast} />
+            <DiscoverDialog open={discover} demo={backend.demo} onClose={() => setDiscover(false)} onDone={afterDiscovery} />
+            <CompanyDrawer company={opened} onClose={() => setOpened(null)} />
+
+            <Snackbar open={!!toast} autoHideDuration={toast.startsWith("الإثراء") ? 8000 : 2500} onClose={() => setToast("")} message={toast} />
         </Box>
     );
 }

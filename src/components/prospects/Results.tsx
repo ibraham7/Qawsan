@@ -1,7 +1,9 @@
 // Results: active-filter chips, live count and the people / companies table.
 
-import { Box, Chip, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Tooltip, Typography } from "@mui/material";
+import { Box, Checkbox, Chip, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Tooltip, Typography } from "@mui/material";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 
@@ -12,8 +14,6 @@ import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/ty
 
 const short = (opts: Opt[], v: string) => opts.find((o) => o.value === v)?.label.split(" · ")[1] ?? v;
 const nf = new Intl.NumberFormat("en-US");
-const money = (v: number | null) =>
-    v === null ? "—" : v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `$${Math.round(v / 1e3)}K` : `$${v}`;
 
 export function ActiveChips({ chips, filters, onChange, onClearAll }: { chips: ChipT[]; filters: Filters; onChange: (f: Filters) => void; onClearAll: () => void }) {
     if (!chips.length) return null;
@@ -53,6 +53,10 @@ export default function Results({
     size,
     onPage,
     onSize,
+    selected,
+    onToggle,
+    onToggleAll,
+    onOpen,
 }: {
     tab: Tab;
     rows: (PersonRow | CompanyRow)[];
@@ -62,10 +66,23 @@ export default function Results({
     size: number;
     onPage: (p: number) => void;
     onSize: (s: number) => void;
+    /** company selection (companies tab only) */
+    selected: Set<string>;
+    onToggle: (id: string) => void;
+    onToggleAll: (ids: string[], on: boolean) => void;
+    onOpen: (c: CompanyRow) => void;
 }) {
     const head = tab === "people"
         ? ["الاسم", "المسمى", "الشركة", "الموقع", "التواصل", "المرحلة", "التقييم"]
-        : ["الشركة", "القطاع", "الموظفون", "المقر", "التقنيات", "الإيرادات", "المرحلة", "التقييم"];
+        : ["", "الشركة", "القطاع", "المقر", "التواصل", "Google", "الموظفون", "التقنيات", "المرحلة", "التقييم"];
+    const pageIds = tab === "companies" ? rows.map((r) => r.id) : [];
+    const allOn = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+    const someOn = pageIds.some((id) => selected.has(id));
+    const dot = (on: boolean, title: string, icon: React.ReactNode) => (
+        <Tooltip title={title}>
+            <Box component="span" sx={{ display: "inline-flex", color: on ? "primary.main" : "text.disabled" }}>{icon}</Box>
+        </Tooltip>
+    );
 
     return (
         <Box sx={{ border: "1px solid", borderColor: "divider", borderRadius: "14px", overflow: "hidden", bgcolor: "background.paper", position: "relative" }}>
@@ -74,9 +91,21 @@ export default function Results({
                 <Table size="small" sx={{ minWidth: 860, "& th": { fontWeight: 700, color: "text.secondary", fontSize: 12.5, whiteSpace: "nowrap" }, "& td": { fontSize: 13.5, py: 1.2 } }}>
                     <TableHead>
                         <TableRow>
-                            {head.map((h) => (
-                                <TableCell key={h}>{h}</TableCell>
-                            ))}
+                            {head.map((h, i) =>
+                                tab === "companies" && i === 0 ? (
+                                    <TableCell key="sel" padding="checkbox">
+                                        <Checkbox
+                                            size="small"
+                                            checked={allOn}
+                                            indeterminate={someOn && !allOn}
+                                            onChange={(e) => onToggleAll(pageIds, e.target.checked)}
+                                            slotProps={{ input: { "aria-label": "تحديد كل الصفحة" } }}
+                                        />
+                                    </TableCell>
+                                ) : (
+                                    <TableCell key={h}>{h}</TableCell>
+                                )
+                            )}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -126,23 +155,43 @@ export default function Results({
                                   </TableRow>
                               ))
                             : (rows as CompanyRow[]).map((c) => (
-                                  <TableRow key={c.id} hover>
+                                  <TableRow key={c.id} hover selected={selected.has(c.id)} onClick={() => onOpen(c)} sx={{ cursor: "pointer" }}>
+                                      <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                                          <Checkbox size="small" checked={selected.has(c.id)} onChange={() => onToggle(c.id)} slotProps={{ input: { "aria-label": `تحديد ${c.name}` } }} />
+                                      </TableCell>
                                       <TableCell>
-                                          <Box sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>{c.name}</Box>
+                                          <Box sx={{ fontWeight: 700, whiteSpace: "nowrap", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</Box>
                                           <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
                                       </TableCell>
                                       <TableCell><bdi>{c.industry || "—"}</bdi></TableCell>
-                                      <TableCell><bdi>{c.employees !== null ? nf.format(c.employees) : "—"}</bdi></TableCell>
-                                      <TableCell><bdi>{place(c.hq_city, c.hq_country)}</bdi></TableCell>
+                                      <TableCell sx={{ whiteSpace: "nowrap" }}><bdi>{place(c.hq_city, c.hq_country)}</bdi></TableCell>
                                       <TableCell>
-                                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: 220 }}>
-                                              {c.technologies.slice(0, 3).map((t) => (
-                                                  <Chip key={t} label={t} size="small" variant="outlined" sx={{ height: 22, fontSize: 11 }} />
-                                              ))}
-                                              {c.technologies.length > 3 && <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>+{c.technologies.length - 3}</Typography>}
+                                          <Box sx={{ display: "flex", gap: 0.75, alignItems: "center" }}>
+                                              {dot(!!c.website, c.website ? "يوجد موقع" : "لا يوجد موقع", <LanguageRoundedIcon fontSize="small" />)}
+                                              {dot(!!c.phone, c.phone ? "يوجد هاتف" : "لا يوجد هاتف", <PhoneRoundedIcon fontSize="small" />)}
+                                              {dot(c.emails.length > 0, c.emails.length ? `${c.emails.length} إيميل` : "لا يوجد إيميل", <EmailRoundedIcon fontSize="small" />)}
+                                              {dot(!!c.whatsapp, c.whatsapp ? "يوجد واتساب" : "لا يوجد واتساب", <WhatsAppIcon fontSize="small" />)}
                                           </Box>
                                       </TableCell>
-                                      <TableCell><bdi>{money(c.revenue_usd)}</bdi></TableCell>
+                                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                          {c.rating !== null ? (
+                                              <>
+                                                  <Box component="span" sx={{ color: "warning.main" }}>★</Box> <bdi>{c.rating}</bdi>
+                                                  {c.rating_count !== null && <Typography component="span" sx={{ fontSize: 11.5, color: "text.secondary" }}> (<bdi>{c.rating_count}</bdi>)</Typography>}
+                                              </>
+                                          ) : (
+                                              "—"
+                                          )}
+                                      </TableCell>
+                                      <TableCell><bdi>{c.employees !== null ? nf.format(c.employees) : "—"}</bdi></TableCell>
+                                      <TableCell>
+                                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: 220 }}>
+                                              {c.technologies.slice(0, 2).map((t) => (
+                                                  <Chip key={t} label={t} size="small" variant="outlined" sx={{ height: 22, fontSize: 11 }} />
+                                              ))}
+                                              {c.technologies.length > 2 && <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>+{c.technologies.length - 2}</Typography>}
+                                          </Box>
+                                      </TableCell>
                                       <TableCell sx={{ whiteSpace: "nowrap" }}>{short(ACCOUNT_STAGES, c.account_stage)}</TableCell>
                                       <TableCell><Score v={c.lead_score} /></TableCell>
                                   </TableRow>
