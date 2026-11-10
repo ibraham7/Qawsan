@@ -12,6 +12,7 @@ import { createQawsanTheme } from "./theme/theme";
 
 const StartProject = lazy(() => import("./pages/StartProject"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Prospects = lazy(() => import("./pages/Prospects"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Review = lazy(() => import("./pages/Review"));
@@ -58,7 +59,9 @@ function Root({ path, cache }: RootProps) {
   };
 
   const isStartProject = route === "/start-project";
-  const isAdmin = route === "/admin";
+  const isProspects = route === "/prospects";
+  // private pages: no space backdrop, no consent banner
+  const isAdmin = route === "/admin" || isProspects;
   const isBlog = route === "/blog";
   const isReview = route === "/review";
   const legalKind = route === "/privacy" ? "privacy" : route === "/terms" ? "terms" : route === "/cookies" ? "cookies" : null;
@@ -75,7 +78,11 @@ function Root({ path, cache }: RootProps) {
           {!isAdmin && <ConsentBanner />}
 
           <Box sx={{ position: "relative", zIndex: 1 }}>
-          {isAdmin ? (
+          {isProspects ? (
+            <Suspense fallback={null}>
+              <Prospects />
+            </Suspense>
+          ) : isAdmin ? (
             <Suspense fallback={null}>
               <Admin />
             </Suspense>

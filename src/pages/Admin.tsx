@@ -28,8 +28,8 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
+import AdminGate from "../components/admin/AdminGate";
 import ReviewsAdmin from "../components/admin/ReviewsAdmin";
-import Logo from "../components/common/Logo";
 import { TRANSLATION_FIELDS, fetchProjects } from "../data/projects";
 import type { Project, ProjectInput } from "../data/projects";
 import { IMAGES_BUCKET, PROJECTS_TABLE, supabase } from "../lib/supabase";
@@ -58,72 +58,6 @@ async function removeImages(urls: string[]) {
 }
 
 /* ------------------------------------------------------------------ */
-
-function LoginForm() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [busy, setBusy] = useState(false);
-
-    const submit = async (e: FormEvent) => {
-        e.preventDefault();
-        setBusy(true);
-        setError("");
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) setError("البريد أو كلمة المرور غير صحيحة.");
-        setBusy(false);
-    };
-
-    return (
-        <Box
-            component="form"
-            onSubmit={submit}
-            sx={{
-                width: "100%",
-                maxWidth: 420,
-                mx: "auto",
-                mt: { xs: 8, md: 14 },
-                p: { xs: 3, md: 4 },
-                display: "flex",
-                flexDirection: "column",
-                gap: 2.5,
-                borderRadius: "20px",
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-            }}
-        >
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Logo />
-            </Box>
-            <Typography component="h1" sx={{ m: 0, fontSize: 24, fontWeight: 700, textAlign: "center" }}>
-                لوحة الإدارة
-            </Typography>
-
-            {error && <Alert severity="error">{error}</Alert>}
-
-            <TextField
-                label="البريد الإلكتروني"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-                label="كلمة المرور"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button type="submit" variant="contained" size="large" disabled={busy}>
-                {busy ? <CircularProgress size={22} color="inherit" /> : "تسجيل الدخول"}
-            </Button>
-        </Box>
-    );
-}
 
 /* ------------------------------------------------------------------ */
 
@@ -575,54 +509,14 @@ function Dashboard({ session }: { session: Session }) {
 /* ------------------------------------------------------------------ */
 
 function Admin() {
-    const [session, setSession] = useState<Session | null>(null);
-    // admin check result, remembered per user so a new sign-in re-checks
-    const [adminCheck, setAdminCheck] = useState<{ userId: string; ok: boolean } | null>(null);
-    const [ready, setReady] = useState(false);
-    const userId = session?.user.id;
-    const isAdmin = adminCheck && adminCheck.userId === userId ? adminCheck.ok : null;
-
     useEffect(() => {
         document.title = "لوحة الإدارة | قوسان";
-        supabase.auth.getSession().then(({ data }) => {
-            setSession(data.session);
-            setReady(true);
-        });
-        const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-        return () => data.subscription.unsubscribe();
     }, []);
-
-    useEffect(() => {
-        if (!userId) return;
-        supabase
-            .rpc("is_qawsan_admin")
-            .then(({ data }) => setAdminCheck({ userId, ok: data === true }));
-    }, [userId]);
 
     return (
         <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
             <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
-                {!ready || (session && isAdmin === null) ? (
-                    <Box sx={{ display: "grid", placeItems: "center", py: 20 }}>
-                        <CircularProgress />
-                    </Box>
-                ) : !session ? (
-                    <LoginForm />
-                ) : !isAdmin ? (
-                    <Box sx={{ maxWidth: 520, mx: "auto", mt: 14, textAlign: "center" }}>
-                        <Alert severity="warning" sx={{ mb: 2, textAlign: "right" }}>
-                            هذا الحساب لا يملك صلاحية الإدارة.
-                        </Alert>
-                        <Typography sx={{ color: "text.secondary", fontSize: 13 }} dir="ltr">
-                            {session.user.id}
-                        </Typography>
-                        <Button sx={{ mt: 2 }} onClick={() => supabase.auth.signOut()}>
-                            تسجيل الخروج
-                        </Button>
-                    </Box>
-                ) : (
-                    <Dashboard session={session} />
-                )}
+                <AdminGate title="لوحة الإدارة">{(session) => <Dashboard session={session} />}</AdminGate>
             </Container>
         </Box>
     );
