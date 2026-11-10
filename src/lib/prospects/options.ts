@@ -175,6 +175,13 @@ export const SEQUENCE_MODES: Opt[] = [
     { value: "not_in", label: "غير موجود في الحملات المحددة" },
 ];
 
+export const CONTACT_DATA: Opt[] = [
+    { value: "website", label: "لديها موقع" },
+    { value: "phone", label: "لديها هاتف" },
+    { value: "email", label: "لديها إيميل" },
+    { value: "whatsapp", label: "لديها واتساب" },
+];
+
 export const GROWTH_PERIODS: Opt[] = [
     { value: "6m", label: "6 أشهر" },
     { value: "12m", label: "سنة" },

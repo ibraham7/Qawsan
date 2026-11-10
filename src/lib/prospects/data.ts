@@ -25,6 +25,8 @@ export interface SearchResult<R> {
 
 export interface Meta {
     lists: (NamedItem & { kind: Tab })[];
+    /** recent Google searches, newest first */
+    searches: NamedItem[];
     sequences: NamedItem[];
     owners: string[];
 }
@@ -84,16 +86,23 @@ export const supabaseBackend: Backend = {
         return { rows: (data ?? []) as unknown as (PersonRow | CompanyRow)[], count: count ?? 0, warnings: c.warnings };
     },
     async meta() {
-        const [lists, seqs, ownersP, ownersC] = await Promise.all([
+        const [lists, seqs, ownersP, ownersC, searches] = await Promise.all([
             supabase.from(T.lists).select("id,name,kind").order("name"),
             supabase.from(T.sequences).select("id,name").order("name"),
             supabase.from(T.people).select("owner").neq("owner", "").limit(2000),
             supabase.from(T.companies).select("owner").neq("owner", "").limit(2000),
+            supabase.from("qawsan_searches").select("id,query,found,created_at").eq("status", "done").order("created_at", { ascending: false }).limit(100),
         ]);
         fail(lists.error);
         fail(seqs.error);
         const owners = [...new Set([...(ownersP.data ?? []), ...(ownersC.data ?? [])].map((r) => r.owner as string))].sort();
-        return { lists: (lists.data ?? []) as Meta["lists"], sequences: (seqs.data ?? []) as NamedItem[], owners };
+        const day = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+        return {
+            lists: (lists.data ?? []) as Meta["lists"],
+            sequences: (seqs.data ?? []) as NamedItem[],
+            owners,
+            searches: (searches.data ?? []).map((s) => ({ id: s.id as string, name: `${s.query} · ${s.found} · ${day(s.created_at as string)}` })),
+        };
     },
     async savedList() {
         const { data, error } = await supabase.from(T.saved).select("id,name,kind,filters,created_at").order("created_at", { ascending: false });

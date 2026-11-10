@@ -39,6 +39,7 @@ export type Cond = Leaf | { or: Cond[] } | { and: Cond[] };
 
 const ARRAY_FIELDS = new Set([
     "keywords", "sic_codes", "naics_codes", "technologies", "intent_topics", "signals", "sequence_ids", "languages",
+    "emails", "place_types",
 ]);
 
 export interface Context {
@@ -246,6 +247,11 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
             if (!target.industry && !isNum(target.employees)) warnings.push("الشركة المرجعية بلا قطاع أو عدد موظفين، فالتشابه ضعيف.");
         }
     }
+
+    const CONTACT_COL: Record<string, string> = { website: "website", phone: "phone", email: "emails", whatsapp: "whatsapp" };
+    for (const k of f.contactData ?? []) if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
+    range(P + "rating", f.googleRating, out);
+    if (f.searches?.length) out.push({ f: P + "search_id", op: "in", v: f.searches });
 
     // ---------- intent & signals (company-level) ----------
     if (f.intent) {

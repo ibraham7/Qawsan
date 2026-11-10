@@ -2,6 +2,7 @@
 
 import {
     ACCOUNT_STAGES,
+    CONTACT_DATA,
     CONTACT_STAGES,
     EMAIL_STATUS,
     EXCLUSIONS,
@@ -51,6 +52,9 @@ export const FILTERS: FilterMeta[] = [
     { key: "jobChange", label: "تغيير وظيفي حديث", group: "person", tabs: people },
     { key: "languages", label: "اللغات", group: "person", tabs: people },
 
+    { key: "searches", label: "عملية البحث (Google)", group: "company", tabs: both },
+    { key: "contactData", label: "بيانات التواصل", group: "company", tabs: both },
+    { key: "googleRating", label: "تقييم Google", group: "company", tabs: both },
     { key: "company", label: "الشركة", group: "company", tabs: both },
     { key: "hqLocation", label: "مقر الشركة", group: "company", tabs: both },
     { key: "employees", label: "عدد الموظفين", group: "company", tabs: both },
@@ -120,7 +124,11 @@ export function isActive(f: Filters, key: FilterKey): boolean {
         case "languages":
         case "owner":
         case "exclusions":
+        case "contactData":
+        case "searches":
             return !!f[key]?.length;
+        case "googleRating":
+            return rg(f.googleRating);
         case "roleTenure":
         case "experience":
         case "founded":
@@ -224,13 +232,13 @@ function locationChips(key: "personLocation" | "hqLocation", label: string, f0: 
     return out;
 }
 
-export function chips(f: Filters, tab: Tab, names: { lists: Record<string, string>; sequences: Record<string, string> }): Chip[] {
+export function chips(f: Filters, tab: Tab, names: { lists: Record<string, string>; sequences: Record<string, string>; searches?: Record<string, string> }): Chip[] {
     const c = clean(f, tab);
     const out: Chip[] = [];
     const L = (k: FilterKey) => metaFor(k, tab).label;
-    const arrayChips = (key: "emailStatus" | "phoneStatus" | "languages" | "owner" | "exclusions", opts: Opt[] = []) =>
+    const arrayChips = (key: "emailStatus" | "phoneStatus" | "languages" | "owner" | "exclusions" | "contactData", opts: Opt[] = []) =>
         (c[key] ?? []).forEach((v) =>
-            out.push({ id: `${key}.${v}`, label: key === "exclusions" ? labelOf(opts, v) : `${L(key)}: ${labelOf(opts, v)}`, remove: (g) => set(g, key, without(g[key] ?? [], v)) })
+            out.push({ id: `${key}.${v}`, label: key === "exclusions" || key === "contactData" ? labelOf(opts, v) : `${L(key)}: ${labelOf(opts, v)}`, remove: (g) => set(g, key, without(g[key] ?? [], v)) })
         );
     const rangeChip = (key: "roleTenure" | "experience" | "founded" | "retail", unit = "") => {
         const r = c[key];
@@ -252,6 +260,11 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
     if (c.jobChange) out.push({ id: "jobChange", label: `${L("jobChange")}: ${labelOf(JOB_CHANGE, c.jobChange)}`, remove: (g) => set(g, "jobChange", undefined) });
     arrayChips("languages");
 
+    (c.searches ?? []).forEach((id) =>
+        out.push({ id: `search.${id}`, label: `بحث: ${names.searches?.[id] ?? "Google"}`, remove: (g) => set(g, "searches", without(g.searches ?? [], id)) })
+    );
+    arrayChips("contactData", CONTACT_DATA);
+    if (c.googleRating) out.push({ id: "googleRating", label: `${L("googleRating")}: ${fmtRange(c.googleRating, "★")}`, remove: (g) => set(g, "googleRating", undefined) });
     out.push(...incExcChips("company", L("company"), (g) => g.company, c, (g, x) => set(g, "company", x)));
     out.push(...locationChips("hqLocation", L("hqLocation"), c));
     for (const key of ["employees", "revenue"] as const) {
