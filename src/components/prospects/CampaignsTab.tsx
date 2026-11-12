@@ -31,13 +31,18 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import {
     RECIPIENT_LABEL,
     SKIP_LABEL,
     STOP_LINE_DEFAULT,
+    STOP_LINE_EMAIL_DEFAULT,
     eligibility,
+    emailEligibility,
+    gmailLink,
+    mailtoLink,
     renderMessage,
     sentToday,
     validateTemplate,
@@ -55,17 +60,43 @@ const CAMPAIGN_LABEL: Record<Campaign["status"], { text: string; color: "success
     cancelled: { text: "ملغاة", color: "default" },
 };
 
+type Channel = Campaign["channel"];
+
 const EXAMPLE = "{مرحبًا|أهلًا|السلام عليكم} {name}، معك إبراهيم من استوديو قوسان. نصمم مواقع وأنظمة للشركات، وأحببت أن أعرض عليكم فكرة تناسب نشاطكم. هل يناسبكم أن أرسل التفاصيل؟";
+const EXAMPLE_EMAIL = "{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. نصمم مواقع وأنظمة للشركات، ولاحظت أن لديكم حضورًا جيدًا يمكن دعمه بموقع أو نظام يناسب نشاطكم.\n\nهل يناسبكم أن أرسل لكم تفاصيل قصيرة وسعرًا استرشاديًا؟\n\nمع التحية،\nإبراهيم - قوسان\nhttps://qawsan.website";
+const EXAMPLE_SUBJECT = "اقتراح لموقع {name}";
+
+/** the words that differ between the two channels */
+const COPY: Record<Channel, { title: string; newTitle: string; intro: string; open: string; opened: string; howTo: string }> = {
+    whatsapp: {
+        title: "حملات واتساب",
+        newTitle: "حملة واتساب جديدة",
+        intro: "حملة من الجهات المعتمدة فقط. تفتح لك الصفحة محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» بنفسك.",
+        open: "فتح واتساب",
+        opened: "اضغط «فتح واتساب»، أرسل الرسالة من هناك، ثم ارجع واضغط «أرسلتها». يُسجَّل التواصل ويتغير وضع الجهة إلى «تم التواصل».",
+        howTo: "تفتح لك محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» في واتساب بنفسك.",
+    },
+    email: {
+        title: "حملات الإيميل",
+        newTitle: "حملة إيميل جديدة",
+        intro: "حملة من الجهات المعتمدة التي لها إيميل. تفتح لك الصفحة رسالة جاهزة في Gmail أو برنامج البريد، وأنت تضغط «إرسال» بنفسك. لا يلزم ربط أي صندوق.",
+        open: "فتح في Gmail",
+        opened: "اضغط «فتح في Gmail» (أو «برنامج البريد»)، أرسل الرسالة من هناك، ثم ارجع واضغط «أرسلتها». يُسجَّل التواصل ويتغير وضع الجهة إلى «تم التواصل».",
+        howTo: "تفتح لك رسالة جاهزة في Gmail أو برنامج البريد، وأنت تضغط «إرسال» بنفسك.",
+    },
+};
 
 /* ------------------------------------------------------------------ */
 /* new campaign                                                         */
 
-function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: Backend; blocked: Set<string>; open: boolean; onClose: () => void; onCreated: (id: string) => void }) {
+function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { backend: Backend; channel: Channel; blocked: Set<string>; open: boolean; onClose: () => void; onCreated: (id: string) => void }) {
+    const email = channel === "email";
     const [companies, setCompanies] = useState<CompanyRow[] | null>(null);
     const [name, setName] = useState("");
-    const [message, setMessage] = useState(EXAMPLE);
-    const [stopLine, setStopLine] = useState(STOP_LINE_DEFAULT);
-    const [limit, setLimit] = useState("20");
+    const [subject, setSubject] = useState(EXAMPLE_SUBJECT);
+    const [message, setMessage] = useState(email ? EXAMPLE_EMAIL : EXAMPLE);
+    const [stopLine, setStopLine] = useState(email ? STOP_LINE_EMAIL_DEFAULT : STOP_LINE_DEFAULT);
+    const [limit, setLimit] = useState(email ? "30" : "20");
     const [picked, setPicked] = useState<Set<string> | null>(null);
     const [ok1, setOk1] = useState(false);
     const [ok2, setOk2] = useState(false);
@@ -85,7 +116,15 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
         };
     }, [open, backend]);
 
-    const elig = useMemo(() => eligibility(companies ?? [], blocked), [companies, blocked]);
+    const elig = useMemo(() => {
+        const list = companies ?? [];
+        if (email) {
+            const r = emailEligibility(list, blocked);
+            return { eligible: r.eligible.map((e) => ({ company: e.company, phone: "", email: e.email })), skipped: r.skipped };
+        }
+        const r = eligibility(list, blocked);
+        return { eligible: r.eligible.map((e) => ({ company: e.company, phone: e.phone, email: "" })), skipped: r.skipped };
+    }, [companies, blocked, email]);
     const chosen = elig.eligible.filter((e) => (picked ? picked.has(e.company.id) : true));
     const skippedByReason = useMemo(() => {
         const m = new Map<string, number>();
@@ -94,8 +133,12 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
     }, [elig]);
 
     const msgError = validateTemplate(message);
-    const preview = chosen[0] ? renderMessage(message, chosen[0].company.name, stopLine, chosen[0].company.id) : renderMessage(message, "اسم الجهة", stopLine, "x");
-    const ready = !!name.trim() && !msgError && chosen.length > 0 && ok1 && ok2 && ok3;
+    const subjectError = email && subject.trim().length < 3 ? "اكتب عنوانًا للرسالة." : email && validateTemplate(`${subject} ......`) ? "أقواس { } غير متطابقة في العنوان." : null;
+    const sampleName = chosen[0]?.company.name ?? "اسم الجهة";
+    const sampleSeed = chosen[0]?.company.id ?? "x";
+    const preview = renderMessage(message, sampleName, stopLine, sampleSeed);
+    const previewSubject = renderMessage(subject, sampleName, "", sampleSeed + ":s");
+    const ready = !!name.trim() && !msgError && !subjectError && chosen.length > 0 && ok1 && ok2 && ok3;
 
     const create = async () => {
         setBusy(true);
@@ -103,10 +146,12 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
         try {
             const id = await backend.createCampaign({
                 name,
+                channel,
+                subject: email ? subject : "",
                 message,
                 stopLine,
-                dailyLimit: Math.max(1, Math.min(200, Number(limit) || 20)),
-                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone })),
+                dailyLimit: Math.max(1, Math.min(200, Number(limit) || (email ? 30 : 20))),
+                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone, email: e.email })),
             });
             onCreated(id);
         } catch (e) {
@@ -118,9 +163,9 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
 
     return (
         <Dialog open={open} onClose={() => !busy && onClose()} fullWidth maxWidth="md">
-            <DialogTitle>حملة واتساب جديدة</DialogTitle>
+            <DialogTitle>{COPY[channel].newTitle}</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5, pt: "8px !important" }}>
-                <Alert severity="info">لا تُرسل أي رسالة من الصفحة. تفتح لك محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» في واتساب بنفسك.</Alert>
+                <Alert severity="info">لا تُرسل أي رسالة من الصفحة. {COPY[channel].howTo}</Alert>
                 {error && <Alert severity="error">{error}</Alert>}
 
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" }, gap: 2 }}>
@@ -136,6 +181,18 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
                 </Box>
 
                 <Box>
+                    {email && (
+                        <TextField
+                            label="عنوان الرسالة *"
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            fullWidth
+                            error={!!subjectError}
+                            helperText={subjectError ?? "يقبل {name} والصيغ مثل النص."}
+                            sx={{ mb: 2 }}
+                            slotProps={{ htmlInput: { maxLength: 200 } }}
+                        />
+                    )}
                     <TextField
                         label="نص الرسالة *"
                         value={message}
@@ -151,6 +208,7 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
 
                 <Box sx={{ p: 2, borderRadius: "14px", bgcolor: "action.hover" }}>
                     <Typography sx={{ fontSize: 12.5, color: "text.secondary", mb: 0.5 }}>معاينة{chosen[0] ? ` (لـ ${chosen[0].company.name})` : ""}</Typography>
+                    {email && <Typography sx={{ fontSize: 14, fontWeight: 700, mb: 1 }}>{previewSubject}</Typography>}
                     <Typography sx={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.8 }}>{preview}</Typography>
                 </Box>
 
@@ -161,7 +219,7 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
                     ) : (
                         <>
                             <Typography sx={{ fontSize: 14 }}>
-                                <bdi>{chosen.length}</bdi> جهة من أصل <bdi>{elig.eligible.length}</bdi> مؤهلة. المؤهلة: «معتمد للتواصل» ولها رقم جوال أو واتساب، وليست في «لا ترسل»، ولم يُتواصل معها.
+                                <bdi>{chosen.length}</bdi> جهة من أصل <bdi>{elig.eligible.length}</bdi> مؤهلة. المؤهلة: «معتمد للتواصل» {email ? "ولها إيميل" : "ولها رقم جوال أو واتساب"}، وليست في «لا ترسل»، ولم يُتواصل معها.
                             </Typography>
                             {skippedByReason.length > 0 && (
                                 <Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: 0.5 }}>
@@ -170,7 +228,7 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
                             )}
                             {elig.eligible.length === 0 ? (
                                 <Alert severity="warning" sx={{ mt: 1.5 }}>
-                                    لا توجد جهات مؤهلة. اعتمد جهات من «الشركات» (تغيير الحالة إلى «معتمد للتواصل») وتأكد أن لها رقم جوال.
+                                    لا توجد جهات مؤهلة. اعتمد جهات من «الشركات» (تغيير الحالة إلى «معتمد للتواصل») وتأكد أن {email ? "لها إيميل (استخدم «إثراء من المواقع» لجلبه)" : "لها رقم جوال"}.
                                 </Alert>
                             ) : (
                                 <Box sx={{ mt: 1.5, maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: "12px", p: 1 }}>
@@ -195,7 +253,7 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
                                                 }
                                                 label={
                                                     <Typography sx={{ fontSize: 13.5 }}>
-                                                        {e.company.name} <bdi style={{ color: "gray" }}>+{e.phone}</bdi>
+                                                        {e.company.name} <bdi style={{ color: "gray" }}>{email ? e.email : `+${e.phone}`}</bdi>
                                                     </Typography>
                                                 }
                                             />
@@ -210,8 +268,8 @@ function NewCampaign({ backend, blocked, open, onClose, onCreated }: { backend: 
                 <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid", borderColor: "primary.main" }}>
                     <Typography sx={{ fontWeight: 700, mb: 0.5 }}>الاعتماد النهائي</Typography>
                     <FormControlLabel control={<Checkbox checked={ok1} onChange={(e) => setOk1(e.target.checked)} />} label="راجعت نص الرسالة والمستلمين." />
-                    <FormControlLabel control={<Checkbox checked={ok2} onChange={(e) => setOk2(e.target.checked)} />} label="تواصلي مع هذه الجهات مشروع (نشاط تجاري مرتبط بعملها) وسأحترم من يطلب التوقف." />
-                    <FormControlLabel control={<Checkbox checked={ok3} onChange={(e) => setOk3(e.target.checked)} />} label="أفهم أن الرسائل أرسلها بنفسي من واتساب، ولن تُرسل آليًا." />
+                    <FormControlLabel control={<Checkbox checked={ok2} onChange={(e) => setOk2(e.target.checked)} />} label="تواصلي مع هذه الجهات مشروع (نشاط تجاري مرتبط بعملها) وسأحترم من يطلب التوقف فورًا." />
+                    <FormControlLabel control={<Checkbox checked={ok3} onChange={(e) => setOk3(e.target.checked)} />} label={email ? "أفهم أن الرسائل أرسلها بنفسي من بريدي، ولن تُرسل آليًا." : "أفهم أن الرسائل أرسلها بنفسي من واتساب، ولن تُرسل آليًا."} />
                 </Box>
             </DialogContent>
             <DialogActions>
@@ -258,9 +316,18 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
         }
     };
 
-    const open = (r: Recipient) => {
-        const text = renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id);
-        window.open(waLink(r.phone, text), "_blank", "noopener,noreferrer");
+    const isEmail = campaign.channel === "email";
+    const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`);
+    const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id);
+
+    const open = (r: Recipient, how: "primary" | "app" = "primary") => {
+        if (isEmail) {
+            const url = how === "app" ? mailtoLink(r.email, subjectFor(r), bodyFor(r)) : gmailLink(r.email, subjectFor(r), bodyFor(r));
+            if (how === "app") window.location.href = url;
+            else window.open(url, "_blank", "noopener,noreferrer");
+        } else {
+            window.open(waLink(r.phone, bodyFor(r)), "_blank", "noopener,noreferrer");
+        }
         setOpened(r.id);
     };
 
@@ -304,15 +371,21 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                 <Box sx={{ p: { xs: 2.5, md: 3 }, borderRadius: "20px", border: "1px solid", borderColor: "primary.main", bgcolor: "background.paper", display: "flex", flexDirection: "column", gap: 2 }}>
                     <Typography sx={{ fontSize: 13, color: "text.secondary" }}>الجهة التالية</Typography>
                     <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-                        {next.name} <bdi style={{ fontSize: 14, color: "gray" }}>+{next.phone}</bdi>
+                        {next.name} <bdi style={{ fontSize: 14, color: "gray" }}>{isEmail ? next.email : `+${next.phone}`}</bdi>
                     </Typography>
                     <Box sx={{ p: 2, borderRadius: "14px", bgcolor: "action.hover", whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.8 }}>
-                        {renderMessage(campaign.message, next.name, campaign.stop_line, next.company_id ?? next.id)}
+                        {isEmail && <Typography sx={{ fontWeight: 700, mb: 1 }}>{subjectFor(next)}</Typography>}
+                        {bodyFor(next)}
                     </Box>
                     <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-                        <Button variant="contained" size="large" startIcon={<WhatsAppIcon />} onClick={() => open(next)}>
-                            فتح واتساب
+                        <Button variant="contained" size="large" startIcon={isEmail ? <EmailRoundedIcon /> : <WhatsAppIcon />} onClick={() => open(next)}>
+                            {COPY[campaign.channel].open}
                         </Button>
+                        {isEmail && (
+                            <Button variant="outlined" size="large" onClick={() => open(next, "app")}>
+                                برنامج البريد
+                            </Button>
+                        )}
                         <Button variant="outlined" size="large" disabled={opened !== next.id} onClick={() => mark(next, "sent")}>
                             أرسلتها ✓
                         </Button>
@@ -320,7 +393,7 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                             تخطّي
                         </Button>
                     </Box>
-                    <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>اضغط «فتح واتساب»، أرسل الرسالة من هناك، ثم ارجع واضغط «أرسلتها». يُسجَّل التواصل ويتغير وضع الجهة إلى «تم التواصل».</Typography>
+                    <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>{COPY[campaign.channel].opened}</Typography>
                 </Box>
             ) : rows ? (
                 <Alert severity="success">انتهت الحملة: لا توجد جهات بانتظار الإرسال.</Alert>
@@ -334,7 +407,7 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                         <TableHead>
                             <TableRow>
                                 <TableCell>الجهة</TableCell>
-                                <TableCell>الرقم</TableCell>
+                                <TableCell>{isEmail ? "الإيميل" : "الرقم"}</TableCell>
                                 <TableCell>الحالة</TableCell>
                                 <TableCell>تسجيل الرد</TableCell>
                             </TableRow>
@@ -344,9 +417,13 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                                 <TableRow key={r.id} hover>
                                     <TableCell sx={{ fontWeight: 600 }}>{r.name}</TableCell>
                                     <TableCell dir="ltr" sx={{ textAlign: "end", fontVariantNumeric: "tabular-nums" }}>
-                                        <Link href={`https://wa.me/${r.phone}`} target="_blank" rel="noopener noreferrer">
-                                            +{r.phone}
-                                        </Link>
+                                        {isEmail ? (
+                                            <Link href={`mailto:${r.email}`}>{r.email}</Link>
+                                        ) : (
+                                            <Link href={`https://wa.me/${r.phone}`} target="_blank" rel="noopener noreferrer">
+                                                +{r.phone}
+                                            </Link>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <Chip
@@ -383,7 +460,7 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
 /* ------------------------------------------------------------------ */
 /* list                                                                 */
 
-export default function CampaignsTab({ backend, blocked, onStatusChanged }: { backend: Backend; blocked: Set<string>; onStatusChanged: () => void }) {
+export default function CampaignsTab({ backend, channel, blocked, onStatusChanged }: { backend: Backend; channel: Channel; blocked: Set<string>; onStatusChanged: () => void }) {
     const [list, setList] = useState<Campaign[] | null>(null);
     const [error, setError] = useState("");
     const [creating, setCreating] = useState(false);
@@ -391,8 +468,8 @@ export default function CampaignsTab({ backend, blocked, onStatusChanged }: { ba
     const [toDelete, setToDelete] = useState<Campaign | null>(null);
 
     const load = useCallback(() => {
-        backend.campaigns().then(setList, (e: Error) => setError(e.message));
-    }, [backend]);
+        backend.campaigns(channel).then(setList, (e: Error) => setError(e.message));
+    }, [backend, channel]);
     useEffect(load, [load]);
 
     const current = list?.find((c) => c.id === openId);
@@ -424,11 +501,9 @@ export default function CampaignsTab({ backend, blocked, onStatusChanged }: { ba
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
                 <Box sx={{ flex: 1, minWidth: 240 }}>
                     <Typography component="h2" sx={{ m: 0, fontSize: 20, fontWeight: 700 }}>
-                        حملات واتساب
+                        {COPY[channel].title}
                     </Typography>
-                    <Typography sx={{ fontSize: 13.5, color: "text.secondary", mt: 0.5 }}>
-                        حملة من الجهات المعتمدة فقط. تفتح لك الصفحة محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» بنفسك.
-                    </Typography>
+                    <Typography sx={{ fontSize: 13.5, color: "text.secondary", mt: 0.5 }}>{COPY[channel].intro}</Typography>
                 </Box>
                 <Button variant="contained" size="large" startIcon={<AddRoundedIcon />} onClick={() => setCreating(true)}>
                     حملة جديدة
@@ -488,7 +563,9 @@ export default function CampaignsTab({ backend, blocked, onStatusChanged }: { ba
             </Box>
 
             <NewCampaign
+                key={channel}
                 backend={backend}
+                channel={channel}
                 blocked={blocked}
                 open={creating}
                 onClose={() => setCreating(false)}

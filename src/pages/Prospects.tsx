@@ -364,17 +364,21 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             {section !== "search" && (
                 <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1200, width: "100%", mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
                     {error && <Alert severity="error">{error}</Alert>}
-                    {section === "campaigns" && <CampaignsTab backend={backend} blocked={blocked} onStatusChanged={() => {
+                    {section === "campaigns" && <CampaignsTab backend={backend} channel="whatsapp" blocked={blocked} onStatusChanged={() => {
                         setReload((x) => x + 1);
                         loadBlocked(); // a "stop" reply adds the number to do-not-contact
                     }} />}
                     {section === "email" && (
-                        <ComingSoon
-                            title="حملات الإيميل"
-                            stage="المرحلة الثالثة"
-                            onBack={() => setSection("search")}
-                            points={["ربط صندوق بريد (SMTP) باختبار قبل الحفظ وحد يومي.", "موضوع ونص مع اسم الجهة، ورابط إلغاء اشتراك تلقائي.", "اعتماد نهائي منك قبل أي إرسال."]}
-                        />
+                        <>
+                            <Alert severity="info" icon={false} sx={{ alignItems: "center" }}>
+                                <b>لا يوجد صندوق بريد مربوط.</b> الإرسال الآن يدوي مساعد: تفتح لك الصفحة الرسالة جاهزة في Gmail أو برنامج البريد وتضغط «إرسال» بنفسك. ربط صندوق (SMTP) لاحقًا يضيف الإرسال
+                                الآلي المتدرّج ورابط إلغاء اشتراك يعمل بضغطة، ولم نربط شيئًا بعد.
+                            </Alert>
+                            <CampaignsTab backend={backend} channel="email" blocked={blocked} onStatusChanged={() => {
+                                setReload((x) => x + 1);
+                                loadBlocked();
+                            }} />
+                        </>
                     )}
                     {section === "reports" && (
                         <ComingSoon title="التقارير" stage="المرحلة الثالثة" onBack={() => setSection("search")} points={["لكل حملة: أُرسل، ردّ، ألغى الاشتراك، فشل.", "قائمة المهتمين للمتابعة."]} />

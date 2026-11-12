@@ -1,7 +1,7 @@
 // Checks for WhatsApp campaign logic. Run: node scripts/test-campaigns.ts
 import assert from "node:assert/strict";
 
-import { eligibility, phoneDigits, renderMessage, sentToday, validateTemplate, variantCount, waLink, whatsappNumber } from "../src/lib/prospects/campaigns.ts";
+import { bestEmail, eligibility, emailEligibility, gmailLink, mailtoLink, phoneDigits, renderMessage, sentToday, validateTemplate, variantCount, waLink, whatsappNumber } from "../src/lib/prospects/campaigns.ts";
 import { makeDemo } from "../src/lib/prospects/demo.ts";
 import type { CompanyRow } from "../src/lib/prospects/types.ts";
 
@@ -73,6 +73,41 @@ it("messages sent today", () => {
     const now = new Date("2026-11-13T15:00:00");
     const r = [{ sent_at: "2026-11-13T09:00:00" }, { sent_at: "2026-11-13T14:30:00" }, { sent_at: "2026-11-12T23:00:00" }, { sent_at: null }];
     assert.equal(sentToday(r, now), 2);
+});
+
+it("best email: personal before info@, skips no-reply and invalid", () => {
+    assert.equal(bestEmail(["info@x.com", "Dr.Ali@x.com"]), "dr.ali@x.com");
+    assert.equal(bestEmail(["noreply@x.com", "info@x.com"]), "info@x.com");
+    assert.equal(bestEmail(["noreply@x.com", "bad@@x", "x"]), "");
+    assert.equal(bestEmail([]), "");
+});
+
+it("email eligibility: approved + address, not blocked (address or phone), not contacted, one mail per address", () => {
+    const list = [
+        co({ id: "a", emails: ["info@a.com"] }), // ok
+        co({ id: "b", emails: [] }), // no email
+        co({ id: "c", emails: ["info@c.com"], status: "review" }), // not approved
+        co({ id: "d", emails: ["info@d.com"], status: "contacted" }), // already
+        co({ id: "e", emails: ["info@e.com"] }), // address blocked
+        co({ id: "f", emails: ["info@f.com"], phone: "+90 545 000 00 06" }), // phone blocked
+        co({ id: "g", emails: ["INFO@a.com"] }), // same address as a
+        co({ id: "h", emails: ["noreply@h.com"] }), // only a no-reply address
+    ];
+    const r = emailEligibility(list, new Set(["info@e.com", "905450000006"]));
+    assert.deepEqual(r.eligible.map((e) => e.company.id), ["a"]);
+    const why = Object.fromEntries(r.skipped.map((x) => [x.company.id, x.reason]));
+    assert.deepEqual(why, { b: "no_email", c: "not_approved", d: "already_contacted", e: "blocked", f: "blocked", g: "already_contacted", h: "no_email" });
+});
+
+it("gmail and mailto links carry subject and body", () => {
+    const g = new URL(gmailLink("a@b.com", "عنوان & مهم", "سطر1\nسطر2"));
+    assert.equal(g.hostname, "mail.google.com");
+    assert.equal(g.searchParams.get("to"), "a@b.com");
+    assert.equal(g.searchParams.get("su"), "عنوان & مهم");
+    assert.equal(g.searchParams.get("body"), "سطر1\nسطر2");
+    const m = mailtoLink("a@b.com", "عنوان", "نص\nآخر");
+    assert.ok(m.startsWith("mailto:a@b.com?subject="));
+    assert.equal(decodeURIComponent(m.split("&body=")[1]), "نص\nآخر");
 });
 
 console.log(`\n${passed} checks passed`);

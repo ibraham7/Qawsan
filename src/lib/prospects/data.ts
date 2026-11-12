@@ -23,10 +23,12 @@ export const T = {
 
 export interface NewCampaign {
     name: string;
+    channel: "whatsapp" | "email";
+    subject: string;
     message: string;
     stopLine: string;
     dailyLimit: number;
-    recipients: { companyId: string; name: string; phone: string }[];
+    recipients: { companyId: string; name: string; phone: string; email: string }[];
 }
 
 export interface NewCompany {
@@ -105,7 +107,7 @@ export interface Backend {
     unsuppress(id: string): Promise<void>;
     /** companies the campaign wizard may pick from (approved) */
     approvedCompanies(): Promise<CompanyRow[]>;
-    campaigns(): Promise<Campaign[]>;
+    campaigns(channel?: Campaign["channel"]): Promise<Campaign[]>;
     createCampaign(c: NewCampaign): Promise<string>;
     recipients(campaignId: string): Promise<Recipient[]>;
     /** sent / skipped / replied / stopped; "stopped" also adds the number to do-not-contact */
@@ -228,9 +230,9 @@ export const supabaseBackend: Backend = {
         fail(error);
         return (data ?? []) as CompanyRow[];
     },
-    async campaigns() {
+    async campaigns(channel) {
         const [c, r] = await Promise.all([
-            supabase.from(T.campaigns).select("*").order("created_at", { ascending: false }).limit(200),
+            (channel ? supabase.from(T.campaigns).select("*").eq("channel", channel) : supabase.from(T.campaigns).select("*")).order("created_at", { ascending: false }).limit(200),
             supabase.from(T.recipients).select("campaign_id,status").limit(50000),
         ]);
         fail(c.error);
@@ -246,12 +248,12 @@ export const supabaseBackend: Backend = {
     async createCampaign(c) {
         const { data, error } = await supabase
             .from(T.campaigns)
-            .insert({ name: c.name.trim(), message: c.message, stop_line: c.stopLine.trim(), daily_limit: c.dailyLimit })
+            .insert({ name: c.name.trim(), channel: c.channel, subject: c.subject.trim(), message: c.message, stop_line: c.stopLine.trim(), daily_limit: c.dailyLimit })
             .select("id")
             .single();
         fail(error);
         const id = (data as { id: string }).id;
-        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: phoneDigits(x.phone) }));
+        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase() }));
         const { error: e2 } = await supabase.from(T.recipients).insert(rows);
         if (e2) {
             // do not leave an empty campaign behind
@@ -273,7 +275,7 @@ export const supabaseBackend: Backend = {
             const { error: e2 } = await supabase.from(T.companies).update({ status: next, contacted_at: new Date().toISOString() }).eq("id", r.company_id);
             fail(e2);
         }
-        if (status === "stopped") await this.suppress(r.phone, "طلب الإيقاف (حملة واتساب)");
+        if (status === "stopped") await this.suppress(r.phone || r.email, r.email ? "طلب الإيقاف (حملة إيميل)" : "طلب الإيقاف (حملة واتساب)");
     },
     async setCampaignStatus(id, status) {
         const { error } = await supabase.from(T.campaigns).update({ status }).eq("id", id);
@@ -359,8 +361,8 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async approvedCompanies() {
             return data.companies.filter((c) => ["approved", "contacted", "replied", "unsubscribed"].includes(c.status));
         },
-        async campaigns() {
-            return campaigns.map((c) => {
+        async campaigns(channel) {
+            return campaigns.filter((c) => !channel || c.channel === channel).map((c) => {
                 const counts = { ...EMPTY_COUNTS };
                 recipients.filter((r) => r.campaign_id === c.id).forEach((r) => counts[r.status]++);
                 return { ...c, counts };
@@ -369,8 +371,8 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async createCampaign(c) {
             const id = crypto.randomUUID();
             const now = new Date().toISOString();
-            campaigns = [{ id, name: c.name, message: c.message, stop_line: c.stopLine, daily_limit: c.dailyLimit, status: "active", approved_at: now, created_at: now }, ...campaigns];
-            recipients = [...recipients, ...c.recipients.map((x) => ({ id: crypto.randomUUID(), campaign_id: id, company_id: x.companyId, name: x.name, phone: phoneDigits(x.phone), status: "pending" as const, sent_at: null }))];
+            campaigns = [{ id, name: c.name, channel: c.channel, subject: c.subject, message: c.message, stop_line: c.stopLine, daily_limit: c.dailyLimit, status: "active", approved_at: now, created_at: now }, ...campaigns];
+            recipients = [...recipients, ...c.recipients.map((x) => ({ id: crypto.randomUUID(), campaign_id: id, company_id: x.companyId, name: x.name, phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), status: "pending" as const, sent_at: null }))];
             return id;
         },
         async recipients(campaignId) {
@@ -381,7 +383,8 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
             const next = COMPANY_STATUS[status];
             const co = data.companies.find((c) => c.id === r.company_id);
             if (co && next) co.status = next;
-            if (status === "stopped" && !blocked.some((b) => b.value === r.phone)) blocked = [{ id: crypto.randomUUID(), value: r.phone, kind: "phone", reason: "stop_reply", note: "", created_at: new Date().toISOString() }, ...blocked];
+            const target = r.phone || r.email;
+            if (status === "stopped" && !blocked.some((b) => b.value === target)) blocked = [{ id: crypto.randomUUID(), value: target, kind: r.phone ? "phone" : "email", reason: "stop_reply", note: "", created_at: new Date().toISOString() }, ...blocked];
         },
         async setCampaignStatus(id, status) {
             campaigns = campaigns.map((c) => (c.id === id ? { ...c, status } : c));
