@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test:prospects": "node scripts/test-prospects.ts",
     "test:discovery": "node scripts/test-discovery.ts",
-    "test:campaigns": "node scripts/test-campaigns.ts"
+    "test:campaigns": "node scripts/test-campaigns.ts",
+    "test:reports": "node scripts/test-reports.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

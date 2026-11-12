@@ -41,11 +41,11 @@ import AdminGate from "../components/admin/AdminGate";
 import Logo from "../components/common/Logo";
 import AddContactDialog from "../components/prospects/AddContactDialog";
 import CampaignsTab from "../components/prospects/CampaignsTab";
-import ComingSoon from "../components/prospects/ComingSoon";
 import CompanyDrawer from "../components/prospects/CompanyDrawer";
 import DiscoverDialog from "../components/prospects/DiscoverDialog";
 import FilterSidebar from "../components/prospects/FilterSidebar";
 import Results, { ActiveChips } from "../components/prospects/Results";
+import ReportsTab from "../components/prospects/ReportsTab";
 import SettingsTab from "../components/prospects/SettingsTab";
 import SuppressionsTab from "../components/prospects/SuppressionsTab";
 import { Select } from "../components/prospects/controls";
@@ -380,9 +380,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             }} />
                         </>
                     )}
-                    {section === "reports" && (
-                        <ComingSoon title="التقارير" stage="المرحلة الثالثة" onBack={() => setSection("search")} points={["لكل حملة: أُرسل، ردّ، ألغى الاشتراك، فشل.", "قائمة المهتمين للمتابعة."]} />
-                    )}
+                    {section === "reports" && <ReportsTab backend={backend} onStatusChanged={() => setReload((x) => x + 1)} />}
                     {section === "suppressions" && (
                         <SuppressionsTab
                             items={blockedList}
