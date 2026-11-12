@@ -15,7 +15,7 @@ export function whatsappNumber(c: Pick<CompanyRow, "whatsapp" | "phone" | "phone
     return "";
 }
 
-export type SkipReason = "not_approved" | "no_whatsapp" | "blocked" | "already_contacted";
+export type SkipReason = "not_approved" | "no_whatsapp" | "no_email" | "blocked" | "already_contacted";
 
 export interface Eligibility {
     eligible: { company: CompanyRow; phone: string }[];
@@ -47,9 +47,54 @@ export function eligibility(companies: CompanyRow[], blocked: Set<string>): Elig
     return { eligible, skipped };
 }
 
+export interface EmailEligibility {
+    eligible: { company: CompanyRow; email: string }[];
+    skipped: { company: CompanyRow; reason: SkipReason }[];
+}
+
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[a-z]{2,24}$/i;
+/** addresses that are not a person or a business inbox worth writing to */
+const NO_REPLY = /^(no-?reply|donotreply|do-not-reply|mailer-daemon|postmaster)@/i;
+
+/** the best address of a company: personal-looking ones before info@/support@ style ones */
+export function bestEmail(emails: string[]): string {
+    const ok = emails.filter((e) => EMAIL_RE.test(e) && !NO_REPLY.test(e));
+    return (ok.find((e) => !/^(info|contact|support|admin|sales|hello|office|mail)@/i.test(e)) ?? ok[0] ?? "").toLowerCase();
+}
+
+/** Approved companies with a usable email address, not blocked (by address or phone), not contacted, one mail per address. */
+export function emailEligibility(companies: CompanyRow[], blocked: Set<string>): EmailEligibility {
+    const eligible: EmailEligibility["eligible"] = [];
+    const skipped: EmailEligibility["skipped"] = [];
+    const seen = new Set<string>();
+    for (const company of companies) {
+        const email = bestEmail(company.emails);
+        let reason: SkipReason | null = null;
+        if (company.status !== "approved") reason = company.status === "contacted" ? "already_contacted" : "not_approved";
+        else if (!email) reason = "no_email";
+        else if (blocked.has(email) || company.emails.some((e) => blocked.has(e.toLowerCase())) || (!!company.phone && blocked.has(phoneDigits(company.phone)))) reason = "blocked";
+        else if (seen.has(email)) reason = "already_contacted";
+        if (reason) skipped.push({ company, reason });
+        else {
+            seen.add(email);
+            eligible.push({ company, email });
+        }
+    }
+    return { eligible, skipped };
+}
+
+export const gmailLink = (email: string, subject: string, body: string) =>
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+export const mailtoLink = (email: string, subject: string, body: string) =>
+    `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+export const STOP_LINE_EMAIL_DEFAULT = "إن لم ترغب باستلام رسائلنا، ردّ على هذا البريد بكلمة «إيقاف» ولن نراسلك مجددًا.";
+
 export const SKIP_LABEL: Record<SkipReason, string> = {
     not_approved: "غير معتمدة",
     no_whatsapp: "بلا رقم جوال أو واتساب",
+    no_email: "بلا إيميل",
     blocked: "في قائمة «لا ترسل»",
     already_contacted: "تم التواصل معها أو رقم مكرر",
 };
@@ -104,6 +149,7 @@ export interface Recipient {
     company_id: string | null;
     name: string;
     phone: string;
+    email: string;
     status: "pending" | "sent" | "skipped" | "replied" | "stopped";
     sent_at: string | null;
 }
@@ -111,6 +157,8 @@ export interface Recipient {
 export interface Campaign {
     id: string;
     name: string;
+    channel: "whatsapp" | "email";
+    subject: string;
     message: string;
     stop_line: string;
     daily_limit: number;
