@@ -176,11 +176,29 @@ export const SEQUENCE_MODES: Opt[] = [
 ];
 
 export const CONTACT_DATA: Opt[] = [
+    { value: "phone", label: "لديه رقم هاتف" },
+    { value: "mobile", label: "رقم جوال (واتساب محتمل)" },
     { value: "website", label: "لديها موقع" },
-    { value: "phone", label: "لديها هاتف" },
     { value: "email", label: "لديها إيميل" },
     { value: "whatsapp", label: "لديها واتساب" },
 ];
+
+/** review status of a discovered company; `manual` = the admin may set it by hand */
+export const STATUSES: (Opt & { color: "default" | "primary" | "success" | "warning" | "error" | "info" | "secondary"; manual: boolean })[] = [
+    { value: "new", label: "مكتشف حديثًا", color: "info", manual: true },
+    { value: "review", label: "يحتاج مراجعة", color: "warning", manual: true },
+    { value: "qualified", label: "مؤهل", color: "primary", manual: true },
+    { value: "not_fit", label: "غير مناسب", color: "default", manual: true },
+    { value: "approved", label: "معتمد للتواصل", color: "success", manual: true },
+    { value: "contacted", label: "تم التواصل", color: "secondary", manual: false },
+    { value: "replied", label: "ردّ على الرسالة", color: "primary", manual: false },
+    { value: "interested", label: "مهتم", color: "success", manual: false },
+    { value: "not_interested", label: "غير مهتم", color: "default", manual: false },
+    { value: "converted", label: "نُقل إلى العملاء المحتملين", color: "success", manual: false },
+    { value: "unsubscribed", label: "ألغى الاشتراك", color: "error", manual: false },
+    { value: "invalid", label: "غير صالح", color: "error", manual: true },
+];
+export const statusOf = (v: string) => STATUSES.find((s) => s.value === v) ?? STATUSES[0];
 
 export const GROWTH_PERIODS: Opt[] = [
     { value: "6m", label: "6 أشهر" },

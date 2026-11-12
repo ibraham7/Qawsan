@@ -1,6 +1,6 @@
 // The editor shown inside each filter section of the sidebar.
 
-import { Box, FormControlLabel, Switch, Typography, Slider } from "@mui/material";
+import { Box, FormControlLabel, Switch, TextField, Typography, Slider } from "@mui/material";
 
 import {
     ACCOUNT_STAGES,
@@ -25,6 +25,7 @@ import {
     REVENUE_BANDS,
     SCORE_GRADE_OPTS,
     SENIORITY,
+    STATUSES,
     SEQUENCE_MODES,
     SIGNALS,
     SINCE,
@@ -150,6 +151,18 @@ export function FilterEditor({
         case "languages":
             return <Multi label="اللغات" value={f.languages ?? []} onChange={(v) => set("languages", v)} options={LANGUAGES} free />;
 
+        case "q":
+            return (
+                <TextField
+                    size="small"
+                    fullWidth
+                    placeholder={tab === "people" ? "اسم، مسمى، إيميل" : "اسم، عنوان، رقم"}
+                    value={f.q ?? ""}
+                    onChange={(e) => set("q", e.target.value || undefined)}
+                />
+            );
+        case "status":
+            return <IncExcInput value={f.status} onChange={(x) => set("status", x)} options={STATUSES} />;
         case "searches":
             return meta.searches.length ? (
                 <Multi label="عمليات البحث" value={f.searches ?? []} onChange={(v) => set("searches", v)} options={meta.searches.map((s) => ({ value: s.id, label: s.name }))} />

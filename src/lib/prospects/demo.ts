@@ -114,6 +114,9 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             whatsapp: r() < 0.3 ? "+0000000000" : "",
             enrich_status: "",
             enriched_at: null,
+            status: pick(["new", "new", "new", "review", "qualified", "not_fit", "approved", "contacted", "invalid"]),
+            phone_kind: pick(["mobile", "mobile", "landline", ""]),
+            notes: "",
         };
     });
 

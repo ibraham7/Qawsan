@@ -147,7 +147,7 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
                             {" "}· استُخدم <b dir="ltr">{status.used}</b> من <b dir="ltr">{status.limit}</b> طلبًا هذا الشهر
                         </>
                     )}
-                    . راجع أسعار Places API في حسابك على Google Cloud. النتائج تُحفظ كجهات للمراجعة، ولا يُرسل شيء لأحد.
+                    . الكلفة التقديرية حوالي <bdi>${(pages * 0.035).toFixed(3)}</bdi> بعد الحصة المجانية الشهرية، والتسعير الفعلي من Google وقد يختلف. النتائج تُحفظ كجهات للمراجعة، ولا يُرسل شيء لأحد.
                 </Typography>
                 {left !== null && left < pages && <Alert severity="error">لا يكفي الرصيد الشهري المتبقي ({left}) لهذا البحث. قلّل عدد النتائج.</Alert>}
                 {error && <Alert severity="error">{error}</Alert>}

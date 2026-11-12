@@ -7,7 +7,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 
-import { ACCOUNT_STAGES, CONTACT_STAGES, EMAIL_STATUS } from "../../lib/prospects/options";
+import { ACCOUNT_STAGES, CONTACT_STAGES, EMAIL_STATUS, statusOf } from "../../lib/prospects/options";
 import type { Opt } from "../../lib/prospects/options";
 import type { Chip as ChipT } from "../../lib/prospects/state";
 import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/types";
@@ -57,6 +57,7 @@ export default function Results({
     onToggle,
     onToggleAll,
     onOpen,
+    blocked,
 }: {
     tab: Tab;
     rows: (PersonRow | CompanyRow)[];
@@ -71,10 +72,16 @@ export default function Results({
     onToggle: (id: string) => void;
     onToggleAll: (ids: string[], on: boolean) => void;
     onOpen: (c: CompanyRow) => void;
+    /** do-not-contact values (phone digits / lower-case emails) */
+    blocked: Set<string>;
 }) {
+    const isBlocked = (c: CompanyRow) =>
+        (!!c.phone && blocked.has(c.phone.replace(/\D/g, "").replace(/^00/, ""))) ||
+        (!!c.whatsapp && blocked.has(c.whatsapp.replace(/\D/g, ""))) ||
+        c.emails.some((e) => blocked.has(e.toLowerCase()));
     const head = tab === "people"
         ? ["الاسم", "المسمى", "الشركة", "الموقع", "التواصل", "المرحلة", "التقييم"]
-        : ["", "الشركة", "القطاع", "المقر", "التواصل", "Google", "الموظفون", "التقنيات", "المرحلة", "التقييم"];
+        : ["", "الشركة", "القطاع", "المقر", "التواصل", "Google", "الموظفون", "التقنيات", "المرحلة", "التقييم", "الحالة"];
     const pageIds = tab === "companies" ? rows.map((r) => r.id) : [];
     const allOn = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
     const someOn = pageIds.some((id) => selected.has(id));
@@ -168,7 +175,11 @@ export default function Results({
                                       <TableCell>
                                           <Box sx={{ display: "flex", gap: 0.75, alignItems: "center" }}>
                                               {dot(!!c.website, c.website ? "يوجد موقع" : "لا يوجد موقع", <LanguageRoundedIcon fontSize="small" />)}
-                                              {dot(!!c.phone, c.phone ? "يوجد هاتف" : "لا يوجد هاتف", <PhoneRoundedIcon fontSize="small" />)}
+                                              {dot(
+                                                  !!c.phone,
+                                                  !c.phone ? "لا يوجد هاتف" : c.phone_kind === "mobile" ? "رقم جوال (واتساب محتمل)" : c.phone_kind === "landline" ? "رقم ثابت" : "يوجد هاتف",
+                                                  c.phone_kind === "mobile" ? <PhoneIphoneRoundedIcon fontSize="small" /> : <PhoneRoundedIcon fontSize="small" />
+                                              )}
                                               {dot(c.emails.length > 0, c.emails.length ? `${c.emails.length} إيميل` : "لا يوجد إيميل", <EmailRoundedIcon fontSize="small" />)}
                                               {dot(!!c.whatsapp, c.whatsapp ? "يوجد واتساب" : "لا يوجد واتساب", <WhatsAppIcon fontSize="small" />)}
                                           </Box>
@@ -194,6 +205,14 @@ export default function Results({
                                       </TableCell>
                                       <TableCell sx={{ whiteSpace: "nowrap" }}>{short(ACCOUNT_STAGES, c.account_stage)}</TableCell>
                                       <TableCell><Score v={c.lead_score} /></TableCell>
+                                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                          <Chip size="small" label={statusOf(c.status).label} color={statusOf(c.status).color} variant={statusOf(c.status).color === "default" ? "outlined" : "filled"} sx={{ fontWeight: 700, height: 24 }} />
+                                          {isBlocked(c) && (
+                                              <Box>
+                                                  <Chip size="small" label="لا ترسل" color="error" variant="outlined" sx={{ height: 20, fontSize: 11, mt: 0.5 }} />
+                                              </Box>
+                                          )}
+                                      </TableCell>
                                   </TableRow>
                               ))}
                     </TableBody>

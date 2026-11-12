@@ -5,6 +5,7 @@ import {
     CONTACT_DATA,
     CONTACT_STAGES,
     EMAIL_STATUS,
+    STATUSES,
     EXCLUSIONS,
     FUNDING_TYPES,
     GROWTH_PERIODS,
@@ -52,6 +53,7 @@ export const FILTERS: FilterMeta[] = [
     { key: "jobChange", label: "تغيير وظيفي حديث", group: "person", tabs: people },
     { key: "languages", label: "اللغات", group: "person", tabs: people },
 
+    { key: "q", label: "بحث في القائمة", group: "company", tabs: both },
     { key: "searches", label: "عملية البحث (Google)", group: "company", tabs: both },
     { key: "contactData", label: "بيانات التواصل", group: "company", tabs: both },
     { key: "googleRating", label: "تقييم Google", group: "company", tabs: both },
@@ -75,6 +77,7 @@ export const FILTERS: FilterMeta[] = [
     { key: "visitors", label: "زوار موقعي", group: "intent", tabs: both },
     { key: "leadScore", label: "تقييم العميل", group: "intent", tabs: both },
 
+    { key: "status", label: "الحالة", group: "account", tabs: ["companies"] },
     { key: "lists", label: "القوائم", group: "account", tabs: both },
     { key: "stage", label: "مرحلة التواصل", group: "account", tabs: both },
     { key: "owner", label: "المسؤول", group: "account", tabs: both },
@@ -109,12 +112,14 @@ export function isActive(f: Filters, key: FilterKey): boolean {
         case "technologies":
         case "lists":
         case "stage":
+        case "status":
             return ie(f[key]);
         case "personLocation":
         case "hqLocation":
             return loc(f[key]);
         case "name":
         case "lookalike":
+        case "q":
             return !!f[key]?.trim();
         case "jobChange":
         case "visitors":
@@ -260,6 +265,8 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
     if (c.jobChange) out.push({ id: "jobChange", label: `${L("jobChange")}: ${labelOf(JOB_CHANGE, c.jobChange)}`, remove: (g) => set(g, "jobChange", undefined) });
     arrayChips("languages");
 
+    if (c.q) out.push({ id: "q", label: `بحث: ${c.q}`, remove: (g) => set(g, "q", undefined) });
+    out.push(...incExcChips("status", L("status"), (g) => g.status, c, (g, x) => set(g, "status", x), (v) => labelOf(STATUSES, v)));
     (c.searches ?? []).forEach((id) =>
         out.push({ id: `search.${id}`, label: `بحث: ${names.searches?.[id] ?? "Google"}`, remove: (g) => set(g, "searches", without(g.searches ?? [], id)) })
     );

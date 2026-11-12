@@ -27,7 +27,9 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
+import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
@@ -37,16 +39,20 @@ import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 
 import AdminGate from "../components/admin/AdminGate";
 import Logo from "../components/common/Logo";
+import AddContactDialog from "../components/prospects/AddContactDialog";
+import ComingSoon from "../components/prospects/ComingSoon";
 import CompanyDrawer from "../components/prospects/CompanyDrawer";
 import DiscoverDialog from "../components/prospects/DiscoverDialog";
 import FilterSidebar from "../components/prospects/FilterSidebar";
 import Results, { ActiveChips } from "../components/prospects/Results";
+import SettingsTab from "../components/prospects/SettingsTab";
+import SuppressionsTab from "../components/prospects/SuppressionsTab";
 import { Select } from "../components/prospects/controls";
 import { runEnrich } from "../lib/discovery/client";
 import type { EnrichOutcome, SearchOutcome } from "../lib/discovery/client";
 import { supabaseBackend } from "../lib/prospects/data";
-import type { Backend, Meta, Sort } from "../lib/prospects/data";
-import { PRESETS } from "../lib/prospects/options";
+import type { Backend, Meta, Sort, Suppression } from "../lib/prospects/data";
+import { PRESETS, STATUSES } from "../lib/prospects/options";
 import { activeCount, chips, clean, decodeState, encodeState, pickPersona } from "../lib/prospects/state";
 import type { UrlState } from "../lib/prospects/state";
 import type { CompanyRow, Filters, PersonRow, SavedSearch, Tab } from "../lib/prospects/types";
@@ -61,6 +67,20 @@ const SORTS = [
     { value: "score", label: "الأعلى تقييمًا" },
     { value: "name", label: "بالاسم" },
 ];
+
+/** sections next to the people / companies search, in the same top bar */
+type Section = "search" | "campaigns" | "email" | "reports" | "suppressions" | "settings";
+const SECTIONS: { id: Exclude<Section, "search">; label: string }[] = [
+    { id: "campaigns", label: "الحملات" },
+    { id: "email", label: "الإيميل" },
+    { id: "reports", label: "التقارير" },
+    { id: "suppressions", label: "لا ترسل" },
+    { id: "settings", label: "الإعدادات" },
+];
+const readSection = (): Section => {
+    const v = new URLSearchParams(window.location.search).get("view");
+    return SECTIONS.some((s) => s.id === v) ? (v as Section) : "search";
+};
 
 function Workspace({ backend, email }: { backend: Backend; email: string | null }) {
     const theme = useTheme();
@@ -89,16 +109,43 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [enriching, setEnriching] = useState(false);
     // bumped to re-run the current search after data changed on the server
     const [reload, setReload] = useState(0);
+    const [section, setSection] = useState<Section>(readSection);
+    const [blockedList, setBlockedList] = useState<Suppression[]>([]);
+    const [statusMenu, setStatusMenu] = useState<HTMLElement | null>(null);
+    const [adding, setAdding] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [busy, setBusy] = useState(false);
 
     const { tab } = state;
     const filters = state[tab];
 
     /* ---- url ---- */
     useEffect(() => {
-        const qs = encodeState(state) + (backend.demo ? "&demo" : "");
+        const qs = encodeState(state) + (section !== "search" ? `&view=${section}` : "") + (backend.demo ? "&demo" : "");
         const url = `${window.location.pathname}?${qs}`;
         if (url !== window.location.pathname + window.location.search) window.history.replaceState(null, "", url);
-    }, [state, backend.demo]);
+    }, [state, section, backend.demo]);
+
+    /* ---- do-not-contact list (badges in the table + its own section) ---- */
+    const loadBlocked = useCallback(() => {
+        backend.suppressions().then(setBlockedList, (e: Error) => setError(e.message));
+    }, [backend]);
+    useEffect(loadBlocked, [loadBlocked]);
+    const blocked = useMemo(() => new Set(blockedList.map((b) => b.value)), [blockedList]);
+
+    /** runs a change on the server, then refreshes the results */
+    const run = async (fn: () => Promise<void>, done: string) => {
+        setBusy(true);
+        try {
+            await fn();
+            setToast(done);
+            setReload((x) => x + 1);
+        } catch (e) {
+            setError((e as Error).message);
+        } finally {
+            setBusy(false);
+        }
+    };
 
     /* ---- reference data ---- */
     const loadSaved = useCallback(() => {
@@ -265,9 +312,23 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                 <Typography component="h1" sx={{ m: 0, fontSize: 18, fontWeight: 700, display: { xs: "none", sm: "block" } }}>
                     العملاء المحتملون
                 </Typography>
-                <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ minHeight: 64, "& .MuiTab-root": { minHeight: 64, fontWeight: 700 } }}>
+                <Tabs
+                    value={section === "search" ? tab : section}
+                    onChange={(_, v) => {
+                        if (v === "people" || v === "companies") {
+                            setSection("search");
+                            setTab(v);
+                        } else setSection(v);
+                    }}
+                    variant="scrollable"
+                    scrollButtons={false}
+                    sx={{ minHeight: 64, minWidth: 0, "& .MuiTab-root": { minHeight: 64, fontWeight: 700, minWidth: 0, px: 2 } }}
+                >
                     <MuiTab value="people" label="الأشخاص" />
                     <MuiTab value="companies" label="الشركات" />
+                    {SECTIONS.map((s) => (
+                        <MuiTab key={s.id} value={s.id} label={s.label} />
+                    ))}
                 </Tabs>
                 <Box sx={{ flex: 1 }} />
                 {email && (
@@ -290,7 +351,55 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                 </Alert>
             )}
 
-            <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+            {section !== "search" && (
+                <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1200, width: "100%", mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
+                    {error && <Alert severity="error">{error}</Alert>}
+                    {section === "campaigns" && (
+                        <ComingSoon
+                            title="حملات واتساب"
+                            stage="المرحلة الثانية: قيد البناء"
+                            onBack={() => setSection("search")}
+                            points={[
+                                "حملة من الجهات المعتمدة فقط، مع استبعاد قائمة «لا ترسل» والأرقام الثابتة تلقائيًا.",
+                                "رسالة واحدة بأكثر من صيغة واسم الجهة تلقائيًا.",
+                                "الصفحة تفتح محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» بنفسك.",
+                                "عدّاد يومي تحدده أنت، وتحديث الحالة إلى «تم التواصل» تلقائيًا.",
+                            ]}
+                        />
+                    )}
+                    {section === "email" && (
+                        <ComingSoon
+                            title="حملات الإيميل"
+                            stage="المرحلة الثالثة"
+                            onBack={() => setSection("search")}
+                            points={["ربط صندوق بريد (SMTP) باختبار قبل الحفظ وحد يومي.", "موضوع ونص مع اسم الجهة، ورابط إلغاء اشتراك تلقائي.", "اعتماد نهائي منك قبل أي إرسال."]}
+                        />
+                    )}
+                    {section === "reports" && (
+                        <ComingSoon title="التقارير" stage="المرحلة الثالثة" onBack={() => setSection("search")} points={["لكل حملة: أُرسل، ردّ، ألغى الاشتراك، فشل.", "قائمة المهتمين للمتابعة."]} />
+                    )}
+                    {section === "suppressions" && (
+                        <SuppressionsTab
+                            items={blockedList}
+                            onAdd={async (v, note) => {
+                                await backend.suppress(v, note);
+                                loadBlocked();
+                            }}
+                            onRemove={async (s) => {
+                                try {
+                                    await backend.unsuppress(s.id);
+                                    loadBlocked();
+                                } catch (e) {
+                                    setError((e as Error).message);
+                                }
+                            }}
+                        />
+                    )}
+                    {section === "settings" && <SettingsTab demo={backend.demo} />}
+                </Box>
+            )}
+
+            <Box sx={{ flex: 1, display: section === "search" ? "flex" : "none", minHeight: 0 }}>
                 {wide && sidebar && (
                     <Box
                         sx={{
@@ -330,6 +439,9 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                         <Button variant="contained" startIcon={<TravelExploreRoundedIcon />} onClick={() => setDiscover(true)}>
                             اكتشاف من Google Maps
                         </Button>
+                        <Button variant="outlined" startIcon={<AddRoundedIcon />} onClick={() => setAdding(true)}>
+                            إضافة جهة يدويًا
+                        </Button>
                         <Box sx={{ width: 160 }}>
                             <Select label="الترتيب" value={sort} onChange={(v) => setSort((v ?? "newest") as Sort)} options={SORTS} none={null} />
                         </Box>
@@ -365,6 +477,12 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             <Typography sx={{ fontWeight: 700 }}>{selected.size} محدد</Typography>
                             <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={enrich} disabled={enriching || backend.demo || selected.size > 25}>
                                 {enriching ? "جارٍ الإثراء…" : "إثراء من المواقع"}
+                            </Button>
+                            <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || busy}>
+                                تغيير الحالة
+                            </Button>
+                            <Button color="error" startIcon={<DeleteOutlineRoundedIcon />} onClick={() => setDeleting(true)} disabled={enriching || busy}>
+                                حذف نهائي
                             </Button>
                             <Button onClick={() => setSelected(new Set())} disabled={enriching}>
                                 إلغاء التحديد
@@ -402,6 +520,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                         onToggle={toggle}
                         onToggleAll={toggleAll}
                         onOpen={setOpened}
+                        blocked={blocked}
                     />
                 </Box>
             </Box>
@@ -469,6 +588,65 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* only the statuses an admin may set by hand */}
+            <Menu anchorEl={statusMenu} open={!!statusMenu} onClose={() => setStatusMenu(null)}>
+                <Typography sx={{ px: 2, pt: 1, pb: 0.5, fontSize: 12, color: "text.secondary", maxWidth: 280 }}>«معتمد» لا يرسل شيئًا، بل يجعل الجهة قابلة للدخول في حملة.</Typography>
+                {STATUSES.filter((s) => s.manual).map((s) => (
+                    <MenuItem
+                        key={s.value}
+                        onClick={() => {
+                            setStatusMenu(null);
+                            const ids = [...selected];
+                            run(async () => {
+                                await backend.setStatus(ids, s.value);
+                                setSelected(new Set());
+                            }, `تم: ${s.label} (${ids.length})`);
+                        }}
+                    >
+                        {s.label}
+                    </MenuItem>
+                ))}
+            </Menu>
+
+            <Dialog open={deleting} onClose={() => !busy && setDeleting(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>حذف {selected.size} جهة نهائيًا؟</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ fontSize: 14 }}>لا يمكن التراجع. الأرقام والإيميلات الموجودة في قائمة «لا ترسل» تبقى محفوظة فيها.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleting(false)} disabled={busy}>
+                        إلغاء
+                    </Button>
+                    <Button
+                        color="error"
+                        variant="contained"
+                        disabled={busy}
+                        onClick={() => {
+                            const ids = [...selected];
+                            run(async () => {
+                                await backend.removeCompanies(ids);
+                                setSelected(new Set());
+                                setDeleting(false);
+                            }, `حُذفت ${ids.length} جهة`);
+                        }}
+                    >
+                        حذف
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <AddContactDialog
+                open={adding}
+                onClose={() => setAdding(false)}
+                onSave={async (c) => {
+                    await backend.addCompany(c);
+                    apply("companies", {});
+                    setSort("newest");
+                    setReload((x) => x + 1);
+                    setToast("أُضيفت الجهة");
+                }}
+            />
 
             <DiscoverDialog open={discover} demo={backend.demo} onClose={() => setDiscover(false)} onDone={afterDiscovery} />
             <CompanyDrawer company={opened} onClose={() => setOpened(null)} />

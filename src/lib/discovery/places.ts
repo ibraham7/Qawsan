@@ -146,6 +146,19 @@ export function industryFor(types: string[], primary?: string): string {
     return "";
 }
 
+/**
+ * "mobile" / "landline" for an international number (+ or 00 prefix) in the countries we
+ * work with; "" when unknown. Mobile numbers are the ones that can have WhatsApp.
+ * Keep in sync with the SQL backfill in 20261112000000_qawsan_marketing.sql.
+ */
+export function phoneKind(phone: string): "" | "mobile" | "landline" {
+    if (!/^\s*(\+|00)/.test(phone)) return "";
+    const d = phone.replace(/\D/g, "").replace(/^00/, "");
+    if (/^(905|9665|9715|974[3567]|965[569]|9733|968[79]|201|9627|9639|9647|961(3|7[016789]|81))/.test(d)) return "mobile";
+    if (/^(90|966|971|974|965|973|968|20|962|963|964|961)/.test(d)) return "landline";
+    return "";
+}
+
 export function normDomain(url: string): string {
     return url.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[/?#].*$/, "");
 }
@@ -195,13 +208,15 @@ export function toCompany(p: GooglePlace, ctx: { cities: CityRef[]; searchId: st
         }
     }
     const website = p.websiteUri ?? "";
+    const phone = (p.internationalPhoneNumber ?? p.nationalPhoneNumber ?? "").slice(0, 40);
     const types = (p.types ?? []).slice(0, 12);
     return {
         google_place_id: p.id,
         name: (p.displayName?.text ?? "").slice(0, 200) || "—",
         website: website.slice(0, 500),
         domain: website ? normDomain(website).slice(0, 200) : "",
-        phone: (p.internationalPhoneNumber ?? p.nationalPhoneNumber ?? "").slice(0, 40),
+        phone,
+        phone_kind: phoneKind(phone),
         address: (p.formattedAddress ?? "").slice(0, 500),
         google_maps_url: (p.googleMapsUri ?? "").slice(0, 500),
         hq_country: country,
