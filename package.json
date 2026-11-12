@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:prospects": "node scripts/test-prospects.ts",
-    "test:discovery": "node scripts/test-discovery.ts"
+    "test:discovery": "node scripts/test-discovery.ts",
+    "test:campaigns": "node scripts/test-campaigns.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

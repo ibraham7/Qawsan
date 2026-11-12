@@ -40,6 +40,7 @@ import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import AdminGate from "../components/admin/AdminGate";
 import Logo from "../components/common/Logo";
 import AddContactDialog from "../components/prospects/AddContactDialog";
+import CampaignsTab from "../components/prospects/CampaignsTab";
 import ComingSoon from "../components/prospects/ComingSoon";
 import CompanyDrawer from "../components/prospects/CompanyDrawer";
 import DiscoverDialog from "../components/prospects/DiscoverDialog";
@@ -363,19 +364,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             {section !== "search" && (
                 <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1200, width: "100%", mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
                     {error && <Alert severity="error">{error}</Alert>}
-                    {section === "campaigns" && (
-                        <ComingSoon
-                            title="حملات واتساب"
-                            stage="المرحلة الثانية: قيد البناء"
-                            onBack={() => setSection("search")}
-                            points={[
-                                "حملة من الجهات المعتمدة فقط، مع استبعاد قائمة «لا ترسل» والأرقام الثابتة تلقائيًا.",
-                                "رسالة واحدة بأكثر من صيغة واسم الجهة تلقائيًا.",
-                                "الصفحة تفتح محادثة كل جهة والرسالة جاهزة، وأنت تضغط «إرسال» بنفسك.",
-                                "عدّاد يومي تحدده أنت، وتحديث الحالة إلى «تم التواصل» تلقائيًا.",
-                            ]}
-                        />
-                    )}
+                    {section === "campaigns" && <CampaignsTab backend={backend} blocked={blocked} onStatusChanged={() => {
+                        setReload((x) => x + 1);
+                        loadBlocked(); // a "stop" reply adds the number to do-not-contact
+                    }} />}
                     {section === "email" && (
                         <ComingSoon
                             title="حملات الإيميل"
