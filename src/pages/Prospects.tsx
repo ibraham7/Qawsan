@@ -205,6 +205,8 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const count = activeCount(filters, tab);
     const searches = saved.filter((s) => s.kind !== "persona");
     const personas = saved.filter((s) => s.kind === "persona");
+    const targets = saved.filter((s) => s.kind === tab);
+    const activeTargetId = targets.find((t) => JSON.stringify(clean(t.filters, tab)) === filterKey)?.id ?? null;
 
     const saveNamed = async () => {
         const n = name.trim();
@@ -212,7 +214,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
         try {
             if (naming === "persona") await backend.savedCreate(n, "persona", pickPersona(state.people));
             else await backend.savedCreate(n, tab, clean(filters, tab));
-            setToast(naming === "persona" ? "حُفظت الـ Persona" : "حُفظ البحث");
+            setToast(naming === "persona" ? "حُفظت الـ Persona" : "حُفظ الاستهداف");
             setNaming(null);
             setName("");
             loadSaved();
@@ -278,6 +280,13 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             filters={filters}
             meta={meta}
             personas={personas}
+            targets={targets}
+            activeTargetId={activeTargetId}
+            onApplyTarget={(t) => apply(tab, t.filters)}
+            onSaveTarget={() => setNaming("search")}
+            onDeleteTarget={(t) => {
+                if (window.confirm(`حذف «${t.name}» من الاستهدافات المحفوظة؟ الشركات نفسها لا تُحذف.`)) remove(t);
+            }}
             onChange={setFilters}
             onClearAll={clearAll}
             onApplyPersona={(p) => apply("people", { ...state.people, ...p.filters })}
@@ -566,7 +575,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             </Menu>
 
             <Dialog open={!!naming} onClose={() => setNaming(null)} fullWidth maxWidth="xs">
-                <DialogTitle>{naming === "persona" ? "حفظ Persona" : "حفظ البحث"}</DialogTitle>
+                <DialogTitle>{naming === "persona" ? "حفظ Persona" : "حفظ استهداف"}</DialogTitle>
                 <DialogContent>
                     <Typography sx={{ fontSize: 13, color: "text.secondary", mb: 2 }}>
                         {naming === "persona" ? "تُحفظ فلاتر الشخص فقط (المسمى، المستوى، القسم، الموقع…)." : `يُحفظ ${count} فلتر من تبويب ${tab === "people" ? "الأشخاص" : "الشركات"}.`}

@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import { Box, Button, Chip, IconButton, InputAdornment, TextField, Tooltip, Typography } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
@@ -18,6 +19,11 @@ export default function FilterSidebar({
     filters,
     meta,
     personas,
+    targets,
+    activeTargetId,
+    onApplyTarget,
+    onSaveTarget,
+    onDeleteTarget,
     onChange,
     onClearAll,
     onApplyPersona,
@@ -29,6 +35,13 @@ export default function FilterSidebar({
     filters: Filters;
     meta: Meta;
     personas: SavedSearch[];
+    /** saved filter sets of the current tab ("عيادات أسنان - إسطنبول"…) */
+    targets: SavedSearch[];
+    /** the saved set whose filters equal the current ones, if any */
+    activeTargetId: string | null;
+    onApplyTarget: (t: SavedSearch) => void;
+    onSaveTarget: () => void;
+    onDeleteTarget: (t: SavedSearch) => void;
     onChange: (f: Filters) => void;
     onClearAll: () => void;
     onApplyPersona: (p: SavedSearch) => void;
@@ -95,6 +108,40 @@ export default function FilterSidebar({
             </Box>
 
             <Box sx={{ flex: 1, overflowY: "auto", borderTop: "1px solid", borderColor: "divider" }}>
+                {!q && (
+                    <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                            <BookmarksRoundedIcon fontSize="small" color="primary" />
+                            <Typography sx={{ fontSize: 13.5, fontWeight: 700, flex: 1 }}>الاستهدافات المحفوظة</Typography>
+                            <Button size="small" onClick={onSaveTarget} disabled={!count}>
+                                حفظ الفلاتر الحالية
+                            </Button>
+                        </Box>
+                        {targets.length ? (
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+                                {targets.map((t) => (
+                                    <Chip
+                                        key={t.id}
+                                        size="small"
+                                        label={`${t.name} (${Object.keys(t.filters).length})`}
+                                        onClick={() => onApplyTarget(t)}
+                                        onDelete={() => onDeleteTarget(t)}
+                                        color={t.id === activeTargetId ? "primary" : "default"}
+                                        variant={t.id === activeTargetId ? "filled" : "outlined"}
+                                        aria-pressed={t.id === activeTargetId}
+                                    />
+                                ))}
+                            </Box>
+                        ) : (
+                            <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+                                {count
+                                    ? "احفظ الفلاتر الحالية باسم (مثل «عيادات أسنان - إسطنبول») لتعود إليها بضغطة."
+                                    : "اختر الفلاتر التي تستهدف بها فئة معينة، ثم احفظها هنا باسم لتعود إليها بضغطة."}
+                            </Typography>
+                        )}
+                    </Box>
+                )}
+
                 {tab === "people" && !q && (
                     <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
