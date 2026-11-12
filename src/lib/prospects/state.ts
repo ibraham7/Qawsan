@@ -21,10 +21,9 @@ import {
 import type { Opt } from "./options.ts";
 import type { FilterKey, Filters, IncExc, Location, Range, Tab } from "./types.ts";
 
-export type Group = "quick" | "person" | "company" | "intent" | "account";
+export type Group = "person" | "company" | "intent" | "account";
 
 export const GROUPS: { id: Group; label: string }[] = [
-    { id: "quick", label: "بحث سريع" },
     { id: "person", label: "فلاتر الشخص" },
     { id: "company", label: "فلاتر الشركة" },
     { id: "intent", label: "النية والإشارات" },
@@ -42,12 +41,6 @@ const both: Tab[] = ["people", "companies"];
 const people: Tab[] = ["people"];
 
 export const FILTERS: FilterMeta[] = [
-    { key: "q", label: "بحث في القائمة", group: "quick", tabs: both },
-    { key: "contactData", label: "بيانات التواصل", group: "quick", tabs: both },
-    { key: "status", label: "الحالة", group: "quick", tabs: both },
-    { key: "googleRating", label: "تقييم Google", group: "quick", tabs: both },
-    { key: "searches", label: "عملية البحث (Google)", group: "quick", tabs: both },
-
     { key: "titles", label: "المسمى الوظيفي", group: "person", tabs: people },
     { key: "seniority", label: "المستوى الإداري", group: "person", tabs: people },
     { key: "departments", label: "القسم والوظيفة", group: "person", tabs: people },
@@ -60,6 +53,10 @@ export const FILTERS: FilterMeta[] = [
     { key: "jobChange", label: "تغيير وظيفي حديث", group: "person", tabs: people },
     { key: "languages", label: "اللغات", group: "person", tabs: people },
 
+    { key: "q", label: "بحث في القائمة", group: "company", tabs: both },
+    { key: "searches", label: "عملية البحث (Google)", group: "company", tabs: both },
+    { key: "contactData", label: "بيانات التواصل", group: "company", tabs: both },
+    { key: "googleRating", label: "تقييم Google", group: "company", tabs: both },
     { key: "company", label: "الشركة", group: "company", tabs: both },
     { key: "hqLocation", label: "مقر الشركة", group: "company", tabs: both },
     { key: "employees", label: "عدد الموظفين", group: "company", tabs: both },
@@ -80,6 +77,7 @@ export const FILTERS: FilterMeta[] = [
     { key: "visitors", label: "زوار موقعي", group: "intent", tabs: both },
     { key: "leadScore", label: "تقييم العميل", group: "intent", tabs: both },
 
+    { key: "status", label: "الحالة", group: "account", tabs: ["companies"] },
     { key: "lists", label: "القوائم", group: "account", tabs: both },
     { key: "stage", label: "مرحلة التواصل", group: "account", tabs: both },
     { key: "owner", label: "المسؤول", group: "account", tabs: both },
@@ -369,7 +367,7 @@ export function encodeState(s: UrlState): string {
 
 export function decodeState(search: string): UrlState {
     const p = new URLSearchParams(search);
-    const tab: Tab = p.get("tab") === "people" ? "people" : "companies";
+    const tab: Tab = p.get("tab") === "companies" ? "companies" : "people";
     try {
         const raw = p.get("f");
         if (raw) {
