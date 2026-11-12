@@ -1,13 +1,12 @@
 // Results: active-filter chips, live count and the people / companies table.
 
-import { Box, Checkbox, Chip, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Tooltip, Typography } from "@mui/material";
+import { Box, Checkbox, Chip, LinearProgress, Link, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Tooltip, Typography } from "@mui/material";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 
-import { ACCOUNT_STAGES, CONTACT_STAGES, EMAIL_STATUS } from "../../lib/prospects/options";
+import { CONTACT_STAGES, EMAIL_STATUS, statusOf } from "../../lib/prospects/options";
 import type { Opt } from "../../lib/prospects/options";
 import type { Chip as ChipT } from "../../lib/prospects/state";
 import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/types";
@@ -57,6 +56,7 @@ export default function Results({
     onToggle,
     onToggleAll,
     onOpen,
+    blocked,
 }: {
     tab: Tab;
     rows: (PersonRow | CompanyRow)[];
@@ -71,24 +71,25 @@ export default function Results({
     onToggle: (id: string) => void;
     onToggleAll: (ids: string[], on: boolean) => void;
     onOpen: (c: CompanyRow) => void;
+    /** do-not-contact values (phone digits / lower-case emails) */
+    blocked: Set<string>;
 }) {
+    const isBlocked = (c: CompanyRow) =>
+        (!!c.phone && blocked.has(c.phone.replace(/\D/g, "").replace(/^00/, ""))) ||
+        (!!c.whatsapp && blocked.has(c.whatsapp.replace(/\D/g, ""))) ||
+        c.emails.some((e) => blocked.has(e.toLowerCase()));
     const head = tab === "people"
         ? ["الاسم", "المسمى", "الشركة", "الموقع", "التواصل", "المرحلة", "التقييم"]
-        : ["", "الشركة", "القطاع", "المقر", "التواصل", "Google", "الموظفون", "التقنيات", "المرحلة", "التقييم"];
+        : ["", "الجهة", "الهاتف", "الموقع", "الإيميل", "التقييم", "الحالة"];
     const pageIds = tab === "companies" ? rows.map((r) => r.id) : [];
     const allOn = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
     const someOn = pageIds.some((id) => selected.has(id));
-    const dot = (on: boolean, title: string, icon: React.ReactNode) => (
-        <Tooltip title={title}>
-            <Box component="span" sx={{ display: "inline-flex", color: on ? "primary.main" : "text.disabled" }}>{icon}</Box>
-        </Tooltip>
-    );
 
     return (
         <Box sx={{ border: "1px solid", borderColor: "divider", borderRadius: "14px", overflow: "hidden", bgcolor: "background.paper", position: "relative" }}>
             <Box sx={{ height: 3 }}>{loading && <LinearProgress />}</Box>
             <TableContainer sx={{ maxWidth: "100%" }}>
-                <Table size="small" sx={{ minWidth: 860, "& th": { fontWeight: 700, color: "text.secondary", fontSize: 12.5, whiteSpace: "nowrap" }, "& td": { fontSize: 13.5, py: 1.2 } }}>
+                <Table size="small" sx={{ minWidth: tab === "companies" ? 920 : 860, "& th": { fontWeight: 700, color: "text.secondary", fontSize: 12.5, whiteSpace: "nowrap" }, "& td": { fontSize: 13.5, py: 1.2 } }}>
                     <TableHead>
                         <TableRow>
                             {head.map((h, i) =>
@@ -112,7 +113,7 @@ export default function Results({
                         {rows.length === 0 && !loading && (
                             <TableRow>
                                 <TableCell colSpan={head.length} sx={{ py: 8, textAlign: "center", color: "text.secondary" }}>
-                                    لا توجد نتائج لهذه الفلاتر.
+                                    {tab === "companies" ? "لا توجد جهات بعد لهذه الفلاتر. ابدأ ببحث في خرائط Google بالأعلى، أو أضف جهة يدويًا." : "لا توجد نتائج لهذه الفلاتر."}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -154,48 +155,83 @@ export default function Results({
                                       <TableCell><Score v={p.lead_score} /></TableCell>
                                   </TableRow>
                               ))
-                            : (rows as CompanyRow[]).map((c) => (
-                                  <TableRow key={c.id} hover selected={selected.has(c.id)} onClick={() => onOpen(c)} sx={{ cursor: "pointer" }}>
-                                      <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                                          <Checkbox size="small" checked={selected.has(c.id)} onChange={() => onToggle(c.id)} slotProps={{ input: { "aria-label": `تحديد ${c.name}` } }} />
-                                      </TableCell>
-                                      <TableCell>
-                                          <Box sx={{ fontWeight: 700, whiteSpace: "nowrap", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</Box>
-                                          <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
-                                      </TableCell>
-                                      <TableCell><bdi>{c.industry || "—"}</bdi></TableCell>
-                                      <TableCell sx={{ whiteSpace: "nowrap" }}><bdi>{place(c.hq_city, c.hq_country)}</bdi></TableCell>
-                                      <TableCell>
-                                          <Box sx={{ display: "flex", gap: 0.75, alignItems: "center" }}>
-                                              {dot(!!c.website, c.website ? "يوجد موقع" : "لا يوجد موقع", <LanguageRoundedIcon fontSize="small" />)}
-                                              {dot(!!c.phone, c.phone ? "يوجد هاتف" : "لا يوجد هاتف", <PhoneRoundedIcon fontSize="small" />)}
-                                              {dot(c.emails.length > 0, c.emails.length ? `${c.emails.length} إيميل` : "لا يوجد إيميل", <EmailRoundedIcon fontSize="small" />)}
-                                              {dot(!!c.whatsapp, c.whatsapp ? "يوجد واتساب" : "لا يوجد واتساب", <WhatsAppIcon fontSize="small" />)}
-                                          </Box>
-                                      </TableCell>
-                                      <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                          {c.rating !== null ? (
-                                              <>
-                                                  <Box component="span" sx={{ color: "warning.main" }}>★</Box> <bdi>{c.rating}</bdi>
-                                                  {c.rating_count !== null && <Typography component="span" sx={{ fontSize: 11.5, color: "text.secondary" }}> (<bdi>{c.rating_count}</bdi>)</Typography>}
-                                              </>
-                                          ) : (
-                                              "—"
-                                          )}
-                                      </TableCell>
-                                      <TableCell><bdi>{c.employees !== null ? nf.format(c.employees) : "—"}</bdi></TableCell>
-                                      <TableCell>
-                                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: 220 }}>
-                                              {c.technologies.slice(0, 2).map((t) => (
-                                                  <Chip key={t} label={t} size="small" variant="outlined" sx={{ height: 22, fontSize: 11 }} />
-                                              ))}
-                                              {c.technologies.length > 2 && <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>+{c.technologies.length - 2}</Typography>}
-                                          </Box>
-                                      </TableCell>
-                                      <TableCell sx={{ whiteSpace: "nowrap" }}>{short(ACCOUNT_STAGES, c.account_stage)}</TableCell>
-                                      <TableCell><Score v={c.lead_score} /></TableCell>
-                                  </TableRow>
-                              ))}
+                            : (rows as CompanyRow[]).map((c) => {
+                                  const st = statusOf(c.status);
+                                  const stop = isBlocked(c);
+                                  return (
+                                      <TableRow key={c.id} hover selected={selected.has(c.id)} onClick={() => onOpen(c)} sx={{ cursor: "pointer" }}>
+                                          <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                                              <Checkbox size="small" checked={selected.has(c.id)} onChange={() => onToggle(c.id)} slotProps={{ input: { "aria-label": `تحديد ${c.name}` } }} />
+                                          </TableCell>
+                                          <TableCell sx={{ maxWidth: 320 }}>
+                                              <Box sx={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</Box>
+                                              <Typography sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                  <bdi>{c.address || place(c.hq_city, c.hq_country)}</bdi>
+                                              </Typography>
+                                          </TableCell>
+                                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                              {c.phone ? (
+                                                  <>
+                                                      <Box dir="ltr" sx={{ textAlign: "end", fontVariantNumeric: "tabular-nums" }}>{c.phone}</Box>
+                                                      {c.phone_kind && (
+                                                          <Chip
+                                                              size="small"
+                                                              variant="outlined"
+                                                              label={c.phone_kind === "mobile" ? "جوال" : "ثابت"}
+                                                              color={c.phone_kind === "mobile" ? "primary" : "default"}
+                                                              sx={{ height: 20, fontSize: 11, mt: 0.5 }}
+                                                          />
+                                                      )}
+                                                  </>
+                                              ) : (
+                                                  "—"
+                                              )}
+                                          </TableCell>
+                                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                              {c.website ? (
+                                                  <Link href={c.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontSize: 13 }}>
+                                                      <LanguageRoundedIcon sx={{ fontSize: 17 }} /> فتح
+                                                  </Link>
+                                              ) : (
+                                                  "—"
+                                              )}
+                                              {c.whatsapp && (
+                                                  <Box>
+                                                      <Chip size="small" variant="outlined" label="واتساب" sx={{ height: 20, fontSize: 11, mt: 0.5 }} />
+                                                  </Box>
+                                              )}
+                                          </TableCell>
+                                          <TableCell sx={{ maxWidth: 200 }}>
+                                              {c.emails.length ? (
+                                                  <Box dir="ltr" sx={{ textAlign: "end", fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                      {c.emails[0]}
+                                                      {c.emails.length > 1 && <Box component="span" sx={{ color: "text.secondary" }}> +{c.emails.length - 1}</Box>}
+                                                  </Box>
+                                              ) : (
+                                                  "—"
+                                              )}
+                                          </TableCell>
+                                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                              {c.rating !== null ? (
+                                                  <>
+                                                      <Box component="span" sx={{ color: "warning.main" }}>★</Box> <bdi>{c.rating}</bdi>
+                                                      {c.rating_count !== null && <Typography component="span" sx={{ fontSize: 11.5, color: "text.secondary" }}> (<bdi>{nf.format(c.rating_count)}</bdi>)</Typography>}
+                                                  </>
+                                              ) : (
+                                                  "—"
+                                              )}
+                                          </TableCell>
+                                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                              <Chip size="small" label={st.label} color={st.color} variant={st.color === "default" ? "outlined" : "filled"} sx={{ fontWeight: 700, height: 24 }} />
+                                              {stop && (
+                                                  <Box>
+                                                      <Chip size="small" label="لا ترسل" color="error" variant="outlined" sx={{ height: 20, fontSize: 11, mt: 0.5 }} />
+                                                  </Box>
+                                              )}
+                                          </TableCell>
+                                      </TableRow>
+                                  );
+                              })}
                     </TableBody>
                 </Table>
             </TableContainer>

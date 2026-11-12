@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 
 import { extractContacts, isPrivateAddress, merge } from "../src/lib/discovery/extract.ts";
-import { FIELD_MASK, requestBody, textQuery, toCompany, validateInput } from "../src/lib/discovery/places.ts";
+import { FIELD_MASK, phoneKind, requestBody, textQuery, toCompany, validateInput } from "../src/lib/discovery/places.ts";
 import type { GooglePlace, SearchInput } from "../src/lib/discovery/places.ts";
 import { CITIES } from "../src/lib/prospects/options.ts";
 
@@ -92,6 +92,15 @@ it("internal addresses are refused", () => {
         assert.equal(isPrivateAddress(ip), true, ip);
     }
     for (const ip of ["8.8.8.8", "104.18.2.3", "172.32.0.1", "2606:4700::1111"]) assert.equal(isPrivateAddress(ip), false, ip);
+});
+
+it("mobile vs landline", () => {
+    const cases: [string, string][] = [
+        ["+90 545 164 51 77", "mobile"], ["+90 212 555 00 00", "landline"], ["+966 50 123 4567", "mobile"], ["+966 11 123 4567", "landline"],
+        ["00971 50 000 0000", "mobile"], ["+974 3300 0000", "mobile"], ["+974 4400 0000", "landline"], ["+20 10 0000 0000", "mobile"],
+        ["+961 71 000 000", "mobile"], ["+961 1 000 000", "landline"], ["0532 000 00 00", ""], ["+1 415 000 0000", ""],
+    ];
+    for (const [n, want] of cases) assert.equal(phoneKind(n), want, n);
 });
 
 console.log(`\n${passed} checks passed`);

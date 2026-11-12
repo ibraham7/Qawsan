@@ -249,7 +249,16 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
     }
 
     const CONTACT_COL: Record<string, string> = { website: "website", phone: "phone", email: "emails", whatsapp: "whatsapp" };
-    for (const k of f.contactData ?? []) if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
+    for (const k of f.contactData ?? []) {
+        if (k === "mobile") out.push({ f: P + "phone_kind", op: "eq", v: "mobile" });
+        else if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
+    }
+    incExc(P + "status", f.status, out);
+    if (f.q?.trim()) {
+        const v = f.q.trim();
+        const cols = tab === "people" ? ["full_name", "title", "email", "city"] : ["name", "address", "phone", "domain"];
+        out.push({ or: cols.map((c) => ({ f: c, op: "has", v }) as Leaf) });
+    }
     range(P + "rating", f.googleRating, out);
     if (f.searches?.length) out.push({ f: P + "search_id", op: "in", v: f.searches });
 

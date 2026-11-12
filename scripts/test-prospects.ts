@@ -131,7 +131,7 @@ it("URL round trip keeps Arabic and drops empty filters", () => {
     assert.equal(back.tab, "companies");
     assert.deepEqual(back.people, { name: "محمد" });
     assert.deepEqual(back.companies, { keywords: { inc: ["عيادة"], exc: [] } });
-    assert.deepEqual(decodeState("?f=%%%broken"), { tab: "people", people: {}, companies: {} });
+    assert.deepEqual(decodeState("?f=%%%broken"), { tab: "companies", people: {}, companies: {} });
 });
 
 it("active count, chips and chip removal", () => {

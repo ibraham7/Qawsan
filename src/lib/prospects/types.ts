@@ -40,6 +40,12 @@ export interface Filters {
     jobChange?: Period;
     languages?: string[];
 
+    // ---- quick ----
+    /** free text over name, address, phone and domain */
+    q?: string;
+    /** review status of the company (see STATUSES) */
+    status?: IncExc;
+
     // ---- company ----
     company?: IncExc;
     hqLocation?: Location;
@@ -136,6 +142,9 @@ export interface CompanyRow {
     whatsapp: string;
     enrich_status: string;
     enriched_at: string | null;
+    status: string;
+    phone_kind: string;
+    notes: string;
 }
 
 export interface PersonRow {

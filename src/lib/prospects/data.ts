@@ -1,6 +1,7 @@
 // Where search results come from: Supabase in production, or a generated demo set
 // (development builds only, with ?demo in the URL) for trying the filters locally.
 
+import { phoneKind } from "../discovery/places";
 import { supabase } from "../supabase";
 import { applyTo, compile, matches, normDomain } from "./query.ts";
 import type { Compiled, Context, Filterable } from "./query.ts";
@@ -13,7 +14,53 @@ export const T = {
     listItems: "qawsan_list_items",
     sequences: "qawsan_sequences",
     saved: "qawsan_saved_searches",
+    suppressions: "qawsan_suppressions",
 } as const;
+
+export interface NewCompany {
+    name: string;
+    phone: string;
+    email: string;
+    website: string;
+    country: string;
+    city: string;
+    notes: string;
+}
+
+export interface Suppression {
+    id: string;
+    value: string;
+    kind: "phone" | "email";
+    reason: string;
+    note: string;
+    created_at: string;
+}
+
+/** the form a phone number or email takes in the do-not-contact list */
+export function suppressionKey(raw: string): { value: string; kind: "phone" | "email" } | null {
+    const v = raw.trim();
+    if (/^[^@\s]+@[^@\s]+\.[a-z]{2,24}$/i.test(v)) return { value: v.toLowerCase(), kind: "email" };
+    const digits = v.replace(/\D/g, "").replace(/^00/, "");
+    if (digits.length >= 8 && digits.length <= 15) return { value: digits, kind: "phone" };
+    return null;
+}
+
+function companyRow(c: NewCompany) {
+    const website = c.website.trim() && !/^https?:\/\//i.test(c.website.trim()) ? `https://${c.website.trim()}` : c.website.trim();
+    return {
+        name: c.name.trim(),
+        phone: c.phone.trim(),
+        phone_kind: phoneKind(c.phone),
+        emails: c.email.trim() ? [c.email.trim().toLowerCase()] : [],
+        website,
+        domain: normDomain(website),
+        hq_country: c.country.trim(),
+        hq_city: c.city.trim(),
+        notes: c.notes.trim(),
+        status: "review",
+        source: "manual",
+    };
+}
 
 export type Sort = "newest" | "score" | "name";
 
@@ -38,6 +85,12 @@ export interface Backend {
     savedList(): Promise<SavedSearch[]>;
     savedCreate(name: string, kind: SavedSearch["kind"], filters: Filters): Promise<void>;
     savedRemove(id: string): Promise<void>;
+    setStatus(ids: string[], status: string): Promise<void>;
+    addCompany(c: NewCompany): Promise<void>;
+    removeCompanies(ids: string[]): Promise<void>;
+    suppressions(): Promise<Suppression[]>;
+    suppress(raw: string, note: string): Promise<void>;
+    unsuppress(id: string): Promise<void>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -117,6 +170,33 @@ export const supabaseBackend: Backend = {
         const { error } = await supabase.from(T.saved).delete().eq("id", id);
         fail(error);
     },
+    async setStatus(ids, status) {
+        const { error } = await supabase.from(T.companies).update({ status }).in("id", ids);
+        fail(error);
+    },
+    async addCompany(c) {
+        const { error } = await supabase.from(T.companies).insert(companyRow(c));
+        fail(error);
+    },
+    async removeCompanies(ids) {
+        const { error } = await supabase.from(T.companies).delete().in("id", ids);
+        fail(error);
+    },
+    async suppressions() {
+        const { data, error } = await supabase.from(T.suppressions).select("id,value,kind,reason,note,created_at").order("created_at", { ascending: false }).limit(5000);
+        fail(error);
+        return (data ?? []) as Suppression[];
+    },
+    async suppress(raw, note) {
+        const key = suppressionKey(raw);
+        if (!key) throw new Error("اكتب رقم هاتف دولي (مع رمز الدولة) أو إيميلًا صحيحًا.");
+        const { error } = await supabase.from(T.suppressions).upsert({ ...key, note: note.trim(), reason: "manual" }, { onConflict: "value", ignoreDuplicates: true });
+        fail(error);
+    },
+    async unsuppress(id) {
+        const { error } = await supabase.from(T.suppressions).delete().eq("id", id);
+        fail(error);
+    },
 };
 
 /* ------------------------------------------------------------------ */
@@ -124,6 +204,7 @@ export const supabaseBackend: Backend = {
 
 export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]; meta: Meta }): Backend {
     let saved: SavedSearch[] = [];
+    let blocked: Suppression[] = [];
     try {
         saved = JSON.parse(localStorage.getItem("qawsan-demo-saved") ?? "[]");
     } catch {
@@ -165,6 +246,27 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async savedRemove(id) {
             saved = saved.filter((s) => s.id !== id);
             persist();
+        },
+        async setStatus(ids, status) {
+            data.companies.forEach((c) => ids.includes(c.id) && (c.status = status));
+        },
+        async addCompany(c) {
+            const base = data.companies[0];
+            data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null });
+        },
+        async removeCompanies(ids) {
+            data.companies.splice(0, data.companies.length, ...data.companies.filter((c) => !ids.includes(c.id)));
+        },
+        async suppressions() {
+            return blocked;
+        },
+        async suppress(raw, note) {
+            const key = suppressionKey(raw);
+            if (!key) throw new Error("اكتب رقم هاتف دولي (مع رمز الدولة) أو إيميلًا صحيحًا.");
+            if (!blocked.some((b) => b.value === key.value)) blocked = [{ id: crypto.randomUUID(), ...key, reason: "manual", note, created_at: new Date().toISOString() }, ...blocked];
+        },
+        async unsuppress(id) {
+            blocked = blocked.filter((b) => b.id !== id);
         },
     };
 }

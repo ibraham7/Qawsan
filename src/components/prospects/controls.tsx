@@ -246,7 +246,7 @@ export function Select({
     none?: string | null;
 }) {
     return (
-        <TextField select size="small" label={label} value={value ?? ""} onChange={(e) => onChange(e.target.value || undefined)} fullWidth>
+        <TextField select size="small" label={label || undefined} value={value ?? ""} onChange={(e) => onChange(e.target.value || undefined)} fullWidth slotProps={{ select: { displayEmpty: none !== null }, inputLabel: { shrink: true } }}>
             {none !== null && <MenuItem value="">{none}</MenuItem>}
             {options.map((o) => (
                 <MenuItem key={o.value} value={o.value}>
