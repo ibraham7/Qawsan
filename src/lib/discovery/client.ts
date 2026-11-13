@@ -41,6 +41,26 @@ async function call<T>(path: string, payload?: unknown): Promise<T> {
     return json;
 }
 
+export interface MailStatus {
+    configured: boolean;
+    from: string;
+    host: string;
+}
+
+export interface SendBatch {
+    sent: number;
+    failed: number;
+    skipped: number;
+    sentToday: number;
+    limit: number;
+    pending: number;
+    /** "limit" = daily limit reached, "done" = nothing left, "auth" = wrong mailbox credentials */
+    stopped: "" | "limit" | "done" | "auth";
+}
+
 export const discoveryStatus = () => call<DiscoveryStatus>("/api/prospects/search");
 export const runDiscovery = (input: SearchInput) => call<SearchOutcome>("/api/prospects/search", input);
+export const mailStatus = () => call<MailStatus>("/api/prospects/email-status");
+export const mailTest = () => call<{ to: string }>("/api/prospects/email-status", {});
+export const sendBatch = (campaignId: string) => call<SendBatch>("/api/prospects/email-send", { campaignId });
 export const runEnrich = (ids: string[]) => call<EnrichOutcome>("/api/prospects/enrich", { ids });

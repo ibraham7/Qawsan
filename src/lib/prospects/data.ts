@@ -116,7 +116,7 @@ export interface Backend {
     deleteCampaign(id: string): Promise<void>;
 }
 
-const EMPTY_COUNTS: Campaign["counts"] = { pending: 0, sent: 0, skipped: 0, replied: 0, stopped: 0 };
+const EMPTY_COUNTS: Campaign["counts"] = { pending: 0, sent: 0, skipped: 0, replied: 0, stopped: 0, failed: 0 };
 
 /** company status that follows a recipient's status (replied/stopped override "contacted") */
 const COMPANY_STATUS: Partial<Record<Recipient["status"], string>> = { sent: "contacted", replied: "replied", stopped: "unsubscribed" };

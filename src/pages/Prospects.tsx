@@ -371,8 +371,8 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                     {section === "email" && (
                         <>
                             <Alert severity="info" icon={false} sx={{ alignItems: "center" }}>
-                                <b>لا يوجد صندوق بريد مربوط.</b> الإرسال الآن يدوي مساعد: تفتح لك الصفحة الرسالة جاهزة في Gmail أو برنامج البريد وتضغط «إرسال» بنفسك. ربط صندوق (SMTP) لاحقًا يضيف الإرسال
-                                الآلي المتدرّج ورابط إلغاء اشتراك يعمل بضغطة، ولم نربط شيئًا بعد.
+                                الإرسال اليدوي: تفتح لك الصفحة الرسالة جاهزة في Gmail أو برنامج البريد وتضغط «إرسال» بنفسك. والإرسال التلقائي المتدرّج
+                                يعمل إن أضفت صندوق SMTP في Vercel (الخطوات في «الإعدادات»)، وفيه رابط إلغاء اشتراك بضغطة في كل رسالة.
                             </Alert>
                             <CampaignsTab backend={backend} channel="email" blocked={blocked} onStatusChanged={() => {
                                 setReload((x) => x + 1);

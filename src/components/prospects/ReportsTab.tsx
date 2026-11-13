@@ -105,7 +105,7 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                         <Stat label="رسائل أُرسلت" value={t.sent} hint={`${t.pending} بانتظار الإرسال`} />
                         <Stat label="ردّوا" value={t.replied} hint={`${pct(t.replied, t.sent)}% من المُرسَل لهم`} />
                         <Stat label="طلبوا الإيقاف" value={t.stopped} hint={`${pct(t.stopped, t.sent)}% من المُرسَل لهم`} />
-                        <Stat label="تخطّيتَهم" value={t.skipped} />
+                        <Stat label="تخطّيتَهم" value={t.skipped} hint={t.failed ? `${t.failed} فشلت (إيميل مرفوض)` : undefined} />
                     </Box>
 
                     {t.sent > 0 && t.stopped > 0 && pct(t.stopped, t.sent) >= 5 && (
@@ -124,13 +124,14 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                                         <TableCell>ردّ</TableCell>
                                         <TableCell>إيقاف</TableCell>
                                         <TableCell>تخطّي</TableCell>
+                                        <TableCell>فشلت</TableCell>
                                         <TableCell>متبقية</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {shown.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={8} sx={{ py: 6, textAlign: "center", color: "text.secondary" }}>
+                                            <TableCell colSpan={9} sx={{ py: 6, textAlign: "center", color: "text.secondary" }}>
                                                 لا توجد حملات بعد.
                                             </TableCell>
                                         </TableRow>
@@ -153,6 +154,7 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                                                 </TableCell>
                                                 <TableCell dir="ltr" sx={{ textAlign: "end" }}>{c.counts.stopped}</TableCell>
                                                 <TableCell dir="ltr" sx={{ textAlign: "end" }}>{c.counts.skipped}</TableCell>
+                                                <TableCell dir="ltr" sx={{ textAlign: "end" }}>{c.counts.failed}</TableCell>
                                                 <TableCell dir="ltr" sx={{ textAlign: "end" }}>{c.counts.pending}</TableCell>
                                             </TableRow>
                                         );
