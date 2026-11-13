@@ -2,7 +2,7 @@
 // message filled in; the admin presses send in WhatsApp and then marks the recipient here.
 // Nothing is ever sent by this page itself.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Alert,
     Box,
@@ -34,6 +34,8 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
+import { mailStatus, sendBatch } from "../../lib/discovery/client";
+import type { MailStatus, SendBatch } from "../../lib/discovery/client";
 import {
     RECIPIENT_LABEL,
     SKIP_LABEL,
@@ -292,6 +294,31 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const [error, setError] = useState("");
     // the recipient whose chat was just opened: waiting for "sent" / "skip"
     const [opened, setOpened] = useState<string | null>(null);
+    // automatic sending over SMTP (email campaigns only, when the mailbox is set in Vercel)
+    const [mailLive, setMailLive] = useState<MailStatus | null>(null);
+    const [auto, setAuto] = useState(false);
+    const [autoMsg, setAutoMsg] = useState("");
+    const stopAuto = useRef(false);
+    // demo mode pretends a mailbox is connected so the screen can be tried; nothing is sent
+    const mail: MailStatus | null = backend.demo && campaign.channel === "email" ? { configured: true, from: "demo@example.com (تجريبي)", host: "demo" } : mailLive;
+    useEffect(() => {
+        if (campaign.channel !== "email" || backend.demo) return;
+        mailStatus().then(setMailLive, () => setMailLive(null));
+    }, [campaign.channel, backend.demo]);
+
+    /** one batch: the real server in production, a simulation in demo mode */
+    const nextBatch = async (): Promise<SendBatch> => {
+        if (!backend.demo) return sendBatch(campaign.id);
+        const all = await backend.recipients(campaign.id);
+        const today = sentToday(all);
+        const room = Math.max(0, Math.min(5, campaign.daily_limit - today));
+        const pendingNow = all.filter((x) => x.status === "pending");
+        if (room === 0) return { sent: 0, failed: 0, skipped: 0, sentToday: today, limit: campaign.daily_limit, pending: pendingNow.length, stopped: "limit" };
+        const batch = pendingNow.slice(0, room);
+        for (const x of batch) await backend.markRecipient(x, "sent");
+        const left = pendingNow.length - batch.length;
+        return { sent: batch.length, failed: 0, skipped: 0, sentToday: today + batch.length, limit: campaign.daily_limit, pending: left, stopped: left === 0 ? "done" : "" };
+    };
 
     const load = useCallback(() => {
         backend.recipients(campaign.id).then(setRows, (e: Error) => setError(e.message));
@@ -319,6 +346,46 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const isEmail = campaign.channel === "email";
     const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`);
     const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id);
+
+    const runAuto = async () => {
+        const ok = window.confirm(
+            `ستُرسل رسائل حقيقية الآن من ${mail?.from ?? "بريدك"} إلى جهات الحملة المتبقية، على دفعات صغيرة وحتى الحد اليومي (${campaign.daily_limit}). كل رسالة فيها رابط إلغاء اشتراك. أبقِ هذه الصفحة مفتوحة. هل تريد البدء؟`
+        );
+        if (!ok) return;
+        stopAuto.current = false;
+        setAuto(true);
+        setError("");
+        let sent = 0;
+        let failed = 0;
+        try {
+            for (let i = 0; i < 100; i++) {
+                if (stopAuto.current) {
+                    setAutoMsg(`تم الإيقاف. أُرسلت ${sent} في هذه الجلسة.`);
+                    break;
+                }
+                const r = await nextBatch();
+                sent += r.sent;
+                failed += r.failed;
+                setAutoMsg(`أُرسلت ${sent} · فشلت ${failed} · المتبقية ${r.pending}`);
+                load();
+                if (r.stopped === "limit") {
+                    setAutoMsg(`بلغت الحد اليومي (${r.limit}). أكمل غدًا. أُرسلت ${sent} الآن.`);
+                    break;
+                }
+                if (r.stopped === "done") {
+                    setAutoMsg(`انتهت الحملة. أُرسلت ${sent}.`);
+                    break;
+                }
+                if (r.sent === 0 && r.failed === 0 && r.skipped === 0) break;
+            }
+        } catch (e) {
+            setError((e as Error).message);
+        } finally {
+            setAuto(false);
+            load();
+            onChanged();
+        }
+    };
 
     const open = (r: Recipient, how: "primary" | "app" = "primary") => {
         if (isEmail) {
@@ -363,6 +430,31 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                 </Typography>
             </Box>
 
+            {isEmail && mail && !mail.configured && (
+                <Alert severity="info">الإرسال التلقائي غير مفعّل: أضف إعدادات SMTP في Vercel (تبويب الإعدادات يشرح الخطوات). الإرسال اليدوي من Gmail يعمل كما هو.</Alert>
+            )}
+            {isEmail && mail?.configured && campaign.status === "active" && (
+                <Box sx={{ p: 2.5, borderRadius: "16px", border: "1px solid", borderColor: "divider", bgcolor: "background.paper", display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                        <Typography sx={{ fontWeight: 700 }}>إرسال تلقائي</Typography>
+                        <Typography sx={{ fontSize: 13, color: "text.secondary", flex: 1, minWidth: 200 }}>
+                            من <bdi>{mail.from}</bdi> على دفعات من 5 رسائل، وحتى الحد اليومي. أبقِ الصفحة مفتوحة أثناء الإرسال.
+                        </Typography>
+                        {auto ? (
+                            <Button color="error" variant="outlined" onClick={() => (stopAuto.current = true)}>
+                                إيقاف بعد الدفعة الحالية
+                            </Button>
+                        ) : (
+                            <Button variant="contained" onClick={runAuto} disabled={limitReached || pending.length === 0}>
+                                بدء الإرسال التلقائي
+                            </Button>
+                        )}
+                    </Box>
+                    {auto && <LinearProgress />}
+                    {autoMsg && <Typography sx={{ fontSize: 13.5 }}>{autoMsg}</Typography>}
+                </Box>
+            )}
+
             {campaign.status === "paused" || campaign.status === "cancelled" ? (
                 <Alert severity="warning">الحملة {CAMPAIGN_LABEL[campaign.status].text}. {campaign.status === "paused" ? "استأنفها من القائمة لمتابعة الإرسال." : ""}</Alert>
             ) : limitReached ? (
@@ -378,18 +470,18 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                         {bodyFor(next)}
                     </Box>
                     <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-                        <Button variant="contained" size="large" startIcon={isEmail ? <EmailRoundedIcon /> : <WhatsAppIcon />} onClick={() => open(next)}>
+                        <Button variant="contained" size="large" startIcon={isEmail ? <EmailRoundedIcon /> : <WhatsAppIcon />} disabled={auto} onClick={() => open(next)}>
                             {COPY[campaign.channel].open}
                         </Button>
                         {isEmail && (
-                            <Button variant="outlined" size="large" onClick={() => open(next, "app")}>
+                            <Button variant="outlined" size="large" disabled={auto} onClick={() => open(next, "app")}>
                                 برنامج البريد
                             </Button>
                         )}
                         <Button variant="outlined" size="large" disabled={opened !== next.id} onClick={() => mark(next, "sent")}>
                             أرسلتها ✓
                         </Button>
-                        <Button size="large" onClick={() => mark(next, "skipped")}>
+                        <Button size="large" disabled={auto} onClick={() => mark(next, "skipped")}>
                             تخطّي
                         </Button>
                     </Box>
@@ -429,7 +521,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                                         <Chip
                                             size="small"
                                             label={RECIPIENT_LABEL[r.status]}
-                                            color={r.status === "sent" ? "primary" : r.status === "replied" ? "success" : r.status === "stopped" ? "error" : "default"}
+                                            title={r.error || undefined}
+                                            color={r.status === "sent" ? "primary" : r.status === "replied" ? "success" : r.status === "stopped" || r.status === "failed" ? "error" : "default"}
                                             variant={r.status === "pending" || r.status === "skipped" ? "outlined" : "filled"}
                                         />
                                     </TableCell>
@@ -530,7 +623,8 @@ export default function CampaignsTab({ backend, channel, blocked, onStatusChange
                             <LinearProgress variant="determinate" value={total ? (done / total) * 100 : 0} sx={{ height: 6, borderRadius: 3 }} />
                             <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
                                 أُرسلت <bdi>{c.counts.sent + c.counts.replied + c.counts.stopped}</bdi> · ردّ <bdi>{c.counts.replied}</bdi> · طلب الإيقاف <bdi>{c.counts.stopped}</bdi> · تخطّيت{" "}
-                                <bdi>{c.counts.skipped}</bdi> · متبقية <bdi>{c.counts.pending}</bdi>
+                                <bdi>{c.counts.skipped}</bdi>
+                                {c.counts.failed > 0 && <> · فشلت <bdi>{c.counts.failed}</bdi></>} · متبقية <bdi>{c.counts.pending}</bdi>
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                                 <Button variant="contained" size="small" onClick={() => setOpenId(c.id)}>

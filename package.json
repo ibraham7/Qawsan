@@ -13,7 +13,9 @@
     "test:campaigns": "node scripts/test-campaigns.ts",
     "test:reports": "node scripts/test-reports.ts",
     "test:filters": "node scripts/test-filters.ts",
-    "check:filters-live": "node scripts/check-filters-live.ts"
+    "check:filters-live": "node scripts/check-filters-live.ts",
+    "test:sending": "node scripts/test-sending.ts",
+    "test:smtp": "node scripts/test-smtp.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -22,6 +24,7 @@
     "@mui/material": "^9.4.0",
     "@supabase/supabase-js": "^2.118.0",
     "marked": "^15.0.12",
+    "nodemailer": "^10.5.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "stylis": "^4.4.0",
@@ -31,6 +34,7 @@
     "@emotion/server": "^11.11.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",

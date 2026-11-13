@@ -23,6 +23,8 @@ export interface Res {
     status(code: number): Res;
     setHeader(k: string, v: string): Res;
     json(body: unknown): void;
+    /** plain text / HTML reply (used by the public unsubscribe page) */
+    send(body: string): void;
 }
 
 export const SUPABASE_URL = (process.env.SUPABASE_URL || "https://ghdrumngrpttuihyklnc.supabase.co").replace(/\/+$/, "");
@@ -44,6 +46,11 @@ export function body(req: Req): unknown {
         }
     }
     return req.body ?? null;
+}
+
+/** secret used to sign unsubscribe links (the service key is already private to the server) */
+export function signingSecret() {
+    return serviceKey();
 }
 
 function serviceKey() {

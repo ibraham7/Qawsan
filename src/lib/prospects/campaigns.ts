@@ -150,8 +150,10 @@ export interface Recipient {
     name: string;
     phone: string;
     email: string;
-    status: "pending" | "sent" | "skipped" | "replied" | "stopped";
+    status: "pending" | "sent" | "skipped" | "replied" | "stopped" | "failed";
     sent_at: string | null;
+    /** why a message failed (or was skipped at the last check), when known */
+    error?: string;
 }
 
 export interface Campaign {
@@ -165,7 +167,7 @@ export interface Campaign {
     status: "active" | "paused" | "done" | "cancelled";
     approved_at: string;
     created_at: string;
-    counts: { pending: number; sent: number; skipped: number; replied: number; stopped: number };
+    counts: { pending: number; sent: number; skipped: number; replied: number; stopped: number; failed: number };
 }
 
 export const RECIPIENT_LABEL: Record<Recipient["status"], string> = {
@@ -174,6 +176,7 @@ export const RECIPIENT_LABEL: Record<Recipient["status"], string> = {
     skipped: "تخطّيت",
     replied: "ردّ",
     stopped: "طلب الإيقاف",
+    failed: "فشلت",
 };
 
 /** messages sent today (local time) out of the campaign's daily limit */
