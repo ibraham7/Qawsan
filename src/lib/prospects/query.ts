@@ -254,11 +254,15 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
         else if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
     }
     incExc(P + "status", f.status, out);
-    if (f.q?.trim()) {
-        const v = f.q.trim();
+    // free text: on the people tab it searches the person's own fields (so it must not require a
+    // company), on the companies tab the company's
+    const textSearch = (): Cond | null => {
+        const v = f.q?.trim();
+        if (!v) return null;
         const cols = tab === "people" ? ["full_name", "title", "email", "city"] : ["name", "address", "phone", "domain"];
-        out.push({ or: cols.map((c) => ({ f: c, op: "has", v }) as Leaf) });
-    }
+        return { or: cols.map((c) => ({ f: c, op: "has", v }) as Leaf) };
+    };
+    const text = textSearch();
     range(P + "rating", f.googleRating, out);
     if (f.searches?.length) out.push({ f: P + "search_id", op: "in", v: f.searches });
 
@@ -278,6 +282,7 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
     }
 
     const needsCompany = tab === "people" && out.length > companyStart;
+    if (text) out.push(text);
 
     // ---------- the row itself (person or company) ----------
     if (f.leadScore) {
