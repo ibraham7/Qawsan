@@ -15,6 +15,13 @@ import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/ty
 const short = (opts: Opt[], v: string) => opts.find((o) => o.value === v)?.label.split(" · ")[1] ?? v;
 const nf = new Intl.NumberFormat("en-US");
 
+const ENRICHED_LABEL: Record<string, string> = {
+    done: "تم الإثراء ووجدنا بيانات",
+    nothing_found: "تم الإثراء ولم نجد بيانات",
+    no_website: "لا يوجد موقع",
+    failed: "تعذّر فتح الموقع",
+};
+
 export function ActiveChips({ chips, filters, onChange, onClearAll }: { chips: ChipT[]; filters: Filters; onChange: (f: Filters) => void; onClearAll: () => void }) {
     if (!chips.length) return null;
     return (
@@ -168,7 +175,14 @@ export default function Results({
                                       </TableCell>
                                       <TableCell>
                                           <Box sx={{ fontWeight: 700, whiteSpace: "nowrap", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</Box>
-                                          <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
+                                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                                              <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
+                                              {c.enriched_at && (
+                                                  <Tooltip title={`${ENRICHED_LABEL[c.enrich_status] ?? "تم الإثراء"} — ${new Date(c.enriched_at).toLocaleDateString("en-GB")}`}>
+                                                      <Chip size="small" label="مُثرى" color={c.enrich_status === "done" ? "success" : "default"} variant="outlined" sx={{ height: 18, fontSize: 10.5 }} />
+                                                  </Tooltip>
+                                              )}
+                                          </Box>
                                       </TableCell>
                                       <TableCell><bdi>{c.industry || "—"}</bdi></TableCell>
                                       <TableCell sx={{ whiteSpace: "nowrap" }}><bdi>{place(c.hq_city, c.hq_country)}</bdi></TableCell>

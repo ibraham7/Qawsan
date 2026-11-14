@@ -244,8 +244,17 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
         setReload((n) => n + 1);
     };
 
-    const enrich = async () => {
-        let ids = [...selected].slice(0, 25);
+    // companies on this page that were already enriched (the table only knows its own rows)
+    const enrichedIds = new Set(result.tab === "companies" ? (result.rows as CompanyRow[]).filter((c) => c.enriched_at).map((c) => c.id) : []);
+    const fresh = [...selected].filter((id) => !enrichedIds.has(id));
+    const alreadyDone = selected.size - fresh.length;
+
+    const enrich = async (again = false) => {
+        let ids = (again ? [...selected] : fresh).slice(0, 25);
+        if (!ids.length) {
+            setToast("كل المحدد تم إثراؤه من قبل.");
+            return;
+        }
         setEnriching(true);
         const all: EnrichOutcome["results"] = [];
         try {
@@ -478,9 +487,14 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.5, p: 1.5, borderRadius: "12px", border: "1px solid", borderColor: "primary.main", bgcolor: "action.hover" }}
                         >
                             <Typography sx={{ fontWeight: 700 }}>{selected.size} محدد</Typography>
-                            <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={enrich} disabled={enriching || backend.demo || selected.size > 25}>
-                                {enriching ? "جارٍ الإثراء…" : "إثراء من المواقع"}
+                            <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={() => enrich()} disabled={enriching || backend.demo || fresh.length > 25 || fresh.length === 0}>
+                                {enriching ? "جارٍ الإثراء…" : alreadyDone ? `إثراء الجديدة فقط (${fresh.length})` : "إثراء من المواقع"}
                             </Button>
+                            {alreadyDone > 0 && (
+                                <Button variant="text" onClick={() => enrich(true)} disabled={enriching || backend.demo || selected.size > 25}>
+                                    إعادة إثراء الكل ({selected.size})
+                                </Button>
+                            )}
                             <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || busy}>
                                 تغيير الحالة
                             </Button>
@@ -491,8 +505,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                                 إلغاء التحديد
                             </Button>
                             <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-                                {selected.size > 25
+                                {fresh.length > 25
                                     ? "الحد 25 جهة في المرة الواحدة."
+                                    : alreadyDone
+                                      ? `${alreadyDone} منها مُثراة من قبل وسنتجاوزها.`
                                     : backend.demo
                                       ? "الإثراء غير متاح في الوضع التجريبي."
                                       : "يفتح موقع كل جهة ويستخرج الإيميل والسوشيال والواتساب. مجاني ولا يستخدم Google."}
