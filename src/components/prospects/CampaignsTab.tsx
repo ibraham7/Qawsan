@@ -17,6 +17,7 @@ import {
     IconButton,
     LinearProgress,
     Link,
+    MenuItem,
     Table,
     TableBody,
     TableCell,
@@ -53,6 +54,8 @@ import {
     waLink,
 } from "../../lib/prospects/campaigns";
 import type { Campaign, Recipient } from "../../lib/prospects/campaigns";
+import { PRESETS, SAVED_KEY, defaultPreset, parseSaved, withSaved } from "../../lib/prospects/templates";
+import type { SavedTemplate } from "../../lib/prospects/templates";
 import type { Backend } from "../../lib/prospects/data";
 import type { CompanyRow } from "../../lib/prospects/types";
 
@@ -65,9 +68,13 @@ const CAMPAIGN_LABEL: Record<Campaign["status"], { text: string; color: "success
 
 type Channel = Campaign["channel"];
 
-const EXAMPLE = "{مرحبًا|أهلًا|السلام عليكم} {name}، معك إبراهيم من استوديو قوسان. نصمم مواقع وأنظمة للشركات، وأحببت أن أعرض عليكم فكرة تناسب نشاطكم. هل يناسبكم أن أرسل التفاصيل؟";
-const EXAMPLE_EMAIL = "{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. نصمم مواقع وأنظمة للشركات، ولاحظت أن لديكم حضورًا جيدًا يمكن دعمه بموقع أو نظام يناسب نشاطكم.\n\nهل يناسبكم أن أرسل لكم تفاصيل قصيرة وسعرًا استرشاديًا؟\n\nمع التحية،\nإبراهيم - قوسان\nhttps://qawsan.website";
-const EXAMPLE_SUBJECT = "اقتراح لموقع {name}";
+function readSaved(): SavedTemplate[] {
+    try {
+        return parseSaved(localStorage.getItem(SAVED_KEY));
+    } catch {
+        return [];
+    }
+}
 
 /** the words that differ between the two channels */
 const COPY: Record<Channel, { title: string; newTitle: string; intro: string; open: string; opened: string; howTo: string }> = {
@@ -96,8 +103,11 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
     const email = channel === "email";
     const [companies, setCompanies] = useState<CompanyRow[] | null>(null);
     const [name, setName] = useState("");
-    const [subject, setSubject] = useState(EXAMPLE_SUBJECT);
-    const [message, setMessage] = useState(email ? EXAMPLE_EMAIL : EXAMPLE);
+    const [subject, setSubject] = useState(defaultPreset("email").subject);
+    const [message, setMessage] = useState(defaultPreset(channel).message);
+    // the picked template: a built-in one (by id) or one the person saved in this browser
+    const [templateId, setTemplateId] = useState(defaultPreset(channel).id);
+    const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>(readSaved);
     const [stopLine, setStopLine] = useState(email ? STOP_LINE_EMAIL_DEFAULT : STOP_LINE_DEFAULT);
     const [limit, setLimit] = useState(email ? "30" : "20");
     const [picked, setPicked] = useState<Set<string> | null>(null);
@@ -138,6 +148,34 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
         elig.skipped.filter((s) => s.company.status === "approved").forEach((s) => m.set(SKIP_LABEL[s.reason], (m.get(SKIP_LABEL[s.reason]) ?? 0) + 1));
         return [...m];
     }, [elig]);
+
+    const pickTemplate = (id: string) => {
+        const t = PRESETS.find((p) => p.id === id) ?? savedTemplates.find((x) => x.id === id);
+        if (!t) return;
+        setTemplateId(id);
+        setMessage(t.message);
+        if (email && t.subject) setSubject(t.subject);
+    };
+    const persistSaved = (list: SavedTemplate[]) => {
+        setSavedTemplates(list);
+        try {
+            localStorage.setItem(SAVED_KEY, JSON.stringify(list));
+        } catch {
+            /* storage unavailable: the template lasts until the page is closed */
+        }
+    };
+    const saveTemplate = () => {
+        const name = window.prompt("اسم القالب (يُحفظ في هذا المتصفح فقط):", "")?.trim();
+        if (!name) return;
+        const id = crypto.randomUUID();
+        persistSaved(withSaved(savedTemplates, { name, channel, subject: email ? subject : "", message }, id));
+        setTemplateId(id);
+    };
+    const deleteTemplate = () => {
+        persistSaved(savedTemplates.filter((t) => t.id !== templateId));
+        setTemplateId(defaultPreset(channel).id);
+    };
+    const isSaved = savedTemplates.some((t) => t.id === templateId);
 
     const msgError = validateTemplate(message);
     const subjectError = email && subject.trim().length < 3 ? "اكتب عنوانًا للرسالة." : email && validateTemplate(`${subject} ......`) ? "أقواس { } غير متطابقة في العنوان." : null;
@@ -189,6 +227,26 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                 </Box>
 
                 <Box>
+                    <TextField
+                        select
+                        label="قالب جاهز"
+                        value={templateId}
+                        onChange={(e) => pickTemplate(e.target.value)}
+                        fullWidth
+                        helperText={PRESETS.find((p) => p.id === templateId)?.hint ?? "قالب حفظته أنت في هذا المتصفح."}
+                        sx={{ mb: 2 }}
+                    >
+                        {PRESETS.filter((p) => p.channel === channel).map((p) => (
+                            <MenuItem key={p.id} value={p.id}>
+                                {p.label}
+                            </MenuItem>
+                        ))}
+                        {savedTemplates.filter((t) => t.channel === channel).map((t) => (
+                            <MenuItem key={t.id} value={t.id}>
+                                محفوظ: {t.name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     {email && (
                         <TextField
                             label="عنوان الرسالة *"
@@ -211,6 +269,16 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                         error={!!msgError}
                         helperText={msgError ?? `{name} = اسم الجهة. {issue} = أبرز عيب مؤكد في موقعها (من «فحص جودة الموقع»). {خيار1|خيار2} = تُختار صيغة لكل جهة (${variantCount(message)} صيغة ممكنة).`}
                     />
+                    <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+                        <Button size="small" onClick={saveTemplate} disabled={!!msgError}>
+                            حفظ هذا النص كقالب
+                        </Button>
+                        {isSaved && (
+                            <Button size="small" color="error" onClick={deleteTemplate}>
+                                حذف القالب المحفوظ
+                            </Button>
+                        )}
+                    </Box>
                     <TextField label="سطر الإيقاف (يُضاف في آخر كل رسالة)" value={stopLine} onChange={(e) => setStopLine(e.target.value)} fullWidth sx={{ mt: 2 }} slotProps={{ htmlInput: { maxLength: 200 } }} />
                 </Box>
 
