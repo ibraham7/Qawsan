@@ -244,7 +244,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const afterDiscovery = (r: SearchOutcome) => {
         backend.meta().then(setMeta).catch(() => {});
         // show exactly what this search found
-        apply("companies", { searches: [r.searchId] });
+        apply("companies", { searches: r.searchIds ?? [r.searchId] });
         setReload((n) => n + 1);
     };
 
