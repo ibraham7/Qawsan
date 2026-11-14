@@ -20,6 +20,7 @@ import TravelExploreRoundedIcon from "@mui/icons-material/TravelExploreRounded";
 
 import { discoveryStatus, runDiscovery } from "../../lib/discovery/client";
 import type { DiscoveryStatus, SearchOutcome } from "../../lib/discovery/client";
+import { cleanCities, estimateRequests, mergeOutcomes, runCities, MAX_CITIES } from "../../lib/discovery/multicity";
 import { pagesFor } from "../../lib/discovery/places";
 import type { Lang } from "../../lib/discovery/places";
 import { CITIES, COUNTRIES } from "../../lib/prospects/options";
@@ -34,7 +35,9 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
     const [type, setType] = useState("");
     const [keywords, setKeywords] = useState("");
     const [country, setCountry] = useState("Saudi Arabia");
-    const [city, setCity] = useState("Riyadh");
+    // one or more cities: each is searched on its own (see lib/discovery/multicity.ts)
+    const [selCities, setSelCities] = useState<string[]>(["Riyadh"]);
+    const [progress, setProgress] = useState("");
     const [language, setLanguage] = useState<Lang>("ar");
     const [minRating, setMinRating] = useState<string | undefined>(undefined);
     const [max, setMax] = useState<20 | 40 | 60>(20);
@@ -56,7 +59,8 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
         };
     }, [open, demo]);
 
-    const pages = pagesFor(max);
+    const cityList = cleanCities(selCities);
+    const pages = estimateRequests(cityList.length, max);
     const left = status ? status.limit - status.used : null;
     const cities = CITIES.filter((c) => !country || c.country === country).map((c) => c.name);
 
@@ -65,14 +69,26 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
         setError("");
         setResult(null);
         try {
-            const r = await runDiscovery({ type, keywords, country, city, language, minRating: minRating ? Number(minRating) : null, max });
-            setResult(r);
-            setStatus((s) => (s ? { ...s, used: r.used, limit: r.limit } : s));
-            onDone(r);
+            const base = { type, keywords, country, language, minRating: minRating ? Number(minRating) : null, max };
+            // no city picked still means one search ("in <country>")
+            const targets = cityList.length ? cityList : [""];
+            const run = await runCities(
+                targets,
+                (city) => runDiscovery({ ...base, city }),
+                (done, current) => setProgress(targets.length > 1 ? `جارٍ البحث في ${current || country} (${done + 1} من ${targets.length})…` : "")
+            );
+            if (run.outcomes.length) {
+                const r = run.outcomes.length === 1 && !run.failed ? run.outcomes[0] : mergeOutcomes(run.outcomes);
+                setResult(r);
+                setStatus((s) => (s ? { ...s, used: r.used, limit: r.limit } : s));
+                onDone(r);
+            }
+            if (run.failed) setError(`توقف البحث عند «${run.failed.city}»: ${run.failed.message}${run.outcomes.length ? ` — حُفظت نتائج المدن السابقة (${run.outcomes.length}).` : ""}`);
         } catch (e) {
             setError((e as Error).message);
         } finally {
             setBusy(false);
+            setProgress("");
         }
     };
 
@@ -105,7 +121,16 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
                         onInputChange={(_, v) => setCountry(v)}
                         renderInput={(p) => <TextField {...p} label="الدولة" />}
                     />
-                    <Autocomplete freeSolo options={cities} inputValue={city} onInputChange={(_, v) => setCity(v)} renderInput={(p) => <TextField {...p} label="المدينة" />} />
+                    <Autocomplete
+                        multiple
+                        freeSolo
+                        filterSelectedOptions
+                        options={cities}
+                        value={selCities}
+                        onChange={(_, v) => setSelCities(v.slice(0, MAX_CITIES))}
+                        renderInput={(p) => <TextField {...p} label={`المدن (حتى ${MAX_CITIES})`} placeholder="اختر مدينة أو أكثر" />}
+                        sx={{ gridColumn: { sm: "1 / -1" } }}
+                    />
                     <Select
                         label="لغة النتائج"
                         value={language}
@@ -141,7 +166,7 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
                 </Box>
 
                 <Typography sx={{ fontSize: 12.5, color: "text.secondary", lineHeight: 1.8 }}>
-                    سيستهلك هذا البحث حتى <b>{pages}</b> {pages === 1 ? "طلب" : "طلبات"} من Google
+                    سيستهلك هذا البحث حتى <b>{pages}</b> {pages === 1 ? "طلب" : "طلبات"} من Google{cityList.length > 1 && <> ({cityList.length} مدن × {pagesFor(max)})</>}
                     {status && (
                         <>
                             {" "}· استُخدم <b dir="ltr">{status.used}</b> من <b dir="ltr">{status.limit}</b> طلبًا هذا الشهر
@@ -153,7 +178,7 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
                 {error && <Alert severity="error">{error}</Alert>}
                 {result && (
                     <Alert severity="success">
-                        وجدنا {result.found} نتيجة: {result.inserted} جديدة و{result.updated} محدّثة ({result.requests} طلب).
+                        وجدنا {result.found} نتيجة{result.cities && result.cities > 1 ? ` في ${result.cities} مدن` : ""}: {result.inserted} جديدة و{result.updated} محدّثة ({result.requests} طلب).
                         {result.warning && <Box sx={{ mt: 0.5 }}>{result.warning}</Box>}
                     </Alert>
                 )}
@@ -168,7 +193,7 @@ export default function DiscoverDialog({ open, demo, onClose, onDone }: { open: 
                     disabled={busy || demo || type.trim().length < 2 || !!(status && !status.configured) || (left !== null && left < pages)}
                     startIcon={busy ? <CircularProgress size={18} color="inherit" /> : <TravelExploreRoundedIcon />}
                 >
-                    ابحث
+                    {busy && progress ? progress : cityList.length > 1 ? `ابحث في ${cityList.length} مدن` : "ابحث"}
                 </Button>
             </DialogActions>
         </Dialog>

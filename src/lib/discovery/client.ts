@@ -19,6 +19,9 @@ export interface SearchOutcome {
     warning: string;
     used: number;
     limit: number;
+    /** a multi-city run: one search id per city (searchId is the first) */
+    searchIds?: string[];
+    cities?: number;
 }
 
 export interface EnrichOutcome {
