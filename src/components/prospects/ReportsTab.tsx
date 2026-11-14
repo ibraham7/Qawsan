@@ -20,6 +20,7 @@ import {
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
+import FollowUps from "./FollowUps";
 import type { Campaign } from "../../lib/prospects/campaigns";
 import type { Backend } from "../../lib/prospects/data";
 import { statusOf } from "../../lib/prospects/options";
@@ -94,6 +95,8 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                     </ToggleButton>
                 </ToggleButtonGroup>
             </Box>
+
+            <FollowUps backend={backend} />
 
             {error && <Alert severity="error">{error}</Alert>}
             {list === null && !error && <LinearProgress />}
