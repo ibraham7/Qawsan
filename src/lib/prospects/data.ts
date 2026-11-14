@@ -114,6 +114,12 @@ export interface Backend {
     markRecipient(r: Recipient, status: Recipient["status"]): Promise<void>;
     setCampaignStatus(id: string, status: Campaign["status"]): Promise<void>;
     deleteCampaign(id: string): Promise<void>;
+    /** messages sent that have no answer and no follow-up yet (the rules in followups.ts pick who is due) */
+    awaitingFollowUp(): Promise<Recipient[]>;
+    /** follow-ups recorded since a moment (to count today's) */
+    followedUpSince(iso: string): Promise<Recipient[]>;
+    /** record a follow-up as sent, or skipped (never followed up again) */
+    markFollowUp(r: Recipient, status: "sent" | "skipped"): Promise<void>;
 }
 
 const EMPTY_COUNTS: Campaign["counts"] = { pending: 0, sent: 0, skipped: 0, replied: 0, stopped: 0, failed: 0 };
@@ -281,6 +287,20 @@ export const supabaseBackend: Backend = {
         const { error } = await supabase.from(T.campaigns).update({ status }).eq("id", id);
         fail(error);
     },
+    async awaitingFollowUp() {
+        const { data, error } = await supabase.from(T.recipients).select("*").eq("status", "sent").eq("followup_status", "").order("sent_at", { ascending: true }).limit(3000);
+        fail(error);
+        return (data ?? []) as Recipient[];
+    },
+    async followedUpSince(iso) {
+        const { data, error } = await supabase.from(T.recipients).select("*").eq("followup_status", "sent").gte("followup_at", iso).limit(3000);
+        fail(error);
+        return (data ?? []) as Recipient[];
+    },
+    async markFollowUp(r, status) {
+        const { error } = await supabase.from(T.recipients).update({ followup_status: status, followup_at: new Date().toISOString() }).eq("id", r.id);
+        fail(error);
+    },
     async deleteCampaign(id) {
         const { error } = await supabase.from(T.campaigns).delete().eq("id", id);
         fail(error);
@@ -295,6 +315,29 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
     let blocked: Suppression[] = [];
     let campaigns: Omit<Campaign, "counts">[] = [];
     let recipients: Recipient[] = [];
+    // a finished demo campaign sent 2-9 days ago, so the follow-up list can be tried
+    {
+        const day = 86_400_000;
+        const made = new Date(Date.now() - 10 * day).toISOString();
+        campaigns = [
+            { id: "demo-wa", name: "عيادات الرياض (تجريبية)", channel: "whatsapp", subject: "", message: "مرحبًا {name}", stop_line: "للإيقاف أرسل «إيقاف».", daily_limit: 20, status: "done", approved_at: made, created_at: made },
+            { id: "demo-mail", name: "عيادات جدة بالإيميل (تجريبية)", channel: "email", subject: "اقتراح لموقع {name}", message: "مرحبًا {name}", stop_line: "ردّ بكلمة «إيقاف».", daily_limit: 30, status: "done", approved_at: made, created_at: made },
+        ];
+        const seed = data.companies.slice(0, 8).map((c, i) => ({ c, i }));
+        recipients = seed.map(({ c, i }) => ({
+            id: `demo-r${i}`,
+            campaign_id: i < 6 ? "demo-wa" : "demo-mail",
+            company_id: c.id,
+            name: c.name,
+            phone: i < 6 ? `9665010000${String(i).padStart(2, "0")}` : "",
+            email: i < 6 ? "" : `info@demo${i}.example`,
+            issue: i % 2 === 0 ? "لا يظهر بشكل مريح على الجوال" : "",
+            status: "sent" as const,
+            sent_at: new Date(Date.now() - (2 + i) * day).toISOString(),
+            followup_status: "" as const,
+            followup_at: null,
+        }));
+    }
     try {
         saved = JSON.parse(localStorage.getItem("qawsan-demo-saved") ?? "[]");
     } catch {
@@ -392,6 +435,15 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async deleteCampaign(id) {
             campaigns = campaigns.filter((c) => c.id !== id);
             recipients = recipients.filter((r) => r.campaign_id !== id);
+        },
+        async awaitingFollowUp() {
+            return recipients.filter((r) => r.status === "sent" && (r.followup_status ?? "") === "");
+        },
+        async followedUpSince(iso) {
+            return recipients.filter((r) => r.followup_status === "sent" && !!r.followup_at && r.followup_at >= iso);
+        },
+        async markFollowUp(r, status) {
+            recipients = recipients.map((x) => (x.id === r.id ? { ...x, followup_status: status, followup_at: new Date().toISOString() } : x));
         },
     };
 }

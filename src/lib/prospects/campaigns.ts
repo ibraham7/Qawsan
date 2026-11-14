@@ -176,6 +176,9 @@ export interface Recipient {
     sent_at: string | null;
     /** the confirmed website problem written for this company ("{issue}"), fixed when the campaign was created */
     issue?: string;
+    /** "" = no follow-up yet, "sent" = followed up once, "skipped" = decided not to follow up */
+    followup_status?: "" | "sent" | "skipped";
+    followup_at?: string | null;
     /** why a message failed (or was skipped at the last check), when known */
     error?: string;
 }
