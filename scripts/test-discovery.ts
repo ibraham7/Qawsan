@@ -87,6 +87,36 @@ it("contact extraction from html", () => {
     assert.equal(m.socials.linkedin, "l");
 });
 
+it("template placeholder emails are ignored, real ones kept", () => {
+    const html = `<a href="mailto:youremail@gmail.com">x</a> <a href="mailto:name@domain.com">y</a> user@site.com <a href="mailto:info@real-clinic.sa">z</a> test@x.com`;
+    assert.deepEqual(extractContacts(html, "https://real-clinic.sa/").emails, ["info@real-clinic.sa"]);
+});
+
+it("WhatsApp: whatsapp:// links and a number in a script next to a WhatsApp mention", () => {
+    const base = "https://clinic-demo.example/";
+    assert.equal(extractContacts('<a href="whatsapp://send?phone=966501112222&text=hi">x</a>', base).whatsapp, "+966501112222");
+    assert.equal(extractContacts('<a href="whatsapp://send?text=hi">no number</a>', base).whatsapp, "");
+    // the case seen on a real clinic site: the link is built in the browser from a variable
+    const script = `<script>var WA='966543469969',L='ar'; function wa(m){return 'https://wa.me/'+WA+'?text='+encodeURIComponent(m)}</script>`;
+    assert.equal(extractContacts(script, base).whatsapp, "+966543469969");
+    assert.equal(extractContacts(`<script>const WA = "+971500000007"; // open WhatsApp chat</script>`, base).whatsapp, "+971500000007");
+    // a regular link still wins over the script heuristic
+    assert.equal(extractContacts(`<a href="https://wa.me/966501110000">w</a>${script}`, base).whatsapp, "+966501110000");
+});
+
+it("WhatsApp: no number is invented", () => {
+    const base = "https://clinic-demo.example/";
+    // a number with no WhatsApp mention anywhere
+    assert.equal(extractContacts(`<script>var phone='966543469969';</script>`, base).whatsapp, "");
+    // the mention is far away from the number
+    const far = `<p>Chat with us on WhatsApp</p>${"<div>x</div>".repeat(200)}<script>var tel='966543469969';</script>`;
+    assert.equal(extractContacts(far, base).whatsapp, "");
+    // plain digits in text, not a quoted string
+    assert.equal(extractContacts(`<p>WhatsApp: 966543469969</p>`, base).whatsapp, "");
+    // a quoted number that is too short or not from a country we work with
+    assert.equal(extractContacts(`<script>var a='9661234'; var b='15551234567'; // whatsapp</script>`, base).whatsapp, "");
+});
+
 it("internal addresses are refused", () => {
     for (const ip of ["127.0.0.1", "10.1.2.3", "172.20.0.1", "192.168.1.1", "169.254.169.254", "100.64.0.1", "0.0.0.0", "::1", "fd00::1", "fe80::1", "::ffff:127.0.0.1", "224.0.0.1"]) {
         assert.equal(isPrivateAddress(ip), true, ip);

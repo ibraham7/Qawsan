@@ -24,7 +24,7 @@ const SOCIAL_HOSTS: [keyof Socials, RegExp][] = [
 const NOT_A_PROFILE = /^\/(?:sharer|share|intent|dialog|plugins|home|login|signup|tr|p\/?$)|\/sharer|sharearticle|share\?/i;
 
 const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}/gi;
-const BAD_EMAIL = /\.(png|jpe?g|gif|webp|svg|avif|css|js)$|@(?:example\.|sentry|wixpress|domain\.|email\.com$|yourdomain|test\.)|^(?:name|user|your|email)@/i;
+const BAD_EMAIL = /\.(png|jpe?g|gif|webp|svg|avif|css|js)$|@(?:example\.|sentry|wixpress|domain\.|email\.com$|yourdomain|test\.)|^(?:name|user|username|your[a-z]*|email|test|sample|example|demo|someone)@/i;
 const CONTACT_WORDS = /contact|about|تواصل|اتصل|اتصال|من-نحن|iletisim|iletişim|hakkimizda/i;
 
 function decodeEntities(s: string) {
@@ -49,6 +49,12 @@ export function extractContacts(html: string, pageUrl: string): Extracted {
         if (/^mailto:/i.test(href)) {
             const e = decodeURIComponent(href.slice(7).split("?")[0]).trim().toLowerCase();
             if (/^[^@\s]+@[^@\s]+\.[a-z]{2,24}$/i.test(e) && !BAD_EMAIL.test(e)) emails.add(e);
+            continue;
+        }
+        // app link: whatsapp://send?phone=9665...
+        if (!whatsapp && /^whatsapp:\/\/send/i.test(href)) {
+            const d = (/[?&]phone=([^&]+)/i.exec(href)?.[1] ?? "").replace(/\D/g, "");
+            if (d.length >= 8 && d.length <= 15) whatsapp = `+${d}`;
             continue;
         }
         let u: URL;
@@ -79,6 +85,10 @@ export function extractContacts(html: string, pageUrl: string): Extracted {
         }
     }
 
+    // a number kept in a script variable (var WA='9665…') next to a WhatsApp link or word: the link is
+    // built in the browser, so it is not in any href
+    if (!whatsapp) whatsapp = numberNearWhatsapp(text);
+
     // visible text (also catches addresses written without mailto)
     const plain = text.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ");
     for (const m of plain.matchAll(EMAIL_RE)) {
@@ -87,6 +97,20 @@ export function extractContacts(html: string, pageUrl: string): Extracted {
     }
 
     return { emails: [...emails].slice(0, 10), socials, whatsapp, contactLinks: [...contactLinks].slice(0, 3) };
+}
+
+/** quoted international mobile-looking numbers within 300 characters of a WhatsApp mention */
+export function numberNearWhatsapp(text: string): string {
+    const mention = /wa\.me|whatsapp|واتس/gi;
+    const spots = [...text.matchAll(mention)].map((m) => m.index ?? 0).slice(0, 60);
+    if (!spots.length) return "";
+    // Gulf, Türkiye, Levant, Egypt, Iraq country codes followed by 8-10 digits, written as a string
+    const num = /["']\+?(?:966|971|974|965|973|968|90|20|962|963|964|961)\d{8,10}["']/g;
+    for (const m of text.matchAll(num)) {
+        const at = m.index ?? 0;
+        if (spots.some((p) => Math.abs(p - at) <= 300)) return `+${m[0].replace(/\D/g, "")}`;
+    }
+    return "";
 }
 
 export function merge(a: Extracted, b: Extracted): Extracted {
