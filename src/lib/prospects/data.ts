@@ -4,6 +4,7 @@
 import { phoneKind } from "../discovery/places";
 import { phoneDigits } from "./campaigns.ts";
 import type { Campaign, Recipient } from "./campaigns.ts";
+import type { Existing } from "./csvimport.ts";
 import { supabase } from "../supabase";
 import { applyTo, compile, matches, normDomain } from "./query.ts";
 import type { Compiled, Context, Filterable } from "./query.ts";
@@ -59,7 +60,14 @@ export function suppressionKey(raw: string): { value: string; kind: "phone" | "e
     return null;
 }
 
-function companyRow(c: NewCompany) {
+/** one saved company's keys, in the form the import compares against */
+function addKeys(out: Existing, r: { domain: string; phone: string; emails: string[] }) {
+    if (r.domain) out.domains.add(r.domain.toLowerCase());
+    if (r.phone) out.phones.add(r.phone.replace(/\D/g, ""));
+    for (const e of r.emails ?? []) out.emails.add(e.toLowerCase());
+}
+
+function companyRow(c: NewCompany, source = "manual") {
     const website = c.website.trim() && !/^https?:\/\//i.test(c.website.trim()) ? `https://${c.website.trim()}` : c.website.trim();
     return {
         name: c.name.trim(),
@@ -72,7 +80,7 @@ function companyRow(c: NewCompany) {
         hq_city: c.city.trim(),
         notes: c.notes.trim(),
         status: "review",
-        source: "manual",
+        source,
     };
 }
 
@@ -101,6 +109,10 @@ export interface Backend {
     savedRemove(id: string): Promise<void>;
     setStatus(ids: string[], status: string): Promise<void>;
     addCompany(c: NewCompany): Promise<void>;
+    /** what is already saved (domains, phone digits, emails), to skip duplicates when importing */
+    existingKeys(): Promise<Existing>;
+    /** add many companies from a CSV file, as "needs review"; returns how many were saved */
+    importCompanies(rows: NewCompany[]): Promise<number>;
     removeCompanies(ids: string[]): Promise<void>;
     suppressions(): Promise<Suppression[]>;
     suppress(raw: string, note: string): Promise<void>;
@@ -213,6 +225,28 @@ export const supabaseBackend: Backend = {
     async addCompany(c) {
         const { error } = await supabase.from(T.companies).insert(companyRow(c));
         fail(error);
+    },
+    async existingKeys() {
+        const out: Existing = { domains: new Set(), phones: new Set(), emails: new Set() };
+        // the API returns at most 1000 rows per request, so read page by page
+        for (let from = 0; from < 50_000; from += 1000) {
+            const { data, error } = await supabase.from(T.companies).select("domain,phone,emails").order("created_at").range(from, from + 999);
+            fail(error);
+            const page = (data ?? []) as { domain: string; phone: string; emails: string[] }[];
+            for (const r of page) addKeys(out, r);
+            if (page.length < 1000) break;
+        }
+        return out;
+    },
+    async importCompanies(rows) {
+        let saved = 0;
+        for (let i = 0; i < rows.length; i += 100) {
+            const chunk = rows.slice(i, i + 100).map((r) => companyRow(r, "csv"));
+            const { error } = await supabase.from(T.companies).insert(chunk);
+            fail(error);
+            saved += chunk.length;
+        }
+        return saved;
     },
     async removeCompanies(ids) {
         const { error } = await supabase.from(T.companies).delete().in("id", ids);
@@ -393,6 +427,18 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async addCompany(c) {
             const base = data.companies[0];
             data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null });
+        },
+        async existingKeys() {
+            const out: Existing = { domains: new Set(), phones: new Set(), emails: new Set() };
+            for (const c of data.companies) addKeys(out, c);
+            return out;
+        },
+        async importCompanies(rows) {
+            for (const r of rows) {
+                const base = data.companies[0];
+                data.companies.unshift({ ...base, ...companyRow(r, "csv"), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null, lead_score: null });
+            }
+            return rows.length;
         },
         async removeCompanies(ids) {
             data.companies.splice(0, data.companies.length, ...data.companies.filter((c) => !ids.includes(c.id)));

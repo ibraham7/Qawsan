@@ -21,7 +21,8 @@
     "test:followups": "node scripts/test-followups.ts",
     "test:sitereport": "node scripts/test-sitereport.ts",
     "test:multicity": "node scripts/test-multicity.ts",
-    "test:templates": "node scripts/test-templates.ts"
+    "test:templates": "node scripts/test-templates.ts",
+    "test:csvimport": "node scripts/test-csvimport.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

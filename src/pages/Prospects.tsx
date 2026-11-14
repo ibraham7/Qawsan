@@ -28,6 +28,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import UploadFileRoundedIcon from "@mui/icons-material/UploadFileRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import SiteReport from "../components/prospects/SiteReport";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
@@ -42,6 +43,7 @@ import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import AdminGate from "../components/admin/AdminGate";
 import Logo from "../components/common/Logo";
 import AddContactDialog from "../components/prospects/AddContactDialog";
+import ImportCsvDialog from "../components/prospects/ImportCsvDialog";
 import CampaignsTab from "../components/prospects/CampaignsTab";
 import CompanyDrawer from "../components/prospects/CompanyDrawer";
 import DiscoverDialog from "../components/prospects/DiscoverDialog";
@@ -118,6 +120,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [blockedList, setBlockedList] = useState<Suppression[]>([]);
     const [statusMenu, setStatusMenu] = useState<HTMLElement | null>(null);
     const [adding, setAdding] = useState(false);
+    const [importing, setImporting] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [busy, setBusy] = useState(false);
 
@@ -500,6 +503,9 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                         <Button variant="outlined" startIcon={<AddRoundedIcon />} onClick={() => setAdding(true)}>
                             إضافة جهة يدويًا
                         </Button>
+                        <Button variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setImporting(true)}>
+                            استيراد CSV
+                        </Button>
                         <Box sx={{ width: 160 }}>
                             <Select label="الترتيب" value={sort} onChange={(v) => setSort((v ?? "newest") as Sort)} options={SORTS} none={null} />
                         </Box>
@@ -718,6 +724,19 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                     setSort("newest");
                     setReload((x) => x + 1);
                     setToast("أُضيفت الجهة");
+                }}
+            />
+
+            <ImportCsvDialog
+                backend={backend}
+                open={importing}
+                onClose={() => setImporting(false)}
+                onDone={(n) => {
+                    apply("companies", {});
+                    setSort("newest");
+                    setReload((x) => x + 1);
+                    backend.meta().then(setMeta).catch(() => {});
+                    setToast(`تم استيراد ${n} جهة بحالة «بحاجة لمراجعة»`);
                 }}
             />
 
