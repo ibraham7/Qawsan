@@ -62,7 +62,7 @@ export default handle(async (req, res) => {
         return;
     }
 
-    const batch = await rest<Recipient[]>(`qawsan_campaign_recipients?select=id,company_id,name,email&campaign_id=eq.${id}&status=eq.pending&order=name&limit=${room}`);
+    const batch = await rest<Recipient[]>(`qawsan_campaign_recipients?select=id,company_id,name,email,issue&campaign_id=eq.${id}&status=eq.pending&order=name&limit=${room}`);
     const companyIds = [...new Set(batch.map((r) => r.company_id).filter((x): x is string => !!x))];
     const companies = new Map<string, CompanyLite>();
     if (companyIds.length) {
@@ -103,8 +103,8 @@ export default handle(async (req, res) => {
         const url = unsubscribeUrl(site, secret, r.id);
         const result = await mail.send({
             to: r.email,
-            subject: renderMessage(campaign.subject, r.name, "", `${seed}:s`),
-            text: withFooter(renderMessage(campaign.message, r.name, campaign.stop_line, seed), url),
+            subject: renderMessage(campaign.subject, r.name, "", `${seed}:s`, r.issue ?? ""),
+            text: withFooter(renderMessage(campaign.message, r.name, campaign.stop_line, seed, r.issue ?? ""), url),
             unsubscribe: url,
         });
 

@@ -13,6 +13,7 @@ import {
     TECHNOLOGIES,
 } from "./options.ts";
 import type { Meta } from "./data.ts";
+import { priority } from "./priority.ts";
 import type { CompanyRow, PersonRow } from "./types.ts";
 
 // small deterministic generator so the demo looks the same on every reload
@@ -138,7 +139,8 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             phone_kind: pick(["mobile", "mobile", "landline", ""]),
             notes: "",
         };
-    });
+        // the same formula the database uses for real companies
+    }).map((c) => ({ ...c, lead_score: priority(c) }));
 
     const people: PersonRow[] = Array.from({ length: 900 }, (_, i) => {
         const company = r() < 0.92 ? pick(companies) : null;

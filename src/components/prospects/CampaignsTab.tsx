@@ -45,6 +45,7 @@ import {
     emailEligibility,
     gmailLink,
     mailtoLink,
+    mainIssue,
     renderMessage,
     sentToday,
     validateTemplate,
@@ -127,7 +128,11 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
         const r = eligibility(list, blocked);
         return { eligible: r.eligible.map((e) => ({ company: e.company, phone: e.phone, email: "" })), skipped: r.skipped };
     }, [companies, blocked, email]);
-    const chosen = elig.eligible.filter((e) => (picked ? picked.has(e.company.id) : true));
+    // with {issue} in the message only companies with a confirmed website problem can be written to
+    const usesIssue = message.includes("{issue}") || (email && subject.includes("{issue}"));
+    const issueOf = (e: { company: CompanyRow }) => mainIssue(e.company.site_issues ?? []);
+    const withoutIssue = usesIssue ? elig.eligible.filter((e) => !issueOf(e)).length : 0;
+    const chosen = elig.eligible.filter((e) => (picked ? picked.has(e.company.id) : true) && (!usesIssue || !!issueOf(e)));
     const skippedByReason = useMemo(() => {
         const m = new Map<string, number>();
         elig.skipped.filter((s) => s.company.status === "approved").forEach((s) => m.set(SKIP_LABEL[s.reason], (m.get(SKIP_LABEL[s.reason]) ?? 0) + 1));
@@ -138,8 +143,9 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
     const subjectError = email && subject.trim().length < 3 ? "اكتب عنوانًا للرسالة." : email && validateTemplate(`${subject} ......`) ? "أقواس { } غير متطابقة في العنوان." : null;
     const sampleName = chosen[0]?.company.name ?? "اسم الجهة";
     const sampleSeed = chosen[0]?.company.id ?? "x";
-    const preview = renderMessage(message, sampleName, stopLine, sampleSeed);
-    const previewSubject = renderMessage(subject, sampleName, "", sampleSeed + ":s");
+    const sampleIssue = chosen[0] ? issueOf(chosen[0]) : "";
+    const preview = renderMessage(message, sampleName, stopLine, sampleSeed, sampleIssue);
+    const previewSubject = renderMessage(subject, sampleName, "", sampleSeed + ":s", sampleIssue);
     const ready = !!name.trim() && !msgError && !subjectError && chosen.length > 0 && ok1 && ok2 && ok3;
 
     const create = async () => {
@@ -153,7 +159,7 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                 message,
                 stopLine,
                 dailyLimit: Math.max(1, Math.min(200, Number(limit) || (email ? 30 : 20))),
-                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone, email: e.email })),
+                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone, email: e.email, issue: usesIssue ? issueOf(e) : "" })),
             });
             onCreated(id);
         } catch (e) {
@@ -203,7 +209,7 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                         minRows={4}
                         fullWidth
                         error={!!msgError}
-                        helperText={msgError ?? `{name} = اسم الجهة. {خيار1|خيار2} = تُختار صيغة لكل جهة، فتتنوع الرسائل (${variantCount(message)} صيغة ممكنة).`}
+                        helperText={msgError ?? `{name} = اسم الجهة. {issue} = أبرز عيب مؤكد في موقعها (من «فحص جودة الموقع»). {خيار1|خيار2} = تُختار صيغة لكل جهة (${variantCount(message)} صيغة ممكنة).`}
                     />
                     <TextField label="سطر الإيقاف (يُضاف في آخر كل رسالة)" value={stopLine} onChange={(e) => setStopLine(e.target.value)} fullWidth sx={{ mt: 2 }} slotProps={{ htmlInput: { maxLength: 200 } }} />
                 </Box>
@@ -223,6 +229,13 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                             <Typography sx={{ fontSize: 14 }}>
                                 <bdi>{chosen.length}</bdi> جهة من أصل <bdi>{elig.eligible.length}</bdi> مؤهلة. المؤهلة: «معتمد للتواصل» {email ? "ولها إيميل" : "ولها رقم جوال أو واتساب"}، وليست في «لا ترسل»، ولم يُتواصل معها.
                             </Typography>
+                            {usesIssue && (
+                                <Typography sx={{ fontSize: 12.5, color: withoutIssue ? "warning.main" : "text.secondary", mt: 0.5 }}>
+                                    {withoutIssue
+                                        ? `${withoutIssue} جهة بلا عيب موقع مؤكد لم تُضمَّن (لا نذكر عيبًا لم نتأكد منه). اعمل لها «فحص جودة الموقع» أو أرسل لها حملة بدون {issue}.`
+                                        : "كل الجهات المختارة لها عيب موقع مؤكد."}
+                                </Typography>
+                            )}
                             {skippedByReason.length > 0 && (
                                 <Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: 0.5 }}>
                                     مُستبعدة تلقائيًا من المعتمدة: {skippedByReason.map(([k, n]) => `${n} ${k}`).join(" · ")}
@@ -344,8 +357,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     };
 
     const isEmail = campaign.channel === "email";
-    const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`);
-    const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id);
+    const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`, r.issue ?? "");
+    const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id, r.issue ?? "");
 
     const runAuto = async () => {
         const ok = window.confirm(
