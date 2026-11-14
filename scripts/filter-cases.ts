@@ -140,6 +140,17 @@ export const cases: Case[] = [
     { name: "people: company name", tab: "people", filters: { company: { inc: ["Company 02"], exc: [] } }, want: (r) => !!co(r) && has(co(r)!.name, "Company 02") },
     { name: "people: company contactData", tab: "people", filters: { contactData: ["website"] }, want: (r) => !!co(r) && co(r)!.website !== "" },
     { name: "people: company intent", tab: "people", filters: { intent: { topics: ["CRM"], levels: ["high"] } }, want: (r) => !!co(r) && co(r)!.intent_topics.includes("CRM") && co(r)!.intent_level === "high" },
+    // website audit
+    { name: "siteQuality weak", tab: "companies", filters: { siteQuality: ["weak"] }, want: (r) => C(r).site_score !== null && C(r).site_score < 60 },
+    { name: "siteQuality medium", tab: "companies", filters: { siteQuality: ["medium"] }, want: (r) => C(r).site_score !== null && C(r).site_score >= 60 && C(r).site_score < 80 },
+    { name: "siteQuality good", tab: "companies", filters: { siteQuality: ["good"] }, want: (r) => C(r).site_score !== null && C(r).site_score >= 80 },
+    { name: "siteQuality unreadable", tab: "companies", filters: { siteQuality: ["unreadable"] }, want: (r) => C(r).site_checked_at !== null && C(r).site_score === null },
+    { name: "siteQuality unchecked", tab: "companies", filters: { siteQuality: ["unchecked"] }, want: (r) => C(r).site_checked_at === null && C(r).website !== "" },
+    { name: "siteQuality weak or good", tab: "companies", filters: { siteQuality: ["weak", "good"] }, want: (r) => C(r).site_score !== null && (C(r).site_score < 60 || C(r).site_score >= 80) },
+    { name: "siteIssues no_viewport", tab: "companies", filters: { siteIssues: ["no_viewport"] }, want: (r) => C(r).site_issues.includes("no_viewport") },
+    { name: "siteIssues slow or no_https", tab: "companies", filters: { siteIssues: ["slow", "no_https"] }, want: (r) => overlaps(C(r).site_issues, ["slow", "no_https"]) },
+    { name: "people: company siteQuality weak", tab: "people", filters: { siteQuality: ["weak"] }, want: (r) => !!co(r) && co(r)!.site_score !== null && co(r)!.site_score! < 60 },
+    { name: "AND: weak site + has whatsapp or mobile phone", tab: "companies", filters: { siteQuality: ["weak"], contactData: ["mobile"] }, want: (r) => C(r).site_score !== null && C(r).site_score < 60 && C(r).phone_kind === "mobile" },
     // two filters together must be an AND
     { name: "AND: Saudi + Owner/Founder + verified", tab: "people", filters: { personLocation: { countries: { inc: ["Saudi Arabia"], exc: [] } }, seniority: { inc: ["Owner", "Founder"], exc: [] }, emailStatus: ["verified"] }, want: (r) => P(r).country === "Saudi Arabia" && ["Owner", "Founder"].includes(P(r).seniority) && P(r).email_status === "verified" },
     { name: "AND: companies Saudi + mobile + rating 4+", tab: "companies", filters: { hqLocation: { countries: { inc: ["Saudi Arabia"], exc: [] } }, contactData: ["mobile"], googleRating: { min: 4 } }, want: (r) => C(r).hq_country === "Saudi Arabia" && C(r).phone_kind === "mobile" && between(C(r).rating, 4) },

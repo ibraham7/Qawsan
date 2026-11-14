@@ -26,6 +26,11 @@ export interface EnrichOutcome {
     pending: string[];
 }
 
+export interface AuditOutcome {
+    results: { id: string; quality: "weak" | "medium" | "good" | "unreadable" | "no_website"; score: number | null }[];
+    pending: string[];
+}
+
 async function call<T>(path: string, payload?: unknown): Promise<T> {
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
@@ -63,4 +68,5 @@ export const runDiscovery = (input: SearchInput) => call<SearchOutcome>("/api/pr
 export const mailStatus = () => call<MailStatus>("/api/prospects/email-status");
 export const mailTest = () => call<{ to: string }>("/api/prospects/email-status", {});
 export const sendBatch = (campaignId: string) => call<SendBatch>("/api/prospects/email-send", { campaignId });
+export const runAudit = (ids: string[]) => call<AuditOutcome>("/api/prospects/audit", { ids });
 export const runEnrich = (ids: string[]) => call<EnrichOutcome>("/api/prospects/enrich", { ids });

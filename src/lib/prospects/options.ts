@@ -175,6 +175,32 @@ export const SEQUENCE_MODES: Opt[] = [
     { value: "not_in", label: "غير موجود في الحملات المحددة" },
 ];
 
+/** website audit buckets (scores below 60 are weak, 80 and above good) */
+export const SITE_QUALITY: Opt[] = [
+    { value: "weak", label: "ضعيف (أقل من 60)" },
+    { value: "medium", label: "متوسط (60 إلى 79)" },
+    { value: "good", label: "جيد (80 فأكثر)" },
+    { value: "unreadable", label: "تعذّر الحكم عليه" },
+    { value: "unchecked", label: "لم يُفحص بعد (له موقع)" },
+];
+
+/** the problems the audit can find, as filter options */
+export const SITE_ISSUES: Opt[] = [
+    { value: "no_viewport", label: "لا يدعم الجوال" },
+    { value: "no_https", label: "بلا HTTPS" },
+    { value: "slow", label: "بطيء" },
+    { value: "heavy", label: "صفحة ثقيلة" },
+    { value: "outdated", label: "تصميم أو تقنية قديمة" },
+    { value: "free_builder", label: "موقع مجاني جاهز" },
+    { value: "no_booking", label: "بلا حجز أو نموذج" },
+    { value: "no_contact_action", label: "بلا زر اتصال أو واتساب" },
+    { value: "no_title", label: "بلا عنوان للصفحة" },
+    { value: "no_description", label: "بلا وصف في Google" },
+    { value: "thin_content", label: "محتوى قليل" },
+    { value: "social_only", label: "«موقعها» حساب سوشيال" },
+    { value: "unreachable", label: "الموقع لا يفتح" },
+];
+
 export const CONTACT_DATA: Opt[] = [
     { value: "phone", label: "لديه رقم هاتف" },
     { value: "mobile", label: "رقم جوال (واتساب محتمل)" },

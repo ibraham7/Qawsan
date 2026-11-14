@@ -101,6 +101,9 @@
     "api/prospects/enrich.ts": {
       "maxDuration": 60
     },
+    "api/prospects/audit.ts": {
+      "maxDuration": 60
+    },
     "api/prospects/email-send.ts": {
       "maxDuration": 60
     }

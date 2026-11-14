@@ -4,6 +4,8 @@ import { Box, Chip, Divider, Drawer, IconButton, Link, Typography } from "@mui/m
 import { useTheme } from "@mui/material/styles";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
+import { ISSUE_LABEL, bucket } from "../../lib/discovery/siteaudit";
+import type { IssueCode } from "../../lib/discovery/siteaudit";
 import type { CompanyRow } from "../../lib/prospects/types";
 
 const ENRICH: Record<string, string> = {
@@ -76,6 +78,33 @@ export default function CompanyDrawer({ company, onClose }: { company: CompanyRo
                             </Box>
                         ) : (
                             "—"
+                        )}
+                    </Row>
+                    <Row label="جودة الموقع">
+                        {!c.site_checked_at ? (
+                            c.website ? "لم يُفحص بعد (حدّدها في الجدول واضغط «فحص جودة الموقع»)" : "لا يوجد موقع"
+                        ) : (
+                            <>
+                                <Chip
+                                    size="small"
+                                    label={
+                                        c.site_score === null
+                                            ? "تعذّر الحكم عليه"
+                                            : `${{ weak: "ضعيف", medium: "متوسط", good: "جيد", unreadable: "" }[bucket(c.site_score)]} · ${c.site_score}/100`
+                                    }
+                                    color={bucket(c.site_score) === "weak" ? "error" : bucket(c.site_score) === "medium" ? "warning" : bucket(c.site_score) === "good" ? "success" : "default"}
+                                />
+                                {c.site_issues.length > 0 && (
+                                    <Box component="ul" sx={{ m: 0, mt: 0.75, ps: 2.5, fontSize: 13 }}>
+                                        {(c.site_issues as IssueCode[]).map((i) => (
+                                            <li key={i}>{ISSUE_LABEL[i] ?? i}</li>
+                                        ))}
+                                    </Box>
+                                )}
+                                <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }} dir="ltr">
+                                    {new Date(c.site_checked_at).toLocaleString("en-GB")}
+                                </Typography>
+                            </>
                         )}
                     </Row>
                     <Row label="الإثراء">

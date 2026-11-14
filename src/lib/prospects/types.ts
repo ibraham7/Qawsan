@@ -65,6 +65,10 @@ export interface Filters {
     contactData?: string[];
     /** Google Maps rating, 0-5 */
     googleRating?: Range;
+    /** website audit result: weak / medium / good / unreadable / unchecked */
+    siteQuality?: string[];
+    /** the website has any of these problems (see SITE_ISSUES) */
+    siteIssues?: string[];
     /** found by these Google searches */
     searches?: string[];
 
@@ -142,6 +146,9 @@ export interface CompanyRow {
     whatsapp: string;
     enrich_status: string;
     enriched_at: string | null;
+    site_score: number | null;
+    site_issues: string[];
+    site_checked_at: string | null;
     status: string;
     phone_kind: string;
     notes: string;

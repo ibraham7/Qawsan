@@ -10,6 +10,7 @@ import {
     TITLE_SYNONYMS,
     since,
 } from "./options.ts";
+import { GOOD_FROM, WEAK_BELOW } from "../discovery/siteaudit.ts";
 import type { CompanyRow, Filters, IncExc, Location, Range, Tab } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
@@ -39,7 +40,7 @@ export type Cond = Leaf | { or: Cond[] } | { and: Cond[] };
 
 const ARRAY_FIELDS = new Set([
     "keywords", "sic_codes", "naics_codes", "technologies", "intent_topics", "signals", "sequence_ids", "languages",
-    "emails", "place_types",
+    "emails", "place_types", "site_issues",
 ]);
 
 export interface Context {
@@ -253,6 +254,19 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
         if (k === "mobile") out.push({ f: P + "phone_kind", op: "eq", v: "mobile" });
         else if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
     }
+    // website audit: the chosen qualities are alternatives (weak OR medium), the issues too
+    if (f.siteQuality?.length) {
+        const q: Record<string, Cond> = {
+            weak: { f: P + "site_score", op: "lte", v: WEAK_BELOW - 1 },
+            medium: { and: [{ f: P + "site_score", op: "gte", v: WEAK_BELOW }, { f: P + "site_score", op: "lte", v: GOOD_FROM - 1 }] },
+            good: { f: P + "site_score", op: "gte", v: GOOD_FROM },
+            unreadable: { and: [{ f: P + "site_checked_at", op: "notnull" }, { f: P + "site_score", op: "null" }] },
+            unchecked: { and: [{ f: P + "site_checked_at", op: "null" }, { f: P + "website", op: "filled" }] },
+        };
+        const picked = f.siteQuality.map((k) => q[k]).filter(Boolean);
+        if (picked.length) out.push(picked.length === 1 ? picked[0] : { or: picked });
+    }
+    if (f.siteIssues?.length) out.push({ f: P + "site_issues", op: "ov", v: f.siteIssues });
     incExc(P + "status", f.status, out);
     // free text: on the people tab it searches the person's own fields (so it must not require a
     // company), on the companies tab the company's

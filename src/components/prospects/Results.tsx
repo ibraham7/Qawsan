@@ -10,10 +10,31 @@ import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import { ACCOUNT_STAGES, CONTACT_STAGES, EMAIL_STATUS, statusOf } from "../../lib/prospects/options";
 import type { Opt } from "../../lib/prospects/options";
 import type { Chip as ChipT } from "../../lib/prospects/state";
+import { ISSUE_LABEL, bucket } from "../../lib/discovery/siteaudit";
+import type { IssueCode } from "../../lib/discovery/siteaudit";
 import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/types";
 
 const short = (opts: Opt[], v: string) => opts.find((o) => o.value === v)?.label.split(" · ")[1] ?? v;
 const nf = new Intl.NumberFormat("en-US");
+
+/** the website-audit chip: weak sites are the ones worth a call */
+function SiteChip({ c }: { c: CompanyRow }) {
+    if (!c.site_checked_at) return null;
+    const q = bucket(c.site_score);
+    const text = q === "weak" ? "موقع ضعيف" : q === "medium" ? "موقع متوسط" : q === "good" ? "موقع جيد" : "موقع غير مقروء";
+    const issues = (c.site_issues as IssueCode[]).map((i) => ISSUE_LABEL[i] ?? i);
+    return (
+        <Tooltip title={issues.length ? `${c.site_score !== null ? `الدرجة ${c.site_score}/100 — ` : ""}${issues.join(" · ")}` : "لا عيوب ظاهرة"}>
+            <Chip
+                size="small"
+                label={c.site_score !== null ? `${text} ${c.site_score}` : text}
+                color={q === "weak" ? "error" : q === "medium" ? "warning" : q === "good" ? "success" : "default"}
+                variant={q === "weak" ? "filled" : "outlined"}
+                sx={{ height: 18, fontSize: 10.5 }}
+            />
+        </Tooltip>
+    );
+}
 
 const ENRICHED_LABEL: Record<string, string> = {
     done: "تم الإثراء ووجدنا إيميل أو واتساب",
@@ -178,6 +199,7 @@ export default function Results({
                                           <Box sx={{ fontWeight: 700, whiteSpace: "nowrap", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</Box>
                                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
                                               <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
+                                              <SiteChip c={c} />
                                               {c.enriched_at && (
                                                   <Tooltip title={`${ENRICHED_LABEL[c.enrich_status] ?? "تم الإثراء"} — ${new Date(c.enriched_at).toLocaleDateString("en-GB")}`}>
                                                       <Chip size="small" label="مُثرى" color={c.enrich_status === "done" ? "success" : c.enrich_status === "socials_only" ? "warning" : "default"} variant="outlined" sx={{ height: 18, fontSize: 10.5 }} />
