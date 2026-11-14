@@ -29,6 +29,7 @@ import { useTheme } from "@mui/material/styles";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
+import SiteReport from "../components/prospects/SiteReport";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
@@ -741,10 +742,14 @@ export default function Prospects() {
         );
     }, [wantDemo]);
 
-    if (wantDemo) return demo ? <Workspace backend={demo} email={null} /> : null;
+    // ?report=<company id> opens that company's printable website report instead of the workspace
+    const reportId = new URLSearchParams(window.location.search).get("report");
+    if (wantDemo) return demo ? reportId ? <SiteReport backend={demo} id={reportId} /> : <Workspace backend={demo} email={null} /> : null;
     return (
         <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
-            <AdminGate title="العملاء المحتملون">{(session) => <Workspace backend={supabaseBackend} email={session.user.email ?? null} />}</AdminGate>
+            <AdminGate title="العملاء المحتملون">
+                {(session) => (reportId ? <SiteReport backend={supabaseBackend} id={reportId} /> : <Workspace backend={supabaseBackend} email={session.user.email ?? null} />)}
+            </AdminGate>
         </Box>
     );
 }

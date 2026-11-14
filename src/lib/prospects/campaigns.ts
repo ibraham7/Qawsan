@@ -135,6 +135,9 @@ const CONFIRMED_ISSUES: [string, string][] = [
     ["poor_lcp", "يتأخر في إظهار محتواه على الجوال"],
 ];
 
+/** true for the problems the audit can state as facts (the ones allowed in a message or a report) */
+export const isConfirmedIssue = (code: string) => CONFIRMED_ISSUES.some(([c]) => c === code);
+
 /** the most important confirmed website problem as a phrase for the message, or "" when there is none */
 export function mainIssue(issues: string[]): string {
     return CONFIRMED_ISSUES.find(([code]) => issues.includes(code))?.[1] ?? "";

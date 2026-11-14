@@ -1,10 +1,11 @@
 // Side panel with everything known about one company.
 
-import { Box, Chip, Divider, Drawer, IconButton, Link, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Drawer, IconButton, Link, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { ISSUE_LABEL, bucket } from "../../lib/discovery/siteaudit";
+import { reportAvailable } from "../../lib/prospects/sitereport";
 import type { IssueCode } from "../../lib/discovery/siteaudit";
 import type { CompanyRow } from "../../lib/prospects/types";
 
@@ -112,6 +113,11 @@ export default function CompanyDrawer({ company, onClose }: { company: CompanyRo
                                 <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }} dir="ltr">
                                     {new Date(c.site_checked_at).toLocaleString("en-GB")}
                                 </Typography>
+                                {reportAvailable(c) && (
+                                    <Button size="small" variant="outlined" component="a" href={`/prospects?report=${c.id}${import.meta.env.DEV && window.location.search.includes("demo") ? "&demo" : ""}`} {...ext} sx={{ mt: 1 }}>
+                                        تقرير الموقع للعيادة (PDF)
+                                    </Button>
+                                )}
                             </>
                         )}
                     </Row>

@@ -114,6 +114,8 @@ export interface Backend {
     markRecipient(r: Recipient, status: Recipient["status"]): Promise<void>;
     setCampaignStatus(id: string, status: Campaign["status"]): Promise<void>;
     deleteCampaign(id: string): Promise<void>;
+    /** one company by id (the website report page), null when it does not exist */
+    company(id: string): Promise<CompanyRow | null>;
     /** messages sent that have no answer and no follow-up yet (the rules in followups.ts pick who is due) */
     awaitingFollowUp(): Promise<Recipient[]>;
     /** follow-ups recorded since a moment (to count today's) */
@@ -287,6 +289,11 @@ export const supabaseBackend: Backend = {
         const { error } = await supabase.from(T.campaigns).update({ status }).eq("id", id);
         fail(error);
     },
+    async company(id) {
+        const { data, error } = await supabase.from(T.companies).select("*").eq("id", id).maybeSingle();
+        fail(error);
+        return (data as CompanyRow | null) ?? null;
+    },
     async awaitingFollowUp() {
         const { data, error } = await supabase.from(T.recipients).select("*").eq("status", "sent").eq("followup_status", "").order("sent_at", { ascending: true }).limit(3000);
         fail(error);
@@ -435,6 +442,9 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async deleteCampaign(id) {
             campaigns = campaigns.filter((c) => c.id !== id);
             recipients = recipients.filter((r) => r.campaign_id !== id);
+        },
+        async company(id) {
+            return data.companies.find((c) => c.id === id) ?? null;
         },
         async awaitingFollowUp() {
             return recipients.filter((r) => r.status === "sent" && (r.followup_status ?? "") === "");
