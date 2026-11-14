@@ -7,7 +7,8 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import type { CompanyRow } from "../../lib/prospects/types";
 
 const ENRICH: Record<string, string> = {
-    done: "تم الإثراء",
+    done: "تم الإثراء ووجدنا إيميل أو واتساب",
+    socials_only: "وجدنا حسابات سوشيال فقط (بلا إيميل أو واتساب)",
     nothing_found: "لم نجد بيانات في الموقع",
     no_website: "لا يوجد موقع",
     failed: "تعذّر فتح الموقع",

@@ -265,7 +265,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                 ids = r.pending;
             }
             const n = (s: string) => all.filter((x) => x.status === s).length;
-            setToast(`الإثراء: ${n("done")} وجدنا بيانات · ${n("nothing_found")} بلا بيانات · ${n("no_website")} بلا موقع · ${n("failed")} تعذّر فتحها`);
+            setToast(`الإثراء: ${n("done")} وجدنا إيميل/واتساب · ${n("socials_only")} سوشيال فقط · ${n("nothing_found")} بلا بيانات · ${n("no_website")} بلا موقع · ${n("failed")} تعذّر فتحها`);
             setSelected(new Set());
             setReload((x) => x + 1);
         } catch (e) {

@@ -16,7 +16,8 @@ const short = (opts: Opt[], v: string) => opts.find((o) => o.value === v)?.label
 const nf = new Intl.NumberFormat("en-US");
 
 const ENRICHED_LABEL: Record<string, string> = {
-    done: "تم الإثراء ووجدنا بيانات",
+    done: "تم الإثراء ووجدنا إيميل أو واتساب",
+    socials_only: "وجدنا حسابات سوشيال فقط، بلا إيميل أو واتساب",
     nothing_found: "تم الإثراء ولم نجد بيانات",
     no_website: "لا يوجد موقع",
     failed: "تعذّر فتح الموقع",
@@ -179,7 +180,7 @@ export default function Results({
                                               <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}><bdi>{c.domain}</bdi></Typography>
                                               {c.enriched_at && (
                                                   <Tooltip title={`${ENRICHED_LABEL[c.enrich_status] ?? "تم الإثراء"} — ${new Date(c.enriched_at).toLocaleDateString("en-GB")}`}>
-                                                      <Chip size="small" label="مُثرى" color={c.enrich_status === "done" ? "success" : "default"} variant="outlined" sx={{ height: 18, fontSize: 10.5 }} />
+                                                      <Chip size="small" label="مُثرى" color={c.enrich_status === "done" ? "success" : c.enrich_status === "socials_only" ? "warning" : "default"} variant="outlined" sx={{ height: 18, fontSize: 10.5 }} />
                                                   </Tooltip>
                                               )}
                                           </Box>

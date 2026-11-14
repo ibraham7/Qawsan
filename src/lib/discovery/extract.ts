@@ -8,6 +8,8 @@ export interface Extracted {
     socials: Socials;
     whatsapp: string;
     contactLinks: string[];
+    /** short WhatsApp links (wa.link) and link-in-bio pages worth opening to find the number */
+    followLinks: string[];
 }
 
 const SOCIAL_HOSTS: [keyof Socials, RegExp][] = [
@@ -36,13 +38,17 @@ function decodeEntities(s: string) {
         .replace(/&#64;|&commat;/g, "@");
 }
 
-export function extractContacts(html: string, pageUrl: string): Extracted {
+// link-in-bio services: one page holding all of a business's links, often a WhatsApp button
+const BIO_HOSTS = /^(?:www\.)?(?:linktr\.ee|beacons\.ai|linkin\.bio|taplink\.cc|lnk\.bio|bio\.site|campsite\.bio|carrd\.co|linkpop\.com|solo\.to|msha\.ke|wa\.link|l\.wl\.co|lnk\.at|link\.tree|sites\.google\.com)$|\.(?:taplink\.ws|carrd\.co|mybio\.link)$/i;
+
+export function extractContacts(html: string, pageUrl: string, dial = ""): Extracted {
     const text = decodeEntities(html);
     const base = new URL(pageUrl);
     const emails = new Set<string>();
     const socials: Socials = {};
     let whatsapp = "";
     const contactLinks = new Set<string>();
+    const followLinks = new Set<string>();
 
     const hrefs = [...text.matchAll(/href\s*=\s*["']([^"']+)["']/gi)].map((m) => m[1].trim());
     for (const href of hrefs) {
@@ -75,6 +81,7 @@ export function extractContacts(html: string, pageUrl: string): Extracted {
                 if (d.length >= 8) whatsapp = `+${d}`;
             }
         }
+        if (BIO_HOSTS.test(host) && followLinks.size < 3) followLinks.add(u.toString());
         for (const [key, re] of SOCIAL_HOSTS) {
             if (!socials[key] && re.test(host) && u.pathname.length > 1 && !NOT_A_PROFILE.test(u.pathname + u.search)) {
                 socials[key] = `https://${host.replace(/^(m|web)\./, "www.")}${u.pathname.replace(/\/+$/, "")}`;
@@ -91,12 +98,68 @@ export function extractContacts(html: string, pageUrl: string): Extracted {
 
     // visible text (also catches addresses written without mailto)
     const plain = text.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ");
+    // a number written in the page text right next to the word WhatsApp / واتساب
+    if (!whatsapp) whatsapp = numberBesideWhatsapp(plain.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " "), dial);
     for (const m of plain.matchAll(EMAIL_RE)) {
         const e = m[0].toLowerCase().replace(/\.$/, "");
         if (!BAD_EMAIL.test(e)) emails.add(e);
     }
 
-    return { emails: [...emails].slice(0, 10), socials, whatsapp, contactLinks: [...contactLinks].slice(0, 3) };
+    return { emails: [...emails].slice(0, 10), socials, whatsapp, contactLinks: [...contactLinks].slice(0, 5), followLinks: [...followLinks] };
+}
+
+// international dialling code of the countries we work in, from the English country name
+const DIAL: Record<string, string> = {
+    "saudi arabia": "966", "united arab emirates": "971", "uae": "971", "qatar": "974", "kuwait": "965", "bahrain": "973",
+    "oman": "968", "türkiye": "90", "turkey": "90", "egypt": "20", "jordan": "962", "syria": "963", "iraq": "964", "lebanon": "961",
+};
+export const dialFor = (country: string) => DIAL[country.trim().toLowerCase()] ?? "";
+
+// how a local mobile number looks in each country (what is left once the leading 0 is dropped)
+const LOCAL_MOBILE: Record<string, RegExp> = {
+    "966": /^0?(5\d{8})$/, "971": /^0?(5\d{8})$/, "90": /^0?(5\d{9})$/, "965": /^([569]\d{7})$/, "974": /^([3567]\d{7})$/,
+    "973": /^([36]\d{7})$/, "968": /^([79]\d{7})$/, "20": /^0?(1\d{9})$/, "962": /^0?(7\d{8})$/,
+};
+const MOBILE_START = /^(905|9665|9715|974[3567]|965[569]|9733|968[79]|201|9627|961(3|7[016789]|81))/;
+
+/** "+9665…" for a mobile number written any usual way (05…, +966 5…, 00966…), "" otherwise */
+export function toIntlMobile(raw: string, dial = ""): string {
+    const trimmed = raw.trim();
+    let d = trimmed.replace(/\D/g, "");
+    const intl = /^(\+|00)/.test(trimmed);
+    if (intl) d = d.replace(/^00/, "");
+    let full = "";
+    if (intl) full = d;
+    else if (dial && LOCAL_MOBILE[dial]) {
+        const m = LOCAL_MOBILE[dial].exec(d);
+        if (m) full = dial + m[1];
+    }
+    // already starts with a country code but no plus sign (966501234567)
+    if (!full && /^(966|971|974|965|973|968|90|20|962|961)\d{8,10}$/.test(d)) full = d;
+    return full.length >= 10 && full.length <= 14 && MOBILE_START.test(full) ? `+${full}` : "";
+}
+
+/** a mobile number written within a few words of WhatsApp / واتساب in the visible text */
+export function numberBesideWhatsapp(text: string, dial = ""): string {
+    const mention = /whats\s?app|wa\.me|واتس\s?آب|واتساب|واتس|وتساب|وتس/gi;
+    const spots = [...text.matchAll(mention)].map((m) => m.index ?? 0).slice(0, 40);
+    const num = /(?:\+|00)?\d[\d\s\-().]{7,17}\d/g;
+    for (const at of spots) {
+        const region = text.slice(Math.max(0, at - 60), at + 90);
+        for (const m of region.matchAll(num)) {
+            // two numbers can sit side by side: try every run of digit groups
+            const whole = toIntlMobile(m[0], dial);
+            if (whole) return whole;
+            const parts = m[0].split(/[\s\-().]+/).filter(Boolean);
+            for (let i = 0; i < parts.length; i++) {
+                for (let j = i; j < parts.length; j++) {
+                    const found = toIntlMobile(parts.slice(i, j + 1).join(""), dial);
+                    if (found) return found;
+                }
+            }
+        }
+    }
+    return "";
 }
 
 /** quoted international mobile-looking numbers within 300 characters of a WhatsApp mention */
@@ -119,6 +182,7 @@ export function merge(a: Extracted, b: Extracted): Extracted {
         socials: { ...b.socials, ...a.socials },
         whatsapp: a.whatsapp || b.whatsapp,
         contactLinks: a.contactLinks,
+        followLinks: [...new Set([...a.followLinks, ...b.followLinks])].slice(0, 3),
     };
 }
 
