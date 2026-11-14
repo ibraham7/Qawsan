@@ -390,13 +390,32 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const open = (r: Recipient, how: "primary" | "app" = "primary") => {
         if (isEmail) {
             const url = how === "app" ? mailtoLink(r.email, subjectFor(r), bodyFor(r)) : gmailLink(r.email, subjectFor(r), bodyFor(r));
-            if (how === "app") window.location.href = url;
+            if (how === "app") window.location.assign(url);
             else window.open(url, "_blank", "noopener,noreferrer");
         } else {
             window.open(waLink(r.phone, bodyFor(r)), "_blank", "noopener,noreferrer");
         }
         setOpened(r.id);
     };
+
+    // WhatsApp queue: one click records this chat as sent AND opens the next one. The window is
+    // opened first, inside the click, so the browser does not treat it as a blocked pop-up.
+    const sentAndNext = async (r: Recipient) => {
+        const after = pending[1];
+        const room = today + 1 < campaign.daily_limit;
+        const chain = !isEmail && !!after && room;
+        if (chain) window.open(waLink(after.phone, bodyFor(after)), "_blank", "noopener,noreferrer");
+        try {
+            await backend.markRecipient(r, "sent");
+            setOpened(chain ? after.id : null);
+            load();
+            onChanged();
+        } catch (e) {
+            setError((e as Error).message);
+        }
+    };
+    const upcoming = pending.slice(1, 5);
+    const canChain = !isEmail && pending.length > 1 && today + 1 < campaign.daily_limit;
 
     // finishing the last pending recipient completes the campaign
     useEffect(() => {
@@ -478,14 +497,31 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                                 برنامج البريد
                             </Button>
                         )}
-                        <Button variant="outlined" size="large" disabled={opened !== next.id} onClick={() => mark(next, "sent")}>
-                            أرسلتها ✓
-                        </Button>
+                        {canChain ? (
+                            <Button variant="contained" color="success" size="large" disabled={opened !== next.id || auto} onClick={() => sentAndNext(next)}>
+                                أرسلتها ✓ وافتح التالية
+                            </Button>
+                        ) : (
+                            <Button variant="outlined" size="large" disabled={opened !== next.id} onClick={() => mark(next, "sent")}>
+                                أرسلتها ✓
+                            </Button>
+                        )}
+                        {canChain && (
+                            <Button variant="outlined" size="large" disabled={opened !== next.id || auto} onClick={() => mark(next, "sent")}>
+                                أرسلتها فقط
+                            </Button>
+                        )}
                         <Button size="large" disabled={auto} onClick={() => mark(next, "skipped")}>
                             تخطّي
                         </Button>
                     </Box>
                     <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>{COPY[campaign.channel].opened}</Typography>
+                    {canChain && upcoming.length > 0 && (
+                        <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+                            بعدها: {upcoming.map((u) => u.name).join(" · ")}
+                            {pending.length - 1 > upcoming.length ? ` · و${pending.length - 1 - upcoming.length} أخرى` : ""}
+                        </Typography>
+                    )}
                 </Box>
             ) : rows ? (
                 <Alert severity="success">انتهت الحملة: لا توجد جهات بانتظار الإرسال.</Alert>
