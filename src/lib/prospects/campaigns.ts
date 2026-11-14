@@ -119,15 +119,37 @@ export function variantCount(template: string): number {
     return n;
 }
 
-/** `{name}` -> the company's name, `{a|b|c}` -> one of the options, then the stop line */
-export function renderMessage(template: string, name: string, stopLine: string, seed: string): string {
+/**
+ * Website problems that are safe to name to a company: each one is a fact the audit confirmed, not a
+ * guess (so "no booking button" or "looks old" are left out). Listed by how much they hurt, and each
+ * phrase completes "لاحظت أن موقعكم …".
+ */
+const CONFIRMED_ISSUES: [string, string][] = [
+    ["noindex", "محجوب عن محركات البحث فلن يجده من يبحث في Google"],
+    ["no_viewport", "لا يظهر بشكل مريح على الجوال"],
+    ["no_https", "يظهر للزائر بتحذير «غير آمن» في المتصفح"],
+    ["slow_mobile", "بطيء في الفتح على الجوال"],
+    ["bad_phone_link", "فيه رقم اتصال لا يعمل عند الضغط عليه"],
+    ["broken_links", "فيه روابط لا تعمل"],
+    ["free_builder", "مبني على منصة مجانية بعنوان غير احترافي"],
+    ["poor_lcp", "يتأخر في إظهار محتواه على الجوال"],
+];
+
+/** the most important confirmed website problem as a phrase for the message, or "" when there is none */
+export function mainIssue(issues: string[]): string {
+    return CONFIRMED_ISSUES.find(([code]) => issues.includes(code))?.[1] ?? "";
+}
+
+/** `{name}` -> the company's name, `{issue}` -> its confirmed website problem, `{a|b|c}` -> one of the options, then the stop line */
+export function renderMessage(template: string, name: string, stopLine: string, seed: string, issue = ""): string {
     let i = 0;
     const body = template
         .replace(GROUP, (_m, inner: string) => {
             const opts = inner.split("|").map((x) => x.trim());
             return opts[hash(`${seed}:${i++}`) % opts.length];
         })
-        .replace(/\{name\}/g, name.trim());
+        .replace(/\{name\}/g, name.trim())
+        .replace(/\{issue\}/g, issue.trim());
     return [body.trim(), stopLine.trim()].filter(Boolean).join("\n\n");
 }
 
@@ -152,6 +174,8 @@ export interface Recipient {
     email: string;
     status: "pending" | "sent" | "skipped" | "replied" | "stopped" | "failed";
     sent_at: string | null;
+    /** the confirmed website problem written for this company ("{issue}"), fixed when the campaign was created */
+    issue?: string;
     /** why a message failed (or was skipped at the last check), when known */
     error?: string;
 }

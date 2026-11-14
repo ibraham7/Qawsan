@@ -28,7 +28,7 @@ export interface NewCampaign {
     message: string;
     stopLine: string;
     dailyLimit: number;
-    recipients: { companyId: string; name: string; phone: string; email: string }[];
+    recipients: { companyId: string; name: string; phone: string; email: string; issue?: string }[];
 }
 
 export interface NewCompany {
@@ -253,7 +253,7 @@ export const supabaseBackend: Backend = {
             .single();
         fail(error);
         const id = (data as { id: string }).id;
-        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase() }));
+        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), issue: (x.issue ?? "").slice(0, 200) }));
         const { error: e2 } = await supabase.from(T.recipients).insert(rows);
         if (e2) {
             // do not leave an empty campaign behind
@@ -372,7 +372,7 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
             const id = crypto.randomUUID();
             const now = new Date().toISOString();
             campaigns = [{ id, name: c.name, channel: c.channel, subject: c.subject, message: c.message, stop_line: c.stopLine, daily_limit: c.dailyLimit, status: "active", approved_at: now, created_at: now }, ...campaigns];
-            recipients = [...recipients, ...c.recipients.map((x) => ({ id: crypto.randomUUID(), campaign_id: id, company_id: x.companyId, name: x.name, phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), status: "pending" as const, sent_at: null }))];
+            recipients = [...recipients, ...c.recipients.map((x) => ({ id: crypto.randomUUID(), campaign_id: id, company_id: x.companyId, name: x.name, phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), issue: x.issue ?? "", status: "pending" as const, sent_at: null }))];
             return id;
         },
         async recipients(campaignId) {

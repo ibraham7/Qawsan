@@ -11,6 +11,7 @@ import { ACCOUNT_STAGES, CONTACT_STAGES, EMAIL_STATUS, statusOf } from "../../li
 import type { Opt } from "../../lib/prospects/options";
 import type { Chip as ChipT } from "../../lib/prospects/state";
 import { ISSUE_LABEL, bucket } from "../../lib/discovery/siteaudit";
+import { priorityParts } from "../../lib/prospects/priority";
 import type { IssueCode } from "../../lib/discovery/siteaudit";
 import type { CompanyRow, Filters, PersonRow, Tab } from "../../lib/prospects/types";
 
@@ -63,6 +64,12 @@ export function ActiveChips({ chips, filters, onChange, onClearAll }: { chips: C
             <Chip size="small" label="مسح الكل" onClick={onClearAll} variant="filled" sx={{ fontWeight: 700 }} />
         </Box>
     );
+}
+
+/** why a company has the priority it has: the three parts of the score */
+function priorityTip(c: CompanyRow) {
+    const p = priorityParts(c);
+    return `الأولوية: حاجة الموقع ${p.need}/45 · قوة النشاط ${p.strength}/35 · إمكانية التواصل ${p.reach}/20`;
 }
 
 function Score({ v }: { v: number | null }) {
@@ -241,7 +248,13 @@ export default function Results({
                                           </Box>
                                       </TableCell>
                                       <TableCell sx={{ whiteSpace: "nowrap" }}>{short(ACCOUNT_STAGES, c.account_stage)}</TableCell>
-                                      <TableCell><Score v={c.lead_score} /></TableCell>
+                                      <TableCell>
+                                          <Tooltip title={c.lead_score === null ? "" : priorityTip(c)}>
+                                              <span>
+                                                  <Score v={c.lead_score} />
+                                              </span>
+                                          </Tooltip>
+                                      </TableCell>
                                       <TableCell sx={{ whiteSpace: "nowrap" }}>
                                           <Chip size="small" label={statusOf(c.status).label} color={statusOf(c.status).color} variant={statusOf(c.status).color === "default" ? "outlined" : "filled"} sx={{ fontWeight: 700, height: 24 }} />
                                           {isBlocked(c) && (

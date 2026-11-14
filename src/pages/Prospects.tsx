@@ -66,7 +66,7 @@ const nf = new Intl.NumberFormat("en-US");
 
 const SORTS = [
     { value: "newest", label: "الأحدث" },
-    { value: "score", label: "الأعلى تقييمًا" },
+    { value: "score", label: "الأعلى أولوية" },
     { value: "name", label: "بالاسم" },
 ];
 
