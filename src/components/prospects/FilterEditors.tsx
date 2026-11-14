@@ -185,6 +185,13 @@ export function FilterEditor({
                     <Hint>تظهر الجهات التي تنطبق عليها أي خانة تختارها. الدرجة تأتي من زر «فحص الموقع» في الشركات.</Hint>
                 </>
             );
+        case "sitePerf":
+            return (
+                <>
+                    <RangeInput value={f.sitePerf} onChange={(v) => set("sitePerf", v)} minLabel="من" maxLabel="إلى" unit="/ 100" />
+                    <Hint>درجة Google لسرعة الموقع على الجوال (0 بطيء جدًا، 100 ممتاز). اكتب «إلى 49» لعرض البطيء فقط. تأتي من «فحص جودة الموقع».</Hint>
+                </>
+            );
         case "siteIssues":
             return (
                 <>

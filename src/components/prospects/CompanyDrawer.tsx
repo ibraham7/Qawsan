@@ -94,6 +94,14 @@ export default function CompanyDrawer({ company, onClose }: { company: CompanyRo
                                     }
                                     color={bucket(c.site_score) === "weak" ? "error" : bucket(c.site_score) === "medium" ? "warning" : bucket(c.site_score) === "good" ? "success" : "default"}
                                 />
+                                {c.site_perf !== null && (
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, mt: 1 }}>
+                                        <Chip size="small" variant="outlined" color={c.site_perf < 50 ? "error" : c.site_perf < 90 ? "warning" : "success"} label={`سرعة الجوال ${c.site_perf}/100`} />
+                                        {c.site_lcp_ms !== null && <Chip size="small" variant="outlined" label={`ظهور المحتوى ${(c.site_lcp_ms / 1000).toFixed(1)} ث`} />}
+                                        {c.site_seo !== null && <Chip size="small" variant="outlined" label={`SEO ${c.site_seo}`} />}
+                                        {c.site_a11y !== null && <Chip size="small" variant="outlined" label={`إمكانية الوصول ${c.site_a11y}`} />}
+                                    </Box>
+                                )}
                                 {c.site_issues.length > 0 && (
                                     <Box component="ul" sx={{ m: 0, mt: 0.75, ps: 2.5, fontSize: 13 }}>
                                         {(c.site_issues as IssueCode[]).map((i) => (

@@ -110,6 +110,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [discover, setDiscover] = useState(false);
     const [enriching, setEnriching] = useState(false);
     const [auditing, setAuditing] = useState(false);
+    const [auditDone, setAuditDone] = useState(0);
     // bumped to re-run the current search after data changed on the server
     const [reload, setReload] = useState(0);
     const [section, setSection] = useState<Section>(readSection);
@@ -289,15 +290,27 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             return;
         }
         setAuditing(true);
+        setAuditDone(0);
         const all: AuditOutcome["results"] = [];
+        let speedConfigured = true;
         try {
-            for (let round = 0; round < 3 && ids.length; round++) {
+            // each round the server finishes what it can in its time limit (Google measures slowly) and returns the rest
+            for (let round = 0; round < 10 && ids.length; round++) {
                 const r = await runAudit(ids);
                 all.push(...r.results);
+                setAuditDone(all.length);
+                speedConfigured = r.speedConfigured;
                 ids = r.pending;
             }
             const n = (s: string) => all.filter((x) => x.quality === s).length;
-            setToast(`فحص المواقع: ${n("weak")} ضعيف · ${n("medium")} متوسط · ${n("good")} جيد · ${n("unreadable")} تعذّر الحكم · ${n("no_website")} بلا موقع`);
+            const speed = (s: string) => all.filter((x) => x.speed === s).length;
+            const notes = [
+                !speedConfigured && "قياس السرعة من Google غير مفعّل (أضف مفتاحًا في Vercel)",
+                speed("blocked") > 0 && "مفتاح Google لا يسمح بـ PageSpeed: فعّل PageSpeed Insights API وأضفه لقيود المفتاح",
+                speed("quota") > 0 && "انتهت حصة PageSpeed اليوم، وأُكمل الفحص بدون قياس السرعة",
+                speed("failed") > 0 && `${speed("failed")} موقع تعذّر قياس سرعته`,
+            ].filter(Boolean);
+            setToast(`فحص المواقع: ${n("weak")} ضعيف · ${n("medium")} متوسط · ${n("good")} جيد · ${n("unreadable")} تعذّر الحكم · ${n("no_website")} بلا موقع${notes.length ? ` — ${notes.join(" — ")}` : ""}`);
             setSelected(new Set());
             setReload((x) => x + 1);
         } catch (e) {
@@ -528,7 +541,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                                 </Button>
                             )}
                             <Button variant="outlined" startIcon={<FactCheckRoundedIcon />} onClick={() => audit()} disabled={enriching || auditing || backend.demo || unchecked.length > 25 || unchecked.length === 0}>
-                                {auditing ? "جارٍ الفحص…" : alreadyChecked ? `فحص الموقع للجديدة فقط (${unchecked.length})` : "فحص جودة الموقع"}
+                                {auditing ? `جارٍ الفحص… (${auditDone})` : alreadyChecked ? `فحص الموقع للجديدة فقط (${unchecked.length})` : "فحص جودة الموقع"}
                             </Button>
                             {alreadyChecked > 0 && (
                                 <Button variant="text" onClick={() => audit(true)} disabled={enriching || auditing || backend.demo || selected.size > 25}>
@@ -710,7 +723,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             <DiscoverDialog open={discover} demo={backend.demo} onClose={() => setDiscover(false)} onDone={afterDiscovery} />
             <CompanyDrawer company={opened} onClose={() => setOpened(null)} />
 
-            <Snackbar open={!!toast} autoHideDuration={toast.startsWith("الإثراء") || toast.startsWith("فحص المواقع") ? 8000 : 2500} onClose={() => setToast("")} message={toast} />
+            <Snackbar open={!!toast} autoHideDuration={toast.startsWith("الإثراء") ? 8000 : toast.startsWith("فحص المواقع") ? 14000 : 2500} onClose={() => setToast("")} message={toast} />
         </Box>
     );
 }

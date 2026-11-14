@@ -127,13 +127,13 @@ export interface Page {
 
 const MAX_BYTES = 1_500_000;
 
-function getOnce(url: URL, timeoutMs: number): Promise<{ status: number; location?: string; type: string; body: string }> {
+function getOnce(url: URL, timeoutMs: number, method: "GET" | "HEAD" = "GET"): Promise<{ status: number; location?: string; type: string; body: string }> {
     return new Promise((resolve, reject) => {
         const lib = url.protocol === "https:" ? https : http;
         const r = lib.request(
             url,
             {
-                method: "GET",
+                method,
                 lookup: guardedLookup,
                 timeout: timeoutMs,
                 headers: {
@@ -236,4 +236,36 @@ export async function fetchForAudit(raw: string, timeoutMs = 9000): Promise<Audi
         return { kind: "unreadable" };
     }
     return { kind: "unreadable" };
+}
+
+/**
+ * The status code of a link on someone's site (HEAD, then GET when the server refuses HEAD),
+ * following up to 2 redirects and refusing internal addresses.
+ * "dead" = the domain does not exist; null = could not tell (timeout, blocked...).
+ */
+export async function probe(raw: string, timeoutMs = 5000): Promise<number | "dead" | null> {
+    let url: URL;
+    try {
+        url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    } catch {
+        return null;
+    }
+    for (let hop = 0; hop < 3; hop++) {
+        if (!/^https?:$/.test(url.protocol) || url.username || url.password) return null;
+        if (url.port && !["80", "443"].includes(url.port)) return null;
+        const literal = url.hostname.replace(/^\[|\]$/g, "");
+        if (net.isIP(literal) && isPrivateAddress(literal)) return null;
+        try {
+            let r = await getOnce(url, timeoutMs, "HEAD");
+            if (r.status === 405 || r.status === 501 || r.status === 403 || r.status === 400) r = await getOnce(url, timeoutMs, "GET");
+            if (r.location && hop < 2) {
+                url = new URL(r.location, url);
+                continue;
+            }
+            return r.status;
+        } catch (e) {
+            return (e as NodeJS.ErrnoException).code === "ENOTFOUND" ? "dead" : null;
+        }
+    }
+    return null;
 }

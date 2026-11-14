@@ -267,6 +267,7 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
         if (picked.length) out.push(picked.length === 1 ? picked[0] : { or: picked });
     }
     if (f.siteIssues?.length) out.push({ f: P + "site_issues", op: "ov", v: f.siteIssues });
+    range(P + "site_perf", f.sitePerf, out);
     incExc(P + "status", f.status, out);
     // free text: on the people tab it searches the person's own fields (so it must not require a
     // company), on the companies tab the company's

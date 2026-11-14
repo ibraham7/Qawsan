@@ -61,6 +61,7 @@ export const FILTERS: FilterMeta[] = [
     { key: "googleRating", label: "تقييم Google", group: "company", tabs: both },
     { key: "siteQuality", label: "جودة الموقع", group: "company", tabs: both },
     { key: "siteIssues", label: "عيوب الموقع", group: "company", tabs: both },
+    { key: "sitePerf", label: "سرعة الموقع على الجوال", group: "company", tabs: both },
     { key: "company", label: "الشركة", group: "company", tabs: both },
     { key: "hqLocation", label: "مقر الشركة", group: "company", tabs: both },
     { key: "employees", label: "عدد الموظفين", group: "company", tabs: both },
@@ -140,6 +141,8 @@ export function isActive(f: Filters, key: FilterKey): boolean {
             return !!f[key]?.length;
         case "googleRating":
             return rg(f.googleRating);
+        case "sitePerf":
+            return rg(f.sitePerf);
         case "roleTenure":
         case "experience":
         case "founded":
@@ -279,6 +282,7 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
     arrayChips("contactData", CONTACT_DATA);
     arrayChips("siteQuality", SITE_QUALITY);
     arrayChips("siteIssues", SITE_ISSUES);
+    if (c.sitePerf) out.push({ id: "sitePerf", label: `${L("sitePerf")}: ${fmtRange(c.sitePerf)}`, remove: (g) => set(g, "sitePerf", undefined) });
     if (c.googleRating) out.push({ id: "googleRating", label: `${L("googleRating")}: ${fmtRange(c.googleRating, "★")}`, remove: (g) => set(g, "googleRating", undefined) });
     out.push(...incExcChips("company", L("company"), (g) => g.company, c, (g, x) => set(g, "company", x)));
     out.push(...locationChips("hqLocation", L("hqLocation"), c));

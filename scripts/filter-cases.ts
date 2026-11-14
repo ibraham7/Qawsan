@@ -149,6 +149,9 @@ export const cases: Case[] = [
     { name: "siteQuality weak or good", tab: "companies", filters: { siteQuality: ["weak", "good"] }, want: (r) => C(r).site_score !== null && (C(r).site_score < 60 || C(r).site_score >= 80) },
     { name: "siteIssues no_viewport", tab: "companies", filters: { siteIssues: ["no_viewport"] }, want: (r) => C(r).site_issues.includes("no_viewport") },
     { name: "siteIssues slow or no_https", tab: "companies", filters: { siteIssues: ["slow", "no_https"] }, want: (r) => overlaps(C(r).site_issues, ["slow", "no_https"]) },
+    { name: "sitePerf below 50", tab: "companies", filters: { sitePerf: { max: 49 } }, want: (r) => C(r).site_perf !== null && C(r).site_perf < 50 },
+    { name: "sitePerf 40 to 90", tab: "companies", filters: { sitePerf: { min: 40, max: 90 } }, want: (r) => between(C(r).site_perf, 40, 90) },
+    { name: "siteIssues slow_mobile or broken_links", tab: "companies", filters: { siteIssues: ["slow_mobile", "broken_links"] }, want: (r) => overlaps(C(r).site_issues, ["slow_mobile", "broken_links"]) },
     { name: "people: company siteQuality weak", tab: "people", filters: { siteQuality: ["weak"] }, want: (r) => !!co(r) && co(r)!.site_score !== null && co(r)!.site_score! < 60 },
     { name: "AND: weak site + has whatsapp or mobile phone", tab: "companies", filters: { siteQuality: ["weak"], contactData: ["mobile"] }, want: (r) => C(r).site_score !== null && C(r).site_score < 60 && C(r).phone_kind === "mobile" },
     // two filters together must be an AND

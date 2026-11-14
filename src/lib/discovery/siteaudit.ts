@@ -3,6 +3,8 @@
 // engine reads it, so a site drawn entirely by JavaScript looks empty and is reported as
 // "unreadable" instead of being scored.
 
+import type { Measured } from "./pagespeed.ts";
+
 export type IssueCode =
     | "no_https"
     | "no_viewport"
@@ -19,12 +21,36 @@ export type IssueCode =
     | "no_alt"
     | "social_only"
     | "unreachable"
-    | "unreadable";
+    | "unreadable"
+    // from a real PageSpeed run, the page's own markup and opening its links
+    | "slow_mobile"
+    | "poor_lcp"
+    | "seo_low"
+    | "noindex"
+    | "no_structured_data"
+    | "no_lang"
+    | "bad_phone_link"
+    | "broken_links"
+    | "no_sitemap";
 
 export interface SiteAudit {
     /** 0-100, or null when the page could not be judged */
     score: number | null;
     issues: IssueCode[];
+}
+
+/** what opening the site's own links showed */
+export interface LinkFacts {
+    /** internal links that answered 404 / 410 or whose address does not exist */
+    broken: number;
+    checked: number;
+    /** a sitemap.xml (or a Sitemap line in robots.txt) exists; null = not checked */
+    sitemap: boolean | null;
+}
+
+export interface Extra {
+    measured?: Measured | null;
+    links?: LinkFacts | null;
 }
 
 export interface PageFacts {
@@ -39,6 +65,15 @@ export interface PageFacts {
 
 /** points taken off 100 for each problem */
 export const PENALTY: Record<Exclude<IssueCode, "social_only" | "unreachable" | "unreadable">, number> = {
+    noindex: 15,
+    slow_mobile: 15,
+    seo_low: 8,
+    broken_links: 8,
+    bad_phone_link: 8,
+    poor_lcp: 5,
+    no_sitemap: 3,
+    no_structured_data: 2,
+    no_lang: 2,
     no_viewport: 25,
     free_builder: 20,
     no_https: 15,
@@ -105,7 +140,55 @@ export function bucket(score: number | null): "weak" | "medium" | "good" | "unre
     return score < WEAK_BELOW ? "weak" : score < GOOD_FROM ? "medium" : "good";
 }
 
-export function auditPage(page: PageFacts, now = new Date()): SiteAudit {
+/** phone and WhatsApp links that cannot work: too few digits, letters in the number */
+export function badPhoneLinks(html: string): number {
+    let bad = 0;
+    for (const m of html.matchAll(/href\s*=\s*["']\s*tel:([^"']*)["']/gi)) {
+        let raw = m[1];
+        try {
+            raw = decodeURIComponent(raw);
+        } catch {
+            /* keep it as written */
+        }
+        raw = raw.trim();
+        const digits = raw.replace(/\D/g, "");
+        if (!/^[+\d\s().-]+$/.test(raw) || digits.length < 7 || digits.length > 15) bad++;
+    }
+    for (const m of html.matchAll(/href\s*=\s*["']\s*https?:\/\/wa\.me\/(\d*)/gi)) {
+        if (m[1].length < 8 || m[1].length > 15) bad++;
+    }
+    return bad;
+}
+
+/** same-site links worth opening to see whether they work (at most `max`; no anchors, files, mail or phone) */
+export function internalLinks(html: string, pageUrl: string, max = 6): string[] {
+    let base: URL;
+    try {
+        base = new URL(pageUrl);
+    } catch {
+        return [];
+    }
+    const bare = (h: string) => h.replace(/^www\./, "");
+    const out: string[] = [];
+    for (const m of html.matchAll(/<a\b[^>]*?href\s*=\s*["']([^"'#]+)["']/gi)) {
+        const href = m[1].trim();
+        if (/^(?:mailto:|tel:|javascript:|whatsapp:|data:)/i.test(href)) continue;
+        let u: URL;
+        try {
+            u = new URL(href, base);
+        } catch {
+            continue;
+        }
+        if (!/^https?:$/.test(u.protocol) || bare(u.hostname) !== bare(base.hostname)) continue;
+        if (u.pathname === "/" || u.pathname === base.pathname || /\.(?:pdf|jpe?g|png|gif|webp|svg|zip|docx?|xlsx?|mp4)$/i.test(u.pathname)) continue;
+        const key = `${u.origin}${u.pathname}`;
+        if (!out.includes(key)) out.push(key);
+        if (out.length >= max) break;
+    }
+    return out;
+}
+
+export function auditPage(page: PageFacts, extra: Extra = {}, now = new Date()): SiteAudit {
     const html = page.html;
     const head = html.slice(0, 60_000);
     const text = strip(html);
@@ -118,10 +201,27 @@ export function auditPage(page: PageFacts, now = new Date()): SiteAudit {
 
     if (/^http:/i.test(page.url)) issues.push("no_https");
     if (!/<meta[^>]+name=["']viewport["']/i.test(head)) issues.push("no_viewport");
-    if (page.ms > 4000) issues.push("slow");
-    const scripts = (html.match(/<script\b/gi) ?? []).length;
-    const images = (html.match(/<img\b/gi) ?? []).length;
-    if (page.bytes > 700_000 || scripts > 40 || images > 70) issues.push("heavy");
+    // a measured phone speed (PageSpeed) replaces our rough guesses about speed and weight
+    const m = extra.measured ?? null;
+    if (m) {
+        if (m.perf !== null && m.perf < 50) issues.push("slow_mobile");
+        if (m.lcpMs !== null && m.lcpMs > 4000) issues.push("poor_lcp");
+        if (m.seo !== null && m.seo < 80) issues.push("seo_low");
+    } else {
+        if (page.ms > 4000) issues.push("slow");
+        const scripts = (html.match(/<script\b/gi) ?? []).length;
+        const images = (html.match(/<img\b/gi) ?? []).length;
+        if (page.bytes > 700_000 || scripts > 40 || images > 70) issues.push("heavy");
+    }
+
+    // search basics and links, read from the page itself
+    if (/<meta[^>]+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(head) || /<meta[^>]+content=["'][^"']*noindex[^"']*["'][^>]*name=["']robots["']/i.test(head)) issues.push("noindex");
+    if (!/<script[^>]+type=["']application\/ld\+json["']/i.test(html)) issues.push("no_structured_data");
+    if (!/<html[^>]+\blang\s*=\s*["'][a-z]/i.test(head)) issues.push("no_lang");
+    if (badPhoneLinks(html) > 0) issues.push("bad_phone_link");
+    const links = extra.links ?? null;
+    if (links && links.broken > 0) issues.push("broken_links");
+    if (links && links.sitemap === false) issues.push("no_sitemap");
 
     const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(head)?.[1]?.replace(/\s+/g, " ").trim() ?? "";
     if (title.length < 10) issues.push("no_title");
@@ -163,6 +263,15 @@ export const ISSUE_LABEL: Record<IssueCode, string> = {
     no_contact_action: "بلا زر اتصال أو واتساب",
     thin_content: "محتوى قليل جدًا",
     no_alt: "صور بلا وصف",
+    slow_mobile: "بطيء جدًا على الجوال (قياس Google)",
+    poor_lcp: "المحتوى الرئيسي يظهر متأخرًا (أكثر من 4 ثوانٍ)",
+    seo_low: "ضعيف في أساسيات الظهور في Google",
+    noindex: "محجوب عن محركات البحث (noindex)",
+    no_structured_data: "بلا بيانات منظمة (Schema)",
+    no_lang: "لم تُحدد لغة الصفحة",
+    bad_phone_link: "رابط اتصال أو واتساب لا يعمل",
+    broken_links: "روابط داخلية معطلة (404)",
+    no_sitemap: "بلا خريطة موقع (sitemap)",
     social_only: "«موقعها» حساب سوشيال فقط",
     unreachable: "الموقع لا يفتح",
     unreadable: "يعتمد على جافاسكربت: تعذّر الحكم عليه",
