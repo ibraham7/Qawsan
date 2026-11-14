@@ -199,3 +199,41 @@ export async function fetchPage(raw: string, timeoutMs = 6000): Promise<Page | n
     }
     return null;
 }
+
+export type AuditFetch =
+    | { kind: "ok"; url: string; html: string; ms: number; bytes: number }
+    /** the domain does not exist or the page is gone (404 / 410) */
+    | { kind: "dead" }
+    /** blocked, timed out, not HTML...: we cannot tell anything about the site */
+    | { kind: "unreadable" };
+
+/** Like fetchPage, but also reports how long the server took and tells a dead site from one we could not read. */
+export async function fetchForAudit(raw: string, timeoutMs = 9000): Promise<AuditFetch> {
+    let url: URL;
+    try {
+        url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    } catch {
+        return { kind: "unreadable" };
+    }
+    const started = Date.now();
+    for (let hop = 0; hop < 4; hop++) {
+        if (!/^https?:$/.test(url.protocol) || url.username || url.password) return { kind: "unreadable" };
+        if (url.port && !["80", "443"].includes(url.port)) return { kind: "unreadable" };
+        const literal = url.hostname.replace(/^\[|\]$/g, "");
+        if (net.isIP(literal) && isPrivateAddress(literal)) return { kind: "unreadable" };
+        let r;
+        try {
+            r = await getOnce(url, timeoutMs);
+        } catch (e) {
+            return (e as NodeJS.ErrnoException).code === "ENOTFOUND" ? { kind: "dead" } : { kind: "unreadable" };
+        }
+        if (r.location && hop < 3) {
+            url = new URL(r.location, url);
+            continue;
+        }
+        if (r.status === 404 || r.status === 410) return { kind: "dead" };
+        if (r.status >= 200 && r.status < 300 && r.body) return { kind: "ok", url: url.toString(), html: r.body, ms: Date.now() - started, bytes: Buffer.byteLength(r.body) };
+        return { kind: "unreadable" };
+    }
+    return { kind: "unreadable" };
+}

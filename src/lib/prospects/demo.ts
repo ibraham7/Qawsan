@@ -37,6 +37,25 @@ const TITLES: Record<string, string[]> = {
     Intern: ["Marketing Intern"],
 };
 
+/** a spread of audit results so the website-quality filters can be tried in demo mode */
+function demoAudit(i: number): { site_score: number | null; site_issues: string[]; site_checked_at: string | null } {
+    const at = new Date(Date.UTC(2026, 10, 12)).toISOString();
+    switch (i % 6) {
+        case 0:
+            return { site_score: 34, site_issues: ["no_viewport", "no_https", "outdated", "no_booking"], site_checked_at: at };
+        case 1:
+            return { site_score: 52, site_issues: ["no_viewport", "no_booking", "no_description"], site_checked_at: at };
+        case 2:
+            return { site_score: 71, site_issues: ["slow", "no_booking"], site_checked_at: at };
+        case 3:
+            return { site_score: 92, site_issues: [], site_checked_at: at };
+        case 4:
+            return { site_score: null, site_issues: ["unreadable"], site_checked_at: at };
+        default:
+            return { site_score: null, site_issues: [], site_checked_at: null };
+    }
+}
+
 export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta: Meta } {
     const r = rng(7);
     const pick = <T,>(a: T[]) => a[Math.floor(r() * a.length)];
@@ -114,6 +133,7 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             whatsapp: r() < 0.3 ? `+90501${String(i + 1).padStart(6, "0")}` : "",
             enrich_status: i % 3 === 0 ? "done" : i % 7 === 0 ? "nothing_found" : "",
             enriched_at: i % 3 === 0 || i % 7 === 0 ? daysAgo(2) : null,
+            ...demoAudit(i),
             status: pick(["new", "new", "new", "review", "qualified", "not_fit", "approved", "contacted", "invalid"]),
             phone_kind: pick(["mobile", "mobile", "landline", ""]),
             notes: "",

@@ -7,6 +7,8 @@ import {
     CITY_OPTS,
     CONTACT_STAGES,
     CONTACT_DATA,
+    SITE_ISSUES,
+    SITE_QUALITY,
     COUNTRIES,
     DEPARTMENTS,
     EMPTY_IE,
@@ -174,6 +176,20 @@ export function FilterEditor({
                 <>
                     <Toggles options={CONTACT_DATA} value={f.contactData ?? []} onChange={(v) => set("contactData", v)} />
                     <Hint>تظهر الجهات التي تملك كل ما اخترته. الإيميل والواتساب يأتيان من زر «إثراء».</Hint>
+                </>
+            );
+        case "siteQuality":
+            return (
+                <>
+                    <Toggles options={SITE_QUALITY} value={f.siteQuality ?? []} onChange={(v) => set("siteQuality", v)} />
+                    <Hint>تظهر الجهات التي تنطبق عليها أي خانة تختارها. الدرجة تأتي من زر «فحص الموقع» في الشركات.</Hint>
+                </>
+            );
+        case "siteIssues":
+            return (
+                <>
+                    <Toggles options={SITE_ISSUES} value={f.siteIssues ?? []} onChange={(v) => set("siteIssues", v)} />
+                    <Hint>تظهر الجهات التي فيها أي عيب تختاره. مثال: «لا يدعم الجوال» لعرض تصميم موقع متجاوب.</Hint>
                 </>
             );
         case "googleRating":

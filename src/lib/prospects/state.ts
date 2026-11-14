@@ -3,6 +3,8 @@
 import {
     ACCOUNT_STAGES,
     CONTACT_DATA,
+    SITE_ISSUES,
+    SITE_QUALITY,
     CONTACT_STAGES,
     EMAIL_STATUS,
     STATUSES,
@@ -57,6 +59,8 @@ export const FILTERS: FilterMeta[] = [
     { key: "searches", label: "عملية البحث (Google)", group: "company", tabs: both },
     { key: "contactData", label: "بيانات التواصل", group: "company", tabs: both },
     { key: "googleRating", label: "تقييم Google", group: "company", tabs: both },
+    { key: "siteQuality", label: "جودة الموقع", group: "company", tabs: both },
+    { key: "siteIssues", label: "عيوب الموقع", group: "company", tabs: both },
     { key: "company", label: "الشركة", group: "company", tabs: both },
     { key: "hqLocation", label: "مقر الشركة", group: "company", tabs: both },
     { key: "employees", label: "عدد الموظفين", group: "company", tabs: both },
@@ -130,6 +134,8 @@ export function isActive(f: Filters, key: FilterKey): boolean {
         case "owner":
         case "exclusions":
         case "contactData":
+        case "siteQuality":
+        case "siteIssues":
         case "searches":
             return !!f[key]?.length;
         case "googleRating":
@@ -241,7 +247,7 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
     const c = clean(f, tab);
     const out: Chip[] = [];
     const L = (k: FilterKey) => metaFor(k, tab).label;
-    const arrayChips = (key: "emailStatus" | "phoneStatus" | "languages" | "owner" | "exclusions" | "contactData", opts: Opt[] = []) =>
+    const arrayChips = (key: "emailStatus" | "phoneStatus" | "languages" | "owner" | "exclusions" | "contactData" | "siteQuality" | "siteIssues", opts: Opt[] = []) =>
         (c[key] ?? []).forEach((v) =>
             out.push({ id: `${key}.${v}`, label: key === "exclusions" || key === "contactData" ? labelOf(opts, v) : `${L(key)}: ${labelOf(opts, v)}`, remove: (g) => set(g, key, without(g[key] ?? [], v)) })
         );
@@ -271,6 +277,8 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
         out.push({ id: `search.${id}`, label: `بحث: ${names.searches?.[id] ?? "Google"}`, remove: (g) => set(g, "searches", without(g.searches ?? [], id)) })
     );
     arrayChips("contactData", CONTACT_DATA);
+    arrayChips("siteQuality", SITE_QUALITY);
+    arrayChips("siteIssues", SITE_ISSUES);
     if (c.googleRating) out.push({ id: "googleRating", label: `${L("googleRating")}: ${fmtRange(c.googleRating, "★")}`, remove: (g) => set(g, "googleRating", undefined) });
     out.push(...incExcChips("company", L("company"), (g) => g.company, c, (g, x) => set(g, "company", x)));
     out.push(...locationChips("hqLocation", L("hqLocation"), c));

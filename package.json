@@ -15,7 +15,8 @@
     "test:filters": "node scripts/test-filters.ts",
     "check:filters-live": "node scripts/check-filters-live.ts",
     "test:sending": "node scripts/test-sending.ts",
-    "test:smtp": "node scripts/test-smtp.mjs"
+    "test:smtp": "node scripts/test-smtp.mjs",
+    "test:siteaudit": "node scripts/test-siteaudit.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
