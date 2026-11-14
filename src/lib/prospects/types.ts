@@ -69,6 +69,8 @@ export interface Filters {
     siteQuality?: string[];
     /** the website has any of these problems (see SITE_ISSUES) */
     siteIssues?: string[];
+    /** real mobile speed from Google PageSpeed, 0-100 */
+    sitePerf?: Range;
     /** found by these Google searches */
     searches?: string[];
 
@@ -149,6 +151,10 @@ export interface CompanyRow {
     site_score: number | null;
     site_issues: string[];
     site_checked_at: string | null;
+    site_perf: number | null;
+    site_seo: number | null;
+    site_a11y: number | null;
+    site_lcp_ms: number | null;
     status: string;
     phone_kind: string;
     notes: string;

@@ -38,21 +38,21 @@ const TITLES: Record<string, string[]> = {
 };
 
 /** a spread of audit results so the website-quality filters can be tried in demo mode */
-function demoAudit(i: number): { site_score: number | null; site_issues: string[]; site_checked_at: string | null } {
+function demoAudit(i: number): Pick<CompanyRow, "site_score" | "site_issues" | "site_checked_at" | "site_perf" | "site_seo" | "site_a11y" | "site_lcp_ms"> {
     const at = new Date(Date.UTC(2026, 10, 12)).toISOString();
     switch (i % 6) {
         case 0:
-            return { site_score: 34, site_issues: ["no_viewport", "no_https", "outdated", "no_booking"], site_checked_at: at };
+            return { site_score: 34, site_issues: ["no_viewport", "no_https", "outdated", "no_booking"], site_checked_at: at, site_perf: 22, site_seo: 61, site_a11y: 70, site_lcp_ms: 6400 };
         case 1:
-            return { site_score: 52, site_issues: ["no_viewport", "no_booking", "no_description"], site_checked_at: at };
+            return { site_score: 52, site_issues: ["no_viewport", "no_booking", "no_description"], site_checked_at: at, site_perf: 41, site_seo: 74, site_a11y: 80, site_lcp_ms: 4800 };
         case 2:
-            return { site_score: 71, site_issues: ["slow", "no_booking"], site_checked_at: at };
+            return { site_score: 71, site_issues: ["slow_mobile", "no_booking"], site_checked_at: at, site_perf: 47, site_seo: 90, site_a11y: 88, site_lcp_ms: 3900 };
         case 3:
-            return { site_score: 92, site_issues: [], site_checked_at: at };
+            return { site_score: 92, site_issues: [], site_checked_at: at, site_perf: 91, site_seo: 96, site_a11y: 94, site_lcp_ms: 1700 };
         case 4:
-            return { site_score: null, site_issues: ["unreadable"], site_checked_at: at };
+            return { site_score: null, site_issues: ["unreadable"], site_checked_at: at, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null };
         default:
-            return { site_score: null, site_issues: [], site_checked_at: null };
+            return { site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null };
     }
 }
 

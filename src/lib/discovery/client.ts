@@ -27,8 +27,10 @@ export interface EnrichOutcome {
 }
 
 export interface AuditOutcome {
-    results: { id: string; quality: "weak" | "medium" | "good" | "unreadable" | "no_website"; score: number | null }[];
+    results: { id: string; quality: "weak" | "medium" | "good" | "unreadable" | "no_website"; score: number | null; speed: "ok" | "quota" | "blocked" | "failed" | "off" }[];
     pending: string[];
+    /** false when no Google key is set for PageSpeed */
+    speedConfigured: boolean;
 }
 
 async function call<T>(path: string, payload?: unknown): Promise<T> {

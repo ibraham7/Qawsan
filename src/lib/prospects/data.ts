@@ -342,7 +342,7 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         },
         async addCompany(c) {
             const base = data.companies[0];
-            data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null });
+            data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null });
         },
         async removeCompanies(ids) {
             data.companies.splice(0, data.companies.length, ...data.companies.filter((c) => !ids.includes(c.id)));
