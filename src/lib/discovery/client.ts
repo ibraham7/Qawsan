@@ -22,7 +22,7 @@ export interface SearchOutcome {
 }
 
 export interface EnrichOutcome {
-    results: { id: string; status: "done" | "nothing_found" | "no_website" | "failed"; emails: number; socials: number; whatsapp: boolean }[];
+    results: { id: string; status: "done" | "socials_only" | "nothing_found" | "no_website" | "failed"; emails: number; socials: number; whatsapp: boolean }[];
     pending: string[];
 }
 

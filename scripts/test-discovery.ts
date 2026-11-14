@@ -2,7 +2,7 @@
 // Run: node scripts/test-discovery.ts
 import assert from "node:assert/strict";
 
-import { extractContacts, isPrivateAddress, merge } from "../src/lib/discovery/extract.ts";
+import { dialFor, extractContacts, isPrivateAddress, merge, toIntlMobile } from "../src/lib/discovery/extract.ts";
 import { FIELD_MASK, phoneKind, requestBody, textQuery, toCompany, validateInput } from "../src/lib/discovery/places.ts";
 import type { GooglePlace, SearchInput } from "../src/lib/discovery/places.ts";
 import { CITIES } from "../src/lib/prospects/options.ts";
@@ -82,7 +82,7 @@ it("contact extraction from html", () => {
     assert.equal(r.socials.instagram, "https://instagram.com/clinic.demo");
     assert.equal(r.whatsapp, "+966500000000");
     assert.deepEqual(r.contactLinks, ["https://clinic-demo.example/ar/contact-us"]);
-    const m = merge(r, { emails: ["x@clinic-demo.example"], socials: { linkedin: "l" }, whatsapp: "", contactLinks: [] });
+    const m = merge(r, { emails: ["x@clinic-demo.example"], socials: { linkedin: "l" }, whatsapp: "", contactLinks: [], followLinks: [] });
     assert.equal(m.emails.length, 3);
     assert.equal(m.socials.linkedin, "l");
 });
@@ -111,10 +111,36 @@ it("WhatsApp: no number is invented", () => {
     // the mention is far away from the number
     const far = `<p>Chat with us on WhatsApp</p>${"<div>x</div>".repeat(200)}<script>var tel='966543469969';</script>`;
     assert.equal(extractContacts(far, base).whatsapp, "");
-    // plain digits in text, not a quoted string
-    assert.equal(extractContacts(`<p>WhatsApp: 966543469969</p>`, base).whatsapp, "");
+    // plain digits in text right after the word are now read (see the "next to the word" check)
+    assert.equal(extractContacts(`<p>WhatsApp: 966543469969</p>`, base).whatsapp, "+966543469969");
     // a quoted number that is too short or not from a country we work with
     assert.equal(extractContacts(`<script>var a='9661234'; var b='15551234567'; // whatsapp</script>`, base).whatsapp, "");
+});
+
+it("WhatsApp: a number written in the page text next to the word", () => {
+    const base = "https://clinic-demo.example/";
+    assert.equal(extractContacts("<p>للتواصل عبر واتساب: 0501234567</p>", base, "966").whatsapp, "+966501234567");
+    assert.equal(extractContacts("<div>WhatsApp <b>+966 50 123 4567</b></div>", base).whatsapp, "+966501234567");
+    assert.equal(extractContacts("<p>واتساب 00966501234567</p>", base).whatsapp, "+966501234567");
+    assert.equal(extractContacts("<p>Tel 011 123 4567 | WhatsApp 0551112233</p>", base, "966").whatsapp, "+966551112233");
+    assert.equal(extractContacts("<p>WhatsApp: 0532 111 22 33</p>", base, "90").whatsapp, "+905321112233");
+    // a landline next to the word is not a WhatsApp number; no country means no guessing at local numbers
+    assert.equal(extractContacts("<p>واتساب 0111234567</p>", base, "966").whatsapp, "");
+    assert.equal(extractContacts("<p>واتساب 0501234567</p>", base).whatsapp, "");
+    // a mobile number with no WhatsApp word near it is not claimed
+    assert.equal(extractContacts("<p>اتصل بنا 0501234567</p>", base, "966").whatsapp, "");
+});
+
+it("short WhatsApp links and link-in-bio pages are queued; mobile number normalising", () => {
+    const r = extractContacts('<a href="https://wa.link/abc123">chat</a> <a href="https://linktr.ee/clinic">links</a> <a href="https://x.example/y">z</a>', "https://clinic-demo.example/");
+    assert.deepEqual(r.followLinks, ["https://wa.link/abc123", "https://linktr.ee/clinic"]);
+    assert.equal(toIntlMobile("05 0123 4567", "966"), "+966501234567");
+    assert.equal(toIntlMobile("0501234567", "971"), "+971501234567");
+    assert.equal(toIntlMobile("966501234567"), "+966501234567");
+    assert.equal(toIntlMobile("0123456789", "966"), "");
+    assert.equal(dialFor("Saudi Arabia"), "966");
+    assert.equal(dialFor("Türkiye"), "90");
+    assert.equal(dialFor("Nowhere"), "");
 });
 
 it("internal addresses are refused", () => {
