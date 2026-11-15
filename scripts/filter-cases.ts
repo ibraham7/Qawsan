@@ -140,6 +140,11 @@ export const cases: Case[] = [
     { name: "people: company name", tab: "people", filters: { company: { inc: ["Company 02"], exc: [] } }, want: (r) => !!co(r) && has(co(r)!.name, "Company 02") },
     { name: "people: company contactData", tab: "people", filters: { contactData: ["website"] }, want: (r) => !!co(r) && co(r)!.website !== "" },
     { name: "people: company intent", tab: "people", filters: { intent: { topics: ["CRM"], levels: ["high"] } }, want: (r) => !!co(r) && co(r)!.intent_topics.includes("CRM") && co(r)!.intent_level === "high" },
+    // the archive
+    { name: "archive: hidden by default", tab: "companies", filters: {}, want: (r) => !C(r).archived },
+    { name: "archive: only archived", tab: "companies", filters: { showArchived: "only" }, want: (r) => C(r).archived },
+    { name: "archive: all", tab: "companies", filters: { showArchived: "all", siteQuality: ["weak"] }, want: (r) => C(r).site_score !== null && C(r).site_score < 60 },
+    { name: "archive: another filter keeps hiding it", tab: "companies", filters: { siteQuality: ["weak"] }, want: (r) => !C(r).archived && C(r).site_score !== null && C(r).site_score < 60 },
     // website audit
     { name: "siteQuality weak", tab: "companies", filters: { siteQuality: ["weak"] }, want: (r) => C(r).site_score !== null && C(r).site_score < 60 },
     { name: "siteQuality medium", tab: "companies", filters: { siteQuality: ["medium"] }, want: (r) => C(r).site_score !== null && C(r).site_score >= 60 && C(r).site_score < 80 },

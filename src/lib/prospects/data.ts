@@ -108,6 +108,8 @@ export interface Backend {
     savedCreate(name: string, kind: SavedSearch["kind"], filters: Filters): Promise<void>;
     savedRemove(id: string): Promise<void>;
     setStatus(ids: string[], status: string): Promise<void>;
+    /** put companies in the archive (hidden, not deleted) or take them out */
+    setArchived(ids: string[], archived: boolean): Promise<void>;
     addCompany(c: NewCompany): Promise<void>;
     /** what is already saved (domains, phone digits, emails), to skip duplicates when importing */
     existingKeys(): Promise<Existing>;
@@ -222,6 +224,10 @@ export const supabaseBackend: Backend = {
         const { error } = await supabase.from(T.companies).update({ status }).in("id", ids);
         fail(error);
     },
+    async setArchived(ids, archived) {
+        const { error } = await supabase.from(T.companies).update({ archived }).in("id", ids);
+        fail(error);
+    },
     async addCompany(c) {
         const { error } = await supabase.from(T.companies).insert(companyRow(c));
         fail(error);
@@ -268,7 +274,7 @@ export const supabaseBackend: Backend = {
         fail(error);
     },
     async approvedCompanies() {
-        const { data, error } = await supabase.from(T.companies).select("*").in("status", ["approved", "contacted", "replied", "unsubscribed"]).order("created_at", { ascending: false }).limit(2000);
+        const { data, error } = await supabase.from(T.companies).select("*").in("status", ["approved", "contacted", "replied", "unsubscribed"]).eq("archived", false).order("created_at", { ascending: false }).limit(2000);
         fail(error);
         return (data ?? []) as CompanyRow[];
     },
@@ -424,9 +430,12 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async setStatus(ids, status) {
             data.companies.forEach((c) => ids.includes(c.id) && (c.status = status));
         },
+        async setArchived(ids, archived) {
+            data.companies.forEach((c) => ids.includes(c.id) && (c.archived = archived));
+        },
         async addCompany(c) {
             const base = data.companies[0];
-            data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null });
+            data.companies.unshift({ ...base, ...companyRow(c), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null, archived: false });
         },
         async existingKeys() {
             const out: Existing = { domains: new Set(), phones: new Set(), emails: new Set() };
@@ -436,7 +445,7 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         async importCompanies(rows) {
             for (const r of rows) {
                 const base = data.companies[0];
-                data.companies.unshift({ ...base, ...companyRow(r, "csv"), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null, lead_score: null });
+                data.companies.unshift({ ...base, ...companyRow(r, "csv"), id: crypto.randomUUID(), created_at: new Date().toISOString(), address: "", google_maps_url: "", rating: null, rating_count: null, technologies: [], socials: {}, whatsapp: "", search_id: null, enrich_status: "", enriched_at: null, site_score: null, site_issues: [], site_checked_at: null, site_perf: null, site_seo: null, site_a11y: null, site_lcp_ms: null, lead_score: null, archived: false });
             }
             return rows.length;
         },
@@ -455,7 +464,7 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
             blocked = blocked.filter((b) => b.id !== id);
         },
         async approvedCompanies() {
-            return data.companies.filter((c) => ["approved", "contacted", "replied", "unsubscribed"].includes(c.status));
+            return data.companies.filter((c) => ["approved", "contacted", "replied", "unsubscribed"].includes(c.status) && !c.archived);
         },
         async campaigns(channel) {
             return campaigns.filter((c) => !channel || c.channel === channel).map((c) => {

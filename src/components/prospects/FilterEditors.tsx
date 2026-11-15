@@ -185,6 +185,22 @@ export function FilterEditor({
                     <Hint>تظهر الجهات التي تنطبق عليها أي خانة تختارها. الدرجة تأتي من زر «فحص الموقع» في الشركات.</Hint>
                 </>
             );
+        case "showArchived":
+            return (
+                <>
+                    <Select
+                        label="الأرشيف"
+                        value={f.showArchived}
+                        onChange={(v) => set("showArchived", v as "only" | "all" | undefined)}
+                        options={[
+                            { value: "only", label: "المؤرشفة فقط" },
+                            { value: "all", label: "الكل (المؤرشفة وغيرها)" },
+                        ]}
+                        none="إخفاء المؤرشفة (الافتراضي)"
+                    />
+                    <Hint>المؤرشفة مخفية من القوائم ومن الحملات الجديدة، ولا تُحذف. من «المؤرشفة فقط» تستطيع إعادتها.</Hint>
+                </>
+            );
         case "sitePerf":
             return (
                 <>

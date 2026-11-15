@@ -41,6 +41,7 @@ export interface FilterMeta {
 
 const both: Tab[] = ["people", "companies"];
 const people: Tab[] = ["people"];
+const companies: Tab[] = ["companies"];
 
 export const FILTERS: FilterMeta[] = [
     { key: "titles", label: "المسمى الوظيفي", group: "person", tabs: people },
@@ -62,6 +63,7 @@ export const FILTERS: FilterMeta[] = [
     { key: "siteQuality", label: "جودة الموقع", group: "company", tabs: both },
     { key: "siteIssues", label: "عيوب الموقع", group: "company", tabs: both },
     { key: "sitePerf", label: "سرعة الموقع على الجوال", group: "company", tabs: both },
+    { key: "showArchived", label: "الأرشيف", group: "company", tabs: companies },
     { key: "company", label: "الشركة", group: "company", tabs: both },
     { key: "hqLocation", label: "مقر الشركة", group: "company", tabs: both },
     { key: "employees", label: "عدد الموظفين", group: "company", tabs: both },
@@ -143,6 +145,8 @@ export function isActive(f: Filters, key: FilterKey): boolean {
             return rg(f.googleRating);
         case "sitePerf":
             return rg(f.sitePerf);
+        case "showArchived":
+            return !!f.showArchived;
         case "roleTenure":
         case "experience":
         case "founded":
@@ -282,6 +286,7 @@ export function chips(f: Filters, tab: Tab, names: { lists: Record<string, strin
     arrayChips("contactData", CONTACT_DATA);
     arrayChips("siteQuality", SITE_QUALITY);
     arrayChips("siteIssues", SITE_ISSUES);
+    if (c.showArchived) out.push({ id: "showArchived", label: c.showArchived === "only" ? "الأرشيف: المؤرشفة فقط" : "الأرشيف: الكل", remove: (g) => set(g, "showArchived", undefined) });
     if (c.sitePerf) out.push({ id: "sitePerf", label: `${L("sitePerf")}: ${fmtRange(c.sitePerf)}`, remove: (g) => set(g, "sitePerf", undefined) });
     if (c.googleRating) out.push({ id: "googleRating", label: `${L("googleRating")}: ${fmtRange(c.googleRating, "★")}`, remove: (g) => set(g, "googleRating", undefined) });
     out.push(...incExcChips("company", L("company"), (g) => g.company, c, (g, x) => set(g, "company", x)));

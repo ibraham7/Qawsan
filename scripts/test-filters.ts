@@ -35,7 +35,9 @@ for (const c of cases) {
 
     const compiled = compile(c.tab, filters, ctx);
     const got = rows.filter((r) => matches(compiled, r as unknown as Record<string, unknown>)).map((r) => r.id).sort();
-    const exp = rows.filter(want).map((r) => r.id).sort();
+    // the archive is hidden by default on the companies tab (the cases name the other filters only)
+    const archiveOk = (r: CompanyRow | PersonRow) => c.tab !== "companies" || (filters.showArchived === "only" ? (r as CompanyRow).archived : filters.showArchived === "all" ? true : !(r as CompanyRow).archived);
+    const exp = rows.filter((r) => want(r) && archiveOk(r)).map((r) => r.id).sort();
     try {
         assert.deepEqual(got, exp);
         if (c.empty) assert.equal(got.length, 0, "expected no rows");
