@@ -21,6 +21,10 @@ import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import FollowUps from "./FollowUps";
+import QuickReplies from "./QuickReplies";
+import type { ReplyTarget } from "./QuickReplies";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import { mainIssue } from "../../lib/prospects/campaigns";
 import type { Campaign } from "../../lib/prospects/campaigns";
 import type { Backend } from "../../lib/prospects/data";
 import { statusOf } from "../../lib/prospects/options";
@@ -47,6 +51,8 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
     const [channel, setChannel] = useState<Channel>("all");
     const [error, setError] = useState("");
     const [busy, setBusy] = useState<string | null>(null);
+    // ready replies: open, and for which company (null = copy only)
+    const [replies, setReplies] = useState<{ target: ReplyTarget | null } | null>(null);
 
     const load = useCallback(() => {
         backend.campaigns().then(setList, (e: Error) => setError(e.message));
@@ -173,7 +179,13 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                 <Typography component="h3" sx={{ m: 0, fontSize: 17, fontWeight: 700, mb: 0.5 }}>
                     للمتابعة
                 </Typography>
-                <Typography sx={{ fontSize: 13, color: "text.secondary", mb: 1.5 }}>جهات ردّت على رسالتك. حدّد من هو مهتم ومن لا.</Typography>
+                <Typography sx={{ fontSize: 13, color: "text.secondary", mb: 1.5 }}>
+                    جهات ردّت على رسالتك. حدّد من هو مهتم ومن لا.{" "}
+                    <Button size="small" startIcon={<ChatBubbleOutlineRoundedIcon />} onClick={() => setReplies({ target: null })}>
+                        ردود جاهزة
+                    </Button>
+                </Typography>
+                <QuickReplies open={!!replies} onClose={() => setReplies(null)} target={replies?.target} />
                 {leads === null ? (
                     <LinearProgress />
                 ) : leads.length === 0 ? (
@@ -219,6 +231,13 @@ export default function ReportsTab({ backend, onStatusChanged }: { backend: Back
                                                     <Chip size="small" label={st.label} color={st.color} variant={st.color === "default" ? "outlined" : "filled"} sx={{ fontWeight: 700 }} />
                                                 </TableCell>
                                                 <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                    <Button
+                                                        size="small"
+                                                        disabled={busy === c.id}
+                                                        onClick={() => setReplies({ target: { name: c.name, phone: wa || undefined, email: c.emails[0] || undefined, issue: mainIssue(c.site_issues ?? []) || undefined } })}
+                                                    >
+                                                        رد جاهز
+                                                    </Button>{" "}
                                                     <Button size="small" variant="contained" disabled={busy === c.id || c.status === "interested"} onClick={() => decide(c, "interested")}>
                                                         مهتم
                                                     </Button>{" "}

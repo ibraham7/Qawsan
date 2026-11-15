@@ -28,6 +28,7 @@ import {
     Typography,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -57,6 +58,8 @@ import type { Campaign, Recipient } from "../../lib/prospects/campaigns";
 import { PRESETS, SAVED_KEY, defaultPreset, parseSaved, withSaved } from "../../lib/prospects/templates";
 import type { SavedTemplate } from "../../lib/prospects/templates";
 import type { Backend } from "../../lib/prospects/data";
+import QuickReplies from "./QuickReplies";
+import type { ReplyTarget } from "./QuickReplies";
 import type { CompanyRow } from "../../lib/prospects/types";
 
 const CAMPAIGN_LABEL: Record<Campaign["status"], { text: string; color: "success" | "warning" | "default" }> = {
@@ -375,6 +378,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const [error, setError] = useState("");
     // the recipient whose chat was just opened: waiting for "sent" / "skip"
     const [opened, setOpened] = useState<string | null>(null);
+    // ready replies: open, and for which recipient (null = copy only)
+    const [replies, setReplies] = useState<{ target: ReplyTarget | null } | null>(null);
     // automatic sending over SMTP (email campaigns only, when the mailbox is set in Vercel)
     const [mailLive, setMailLive] = useState<MailStatus | null>(null);
     const [auto, setAuto] = useState(false);
@@ -515,6 +520,9 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                     {campaign.name}
                 </Typography>
                 <Chip size="small" label={CAMPAIGN_LABEL[campaign.status].text} color={CAMPAIGN_LABEL[campaign.status].color} />
+                <Button size="small" variant="outlined" startIcon={<ChatBubbleOutlineRoundedIcon />} onClick={() => setReplies({ target: null })}>
+                    ردود جاهزة
+                </Button>
                 <Box sx={{ flex: 1 }} />
                 <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
                     اليوم: <b dir="ltr">{today}</b> / <b dir="ltr">{campaign.daily_limit}</b>
@@ -610,6 +618,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                 <LinearProgress />
             )}
 
+            <QuickReplies open={!!replies} onClose={() => setReplies(null)} target={replies?.target} />
+
             <Box sx={{ borderRadius: "16px", border: "1px solid", borderColor: "divider", overflow: "hidden", bgcolor: "background.paper" }}>
                 <Box sx={{ overflowX: "auto" }}>
                     <Table size="small" sx={{ minWidth: 620 }}>
@@ -646,6 +656,14 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                                     <TableCell sx={{ whiteSpace: "nowrap" }}>
                                         {(r.status === "sent" || r.status === "replied") && (
                                             <>
+                                                <Tooltip title="ردود جاهزة لهذه الجهة">
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => setReplies({ target: { name: r.name, phone: r.phone || undefined, email: r.email || undefined, issue: r.issue || undefined, subject: `Re: ${subjectFor(r)}` } })}
+                                                    >
+                                                        رد جاهز
+                                                    </Button>
+                                                </Tooltip>
                                                 <Button size="small" onClick={() => mark(r, "replied")} disabled={r.status === "replied"}>
                                                     ردّ
                                                 </Button>
