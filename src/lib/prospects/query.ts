@@ -269,6 +269,11 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
     if (f.siteIssues?.length) out.push({ f: P + "site_issues", op: "ov", v: f.siteIssues });
     range(P + "site_perf", f.sitePerf, out);
     incExc(P + "status", f.status, out);
+    // the archive: archived companies stay out of the list unless asked for (companies tab only)
+    if (tab === "companies") {
+        if (f.showArchived === "only") out.push({ f: "archived", op: "eq", v: true });
+        else if (f.showArchived !== "all") out.push({ f: "archived", op: "eq", v: false });
+    }
     // free text: on the people tab it searches the person's own fields (so it must not require a
     // company), on the companies tab the company's
     const textSearch = (): Cond | null => {

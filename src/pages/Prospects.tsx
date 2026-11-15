@@ -32,6 +32,8 @@ import UploadFileRoundedIcon from "@mui/icons-material/UploadFileRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import SiteReport from "../components/prospects/SiteReport";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+import UnarchiveRoundedIcon from "@mui/icons-material/UnarchiveRounded";
 import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -557,6 +559,21 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             )}
                             <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || auditing || busy}>
                                 تغيير الحالة
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                startIcon={filters.showArchived === "only" ? <UnarchiveRoundedIcon /> : <ArchiveRoundedIcon />}
+                                disabled={enriching || auditing || busy}
+                                onClick={() => {
+                                    const ids = [...selected];
+                                    const restore = filters.showArchived === "only";
+                                    run(async () => {
+                                        await backend.setArchived(ids, !restore);
+                                        setSelected(new Set());
+                                    }, restore ? `أُعيدت ${ids.length} جهة من الأرشيف` : `أُرشفت ${ids.length} جهة (تجدها في فلتر «الأرشيف»)`);
+                                }}
+                            >
+                                {filters.showArchived === "only" ? "إلغاء الأرشفة" : "أرشفة"}
                             </Button>
                             <Button color="error" startIcon={<DeleteOutlineRoundedIcon />} onClick={() => setDeleting(true)} disabled={enriching || auditing || busy}>
                                 حذف نهائي

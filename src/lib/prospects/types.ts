@@ -71,6 +71,8 @@ export interface Filters {
     siteIssues?: string[];
     /** real mobile speed from Google PageSpeed, 0-100 */
     sitePerf?: Range;
+    /** archived companies: hidden by default; "only" shows just them, "all" shows everything */
+    showArchived?: "only" | "all";
     /** found by these Google searches */
     searches?: string[];
 
@@ -155,6 +157,7 @@ export interface CompanyRow {
     site_seo: number | null;
     site_a11y: number | null;
     site_lcp_ms: number | null;
+    archived: boolean;
     status: string;
     phone_kind: string;
     notes: string;

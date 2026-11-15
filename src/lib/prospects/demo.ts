@@ -135,6 +135,7 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
             enrich_status: i % 3 === 0 ? "done" : i % 7 === 0 ? "nothing_found" : "",
             enriched_at: i % 3 === 0 || i % 7 === 0 ? daysAgo(2) : null,
             ...demoAudit(i),
+            archived: i % 25 === 0,
             status: pick(["new", "new", "new", "review", "qualified", "not_fit", "approved", "contacted", "invalid"]),
             phone_kind: pick(["mobile", "mobile", "landline", ""]),
             notes: "",
