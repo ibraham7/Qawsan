@@ -86,8 +86,18 @@ it("company filters drop people with no company (inner join)", () => {
 
 it("lookalike without a known company only warns", () => {
     const c = compile("companies", { lookalike: "nowhere.example" }, { now, lookalike: null });
-    assert.equal(c.conds.length, 0);
+    // the only condition is the default "archived companies are hidden"
+    assert.deepEqual(c.conds, [{ f: "archived", op: "eq", v: false }]);
     assert.equal(c.warnings.length, 1);
+});
+
+it("the archive: hidden by default, shown on request, companies tab only", () => {
+    assert.deepEqual(compile("companies", {}, { now }).conds, [{ f: "archived", op: "eq", v: false }]);
+    assert.deepEqual(compile("companies", { showArchived: "only" }, { now }).conds, [{ f: "archived", op: "eq", v: true }]);
+    assert.deepEqual(compile("companies", { showArchived: "all" }, { now }).conds, []);
+    // people are not filtered by it, whatever is set
+    assert.deepEqual(compile("people", {}, { now }).conds, []);
+    assert.deepEqual(compile("people", { showArchived: "only" }, { now }).conds, []);
 });
 
 it("an included list with no items can never match", () => {
