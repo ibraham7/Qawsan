@@ -175,6 +175,14 @@ export const SEQUENCE_MODES: Opt[] = [
     { value: "not_in", label: "غير موجود في الحملات المحددة" },
 ];
 
+/** how far a company was processed */
+export const PROCESSING: Opt[] = [
+    { value: "enriched", label: "مُثراة" },
+    { value: "not_enriched", label: "لم تُثرَ بعد" },
+    { value: "audited", label: "فُحص موقعها" },
+    { value: "not_audited", label: "لم يُفحص موقعها (لها موقع)" },
+];
+
 /** website audit buckets (scores below 60 are weak, 80 and above good) */
 export const SITE_QUALITY: Opt[] = [
     { value: "weak", label: "ضعيف (أقل من 60)" },

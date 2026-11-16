@@ -7,6 +7,7 @@ import {
     CITY_OPTS,
     CONTACT_STAGES,
     CONTACT_DATA,
+    PROCESSING,
     SITE_ISSUES,
     SITE_QUALITY,
     COUNTRIES,
@@ -183,6 +184,13 @@ export function FilterEditor({
                 <>
                     <Toggles options={SITE_QUALITY} value={f.siteQuality ?? []} onChange={(v) => set("siteQuality", v)} />
                     <Hint>تظهر الجهات التي تنطبق عليها أي خانة تختارها. الدرجة تأتي من زر «فحص الموقع» في الشركات.</Hint>
+                </>
+            );
+        case "processing":
+            return (
+                <>
+                    <Toggles options={PROCESSING} value={f.processing ?? []} onChange={(v) => set("processing", v)} />
+                    <Hint>تظهر الجهات التي تنطبق عليها كل خانة تختارها. مثال: «مُثراة» مع «لم يُفحص موقعها» لتعرف ما بقي لفحصه.</Hint>
                 </>
             );
         case "showArchived":
