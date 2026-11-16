@@ -71,6 +71,8 @@ export interface Filters {
     siteIssues?: string[];
     /** real mobile speed from Google PageSpeed, 0-100 */
     sitePerf?: Range;
+    /** how far a company was processed: enriched / not, website audited / not (all chosen must hold) */
+    processing?: string[];
     /** archived companies: hidden by default; "only" shows just them, "all" shows everything */
     showArchived?: "only" | "all";
     /** found by these Google searches */

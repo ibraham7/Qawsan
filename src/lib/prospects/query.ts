@@ -270,6 +270,12 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
     if (f.siteIssues?.length) out.push({ f: P + "site_issues", op: "ov", v: f.siteIssues });
     range(P + "site_perf", f.sitePerf, out);
     incExc(P + "status", f.status, out);
+    for (const k of f.processing ?? []) {
+        if (k === "enriched") out.push({ f: P + "enriched_at", op: "notnull" });
+        else if (k === "not_enriched") out.push({ f: P + "enriched_at", op: "null" });
+        else if (k === "audited") out.push({ f: P + "site_checked_at", op: "notnull" });
+        else if (k === "not_audited") out.push({ and: [{ f: P + "site_checked_at", op: "null" }, { f: P + "website", op: "filled" }] });
+    }
     // the archive: archived companies stay out of the list unless asked for (companies tab only)
     if (tab === "companies") {
         if (f.showArchived === "only") out.push({ f: "archived", op: "eq", v: true });

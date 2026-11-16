@@ -7,6 +7,7 @@ import {
     Alert,
     Box,
     Button,
+    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -35,6 +36,7 @@ import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import { siteList } from "../lib/prospects/export";
+import { NEXT_STEP, VIEWS, applyView, viewOf } from "../lib/prospects/views";
 import UnarchiveRoundedIcon from "@mui/icons-material/UnarchiveRounded";
 import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
@@ -61,7 +63,7 @@ import { runAudit, runEnrich } from "../lib/discovery/client";
 import type { AuditOutcome, EnrichOutcome, SearchOutcome } from "../lib/discovery/client";
 import { supabaseBackend } from "../lib/prospects/data";
 import type { Backend, Meta, Sort, Suppression } from "../lib/prospects/data";
-import { PRESETS, STATUSES } from "../lib/prospects/options";
+import { PRESETS, PROCESSING, STATUSES, statusOf } from "../lib/prospects/options";
 import { activeCount, chips, clean, decodeState, encodeState, pickPersona } from "../lib/prospects/state";
 import type { UrlState } from "../lib/prospects/state";
 import type { CompanyRow, Filters, PersonRow, SavedSearch, Tab } from "../lib/prospects/types";
@@ -100,7 +102,8 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [drawer, setDrawer] = useState(false);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
-    const [sort, setSort] = useState<Sort>("newest");
+    // the most worth-contacting first (priority); "newest" after adding companies so they are seen
+    const [sort, setSort] = useState<Sort>("score");
     // results remember their tab so a tab switch never renders people rows as companies
     const [result, setResult] = useState<{ tab: Tab; rows: (PersonRow | CompanyRow)[]; count: number; warnings: string[] }>({ tab: "people", rows: [], count: 0, warnings: [] });
     // key of the last search that finished; loading = the current search has not
@@ -188,6 +191,22 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
         }, 300);
         return () => clearTimeout(t);
     }, [backend, tab, filterKey, page, size, sort, reload, searchKey]);
+
+    // how many companies each view holds under the other filters in force
+    const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+    useEffect(() => {
+        if (tab !== "companies") return;
+        let live = true;
+        const base = JSON.parse(filterKey) as Filters;
+        Promise.all(VIEWS.map((v) => backend.search("companies", applyView(base, v.id), 0, 1, "newest").then((r) => [v.id, r.count] as const))).then(
+            (pairs) => live && setViewCounts(Object.fromEntries(pairs)),
+            () => {}
+        );
+        return () => {
+            live = false;
+        };
+    }, [backend, tab, filterKey, reload]);
+    const view = viewOf(filters);
 
     /* ---- actions ---- */
     const setFilters = (f: Filters) => {
@@ -534,6 +553,43 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                         </Tooltip>
                     </Box>
 
+                    {tab === "companies" && (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <Box role="tablist" aria-label="مراحل الجهات" sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                                {VIEWS.map((v) => (
+                                    <Chip
+                                        key={v.id}
+                                        role="tab"
+                                        aria-selected={view === v.id}
+                                        label={`${v.label}${viewCounts[v.id] === undefined ? "" : ` (${viewCounts[v.id]})`}`}
+                                        color={view === v.id ? "primary" : "default"}
+                                        variant={view === v.id ? "filled" : "outlined"}
+                                        onClick={() => {
+                                            setSelected(new Set());
+                                            setFilters(applyView(filters, v.id));
+                                        }}
+                                        sx={{ fontWeight: 700 }}
+                                    />
+                                ))}
+                            </Box>
+                            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+                                <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>المعالجة:</Typography>
+                                {PROCESSING.map((p) => {
+                                    const on = (filters.processing ?? []).includes(p.value);
+                                    return (
+                                        <Chip
+                                            key={p.value}
+                                            size="small"
+                                            label={p.label}
+                                            color={on ? "primary" : "default"}
+                                            variant={on ? "filled" : "outlined"}
+                                            onClick={() => setFilters({ ...filters, processing: on ? (filters.processing ?? []).filter((x) => x !== p.value) : [...(filters.processing ?? []), p.value] })}
+                                        />
+                                    );
+                                })}
+                            </Box>
+                        </Box>
+                    )}
                     <ActiveChips chips={activeChips} filters={filters} onChange={setFilters} onClearAll={clearAll} />
 
                     {tab === "companies" && selected.size > 0 && (
@@ -562,6 +618,23 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || auditing || busy}>
                                 تغيير الحالة
                             </Button>
+                            {NEXT_STEP[view] && (
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    disabled={enriching || auditing || busy}
+                                    onClick={() => {
+                                        const ids = [...selected];
+                                        const step = NEXT_STEP[view];
+                                        run(async () => {
+                                            await backend.setStatus(ids, step.status);
+                                            setSelected(new Set());
+                                        }, `${step.label}: انتقلت ${ids.length} جهة إلى صفحتها (${statusOf(step.status).label})`);
+                                    }}
+                                >
+                                    {NEXT_STEP[view].label} ({selected.size})
+                                </Button>
+                            )}
                             <Button
                                 variant="outlined"
                                 startIcon={<ContentCopyRoundedIcon />}
