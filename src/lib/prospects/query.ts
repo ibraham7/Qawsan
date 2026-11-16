@@ -252,6 +252,7 @@ export function compile(tab: Tab, f: Filters, ctx: Context): Compiled {
     const CONTACT_COL: Record<string, string> = { website: "website", phone: "phone", email: "emails", whatsapp: "whatsapp" };
     for (const k of f.contactData ?? []) {
         if (k === "mobile") out.push({ f: P + "phone_kind", op: "eq", v: "mobile" });
+        else if (k === "no_website") out.push({ f: P + "website", op: "blank" });
         else if (CONTACT_COL[k]) out.push({ f: P + CONTACT_COL[k], op: "filled" });
     }
     // website audit: the chosen qualities are alternatives (weak OR medium), the issues too

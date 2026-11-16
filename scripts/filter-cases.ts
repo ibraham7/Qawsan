@@ -52,6 +52,8 @@ export const cases: Case[] = [
     { name: "status include", tab: "companies", filters: { status: { inc: ["approved", "qualified"], exc: [] } }, want: (r) => ["approved", "qualified"].includes(C(r).status) },
     { name: "status exclude", tab: "companies", filters: { status: { inc: [], exc: ["invalid", "not_fit"] } }, want: (r) => !["invalid", "not_fit"].includes(C(r).status) },
     { name: "contactData website+email", tab: "companies", filters: { contactData: ["website", "email"] }, want: (r) => C(r).website !== "" && C(r).emails.length > 0 },
+    { name: "contactData no website", tab: "companies", filters: { contactData: ["no_website"] }, want: (r) => C(r).website === "" },
+    { name: "contactData no website + mobile", tab: "companies", filters: { contactData: ["no_website", "mobile"] }, want: (r) => C(r).website === "" && C(r).phone_kind === "mobile" },
     { name: "contactData mobile", tab: "companies", filters: { contactData: ["mobile"] }, want: (r) => C(r).phone_kind === "mobile" },
     { name: "contactData phone", tab: "companies", filters: { contactData: ["phone"] }, want: (r) => C(r).phone !== "" },
     { name: "contactData whatsapp", tab: "companies", filters: { contactData: ["whatsapp"] }, want: (r) => C(r).whatsapp !== "" },

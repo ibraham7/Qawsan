@@ -124,6 +124,8 @@ export interface Backend {
     campaigns(channel?: Campaign["channel"]): Promise<Campaign[]>;
     createCampaign(c: NewCampaign): Promise<string>;
     recipients(campaignId: string): Promise<Recipient[]>;
+    /** the website problem written for one recipient ("{issue}" in the message), edited by hand before sending */
+    setRecipientIssue(id: string, issue: string): Promise<void>;
     /** sent / skipped / replied / stopped; "stopped" also adds the number to do-not-contact */
     markRecipient(r: Recipient, status: Recipient["status"]): Promise<void>;
     setCampaignStatus(id: string, status: Campaign["status"]): Promise<void>;
@@ -315,6 +317,10 @@ export const supabaseBackend: Backend = {
         fail(error);
         return (data ?? []) as Recipient[];
     },
+    async setRecipientIssue(id, issue) {
+        const { error } = await supabase.from(T.recipients).update({ issue: issue.trim().slice(0, 200) }).eq("id", id);
+        fail(error);
+    },
     async markRecipient(r, status) {
         const { error } = await supabase.from(T.recipients).update({ status, sent_at: status === "sent" ? new Date().toISOString() : r.sent_at }).eq("id", r.id);
         fail(error);
@@ -482,6 +488,9 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         },
         async recipients(campaignId) {
             return recipients.filter((r) => r.campaign_id === campaignId);
+        },
+        async setRecipientIssue(id, issue) {
+            recipients = recipients.map((x) => (x.id === id ? { ...x, issue: issue.trim().slice(0, 200) } : x));
         },
         async markRecipient(r, status) {
             recipients = recipients.map((x) => (x.id === r.id ? { ...x, status, sent_at: status === "sent" ? new Date().toISOString() : x.sent_at } : x));

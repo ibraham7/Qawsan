@@ -213,6 +213,7 @@ export const CONTACT_DATA: Opt[] = [
     { value: "phone", label: "لديه رقم هاتف" },
     { value: "mobile", label: "رقم جوال (واتساب محتمل)" },
     { value: "website", label: "لديها موقع" },
+    { value: "no_website", label: "بلا موقع" },
     { value: "email", label: "لديها إيميل" },
     { value: "whatsapp", label: "لديها واتساب" },
 ];

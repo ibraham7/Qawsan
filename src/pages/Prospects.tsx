@@ -33,6 +33,8 @@ import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import SiteReport from "../components/prospects/SiteReport";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import { siteList } from "../lib/prospects/export";
 import UnarchiveRoundedIcon from "@mui/icons-material/UnarchiveRounded";
 import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
 import BookmarksRoundedIcon from "@mui/icons-material/BookmarksRounded";
@@ -559,6 +561,23 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             )}
                             <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || auditing || busy}>
                                 تغيير الحالة
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                startIcon={<ContentCopyRoundedIcon />}
+                                onClick={async () => {
+                                    // only the companies on this page are known here
+                                    const rows = (result.rows as CompanyRow[]).filter((c) => selected.has(c.id));
+                                    if (!rows.length) return setToast("حدّد جهات من هذه الصفحة أولًا.");
+                                    try {
+                                        await navigator.clipboard.writeText(siteList(rows));
+                                        setToast(`نُسخت ${rows.length} جهة مع روابطها`);
+                                    } catch {
+                                        setError("تعذّر النسخ: اسمح للموقع بالوصول للحافظة.");
+                                    }
+                                }}
+                            >
+                                نسخ الروابط
                             </Button>
                             <Button
                                 variant="outlined"
