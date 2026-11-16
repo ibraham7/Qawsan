@@ -29,6 +29,7 @@ import {
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -378,6 +379,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const [error, setError] = useState("");
     // the recipient whose chat was just opened: waiting for "sent" / "skip"
     const [opened, setOpened] = useState<string | null>(null);
+    // editing the website problem written for one recipient
+    const [editing, setEditing] = useState<{ r: Recipient; value: string } | null>(null);
     // ready replies: open, and for which recipient (null = copy only)
     const [replies, setReplies] = useState<{ target: ReplyTarget | null } | null>(null);
     // automatic sending over SMTP (email campaigns only, when the mailbox is set in Vercel)
@@ -432,6 +435,18 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const isEmail = campaign.channel === "email";
     const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`, r.issue ?? "");
     const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id, r.issue ?? "");
+
+    const usesIssue = campaign.message.includes("{issue}") || campaign.subject.includes("{issue}");
+    const saveIssue = async () => {
+        if (!editing || !editing.value.trim()) return;
+        try {
+            await backend.setRecipientIssue(editing.r.id, editing.value);
+            setEditing(null);
+            load();
+        } catch (e) {
+            setError((e as Error).message);
+        }
+    };
 
     const runAuto = async () => {
         const ok = window.confirm(
@@ -618,6 +633,34 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                 <LinearProgress />
             )}
 
+            <Dialog open={!!editing} onClose={() => setEditing(null)} fullWidth maxWidth="sm">
+                <DialogTitle>تعديل العيب · {editing?.r.name}</DialogTitle>
+                <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: "8px !important" }}>
+                    <Alert severity="info">اكتب ما تحققت منه بنفسك في موقع هذه الجهة. الجملة تكمل: «لاحظت أن موقعكم …». اكتب شيئًا رأيته فعلًا ولا تخمّن.</Alert>
+                    <TextField
+                        label="العيب"
+                        value={editing?.value ?? ""}
+                        onChange={(e) => editing && setEditing({ ...editing, value: e.target.value })}
+                        placeholder="مثال: لا يظهر فيه زر الحجز في الشاشة الأولى على الجوال"
+                        multiline
+                        minRows={2}
+                        slotProps={{ htmlInput: { maxLength: 200 } }}
+                        helperText={`${editing?.value.length ?? 0} / 200`}
+                    />
+                    {editing && editing.value.trim() && (
+                        <Box sx={{ p: 2, borderRadius: "12px", bgcolor: "action.hover", whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.8 }}>
+                            {renderMessage(campaign.message, editing.r.name, campaign.stop_line, editing.r.company_id ?? editing.r.id, editing.value)}
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setEditing(null)}>إلغاء</Button>
+                    <Button variant="contained" onClick={saveIssue} disabled={!editing?.value.trim()}>
+                        حفظ
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <QuickReplies open={!!replies} onClose={() => setReplies(null)} target={replies?.target} />
 
             <Box sx={{ borderRadius: "16px", border: "1px solid", borderColor: "divider", overflow: "hidden", bgcolor: "background.paper" }}>
@@ -634,7 +677,19 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                         <TableBody>
                             {(rows ?? []).map((r) => (
                                 <TableRow key={r.id} hover>
-                                    <TableCell sx={{ fontWeight: 600 }}>{r.name}</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>
+                                        {r.name}
+                                        {usesIssue && r.status === "pending" && (
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, fontWeight: 400, fontSize: 12.5, color: "text.secondary" }}>
+                                                <span>العيب: {r.issue || "—"}</span>
+                                                <Tooltip title="عدّل العيب المكتوب لهذه الجهة قبل الإرسال">
+                                                    <IconButton size="small" aria-label="تعديل العيب" onClick={() => setEditing({ r, value: r.issue ?? "" })}>
+                                                        <EditRoundedIcon sx={{ fontSize: 16 }} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        )}
+                                    </TableCell>
                                     <TableCell dir="ltr" sx={{ textAlign: "end", fontVariantNumeric: "tabular-nums" }}>
                                         {isEmail ? (
                                             <Link href={`mailto:${r.email}`}>{r.email}</Link>

@@ -21,6 +21,7 @@
     "test:followups": "node scripts/test-followups.ts",
     "test:sitereport": "node scripts/test-sitereport.ts",
     "test:multicity": "node scripts/test-multicity.ts",
+    "test:export": "node scripts/test-export.ts",
     "test:replies": "node scripts/test-replies.ts",
     "test:templates": "node scripts/test-templates.ts",
     "test:csvimport": "node scripts/test-csvimport.ts"

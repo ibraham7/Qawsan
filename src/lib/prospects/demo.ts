@@ -79,8 +79,8 @@ export function makeDemo(): { companies: CompanyRow[]; people: PersonRow[]; meta
         return {
             id: `c-${i}`,
             name: `Demo Company ${String(i + 1).padStart(3, "0")}`,
-            domain: `demo${i + 1}.example`,
-            website: `https://demo${i + 1}.example`,
+            domain: i % 9 === 7 ? "" : `demo${i + 1}.example`,
+            website: i % 9 === 7 ? "" : `https://demo${i + 1}.example`,
             linkedin_url: "",
             phone: r() < 0.7 ? `+90500${String(i + 1).padStart(6, "0")}` : "",
             description: `Demo ${industry.toLowerCase()} business in ${city.name}`,
