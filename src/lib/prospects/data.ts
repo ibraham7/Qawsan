@@ -108,6 +108,8 @@ export interface Backend {
     savedCreate(name: string, kind: SavedSearch["kind"], filters: Filters): Promise<void>;
     savedRemove(id: string): Promise<void>;
     setStatus(ids: string[], status: string): Promise<void>;
+    /** a WhatsApp number entered by hand ("+966…", "" clears it); it makes the company eligible for WhatsApp campaigns */
+    setWhatsapp(id: string, number: string): Promise<void>;
     /** put companies in the archive (hidden, not deleted) or take them out */
     setArchived(ids: string[], archived: boolean): Promise<void>;
     addCompany(c: NewCompany): Promise<void>;
@@ -224,6 +226,10 @@ export const supabaseBackend: Backend = {
     },
     async setStatus(ids, status) {
         const { error } = await supabase.from(T.companies).update({ status }).in("id", ids);
+        fail(error);
+    },
+    async setWhatsapp(id, number) {
+        const { error } = await supabase.from(T.companies).update({ whatsapp: number }).eq("id", id);
         fail(error);
     },
     async setArchived(ids, archived) {
@@ -435,6 +441,9 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
         },
         async setStatus(ids, status) {
             data.companies.forEach((c) => ids.includes(c.id) && (c.status = status));
+        },
+        async setWhatsapp(id, number) {
+            data.companies.forEach((c) => c.id === id && (c.whatsapp = number));
         },
         async setArchived(ids, archived) {
             data.companies.forEach((c) => ids.includes(c.id) && (c.archived = archived));
