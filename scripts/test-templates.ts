@@ -41,14 +41,21 @@ it("{issue} is declared exactly where it is used", () => {
     assert.deepEqual(PRESETS.filter((p) => p.usesIssue).map((p) => p.id), ["wa-weak-issue", "mail-weak-issue"]);
 });
 
+it("{custom} is declared exactly where it is used, on one template per channel", () => {
+    for (const p of PRESETS) assert.equal(p.usesCustom, p.message.includes("{custom}") || p.subject.includes("{custom}"), p.id);
+    assert.deepEqual(PRESETS.filter((p) => p.usesCustom).map((p) => p.id), ["wa-custom", "mail-custom"]);
+    // a custom template never also asks for the confirmed problem (the two work differently)
+    for (const p of PRESETS.filter((x) => x.usesCustom)) assert.equal(p.usesIssue, false, p.id);
+});
+
 it("nothing is claimed that the audit did not confirm", () => {
     // the only website problem a template may state is {issue}; guesses such as "no booking" or "old design" are never written in
     for (const p of PRESETS) assert.ok(!/قديم|بلا حجز|ضعيف|سيئ|مهمل/.test(p.message), p.id);
 });
 
-it("four templates per channel, general first", () => {
-    assert.equal(presetsFor("whatsapp").length, 4);
-    assert.equal(presetsFor("email").length, 4);
+it("five templates per channel, general first", () => {
+    assert.equal(presetsFor("whatsapp").length, 5);
+    assert.equal(presetsFor("email").length, 5);
     assert.equal(defaultPreset("whatsapp").id, "wa-general");
     assert.equal(defaultPreset("email").id, "mail-general");
 });

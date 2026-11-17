@@ -15,6 +15,8 @@ export interface Preset {
     message: string;
     /** the text uses {issue}: only companies with a confirmed website problem can receive it */
     usesIssue: boolean;
+    /** the text uses {custom}: the person writes a paragraph for each company, and none is sent before it is written */
+    usesCustom: boolean;
 }
 
 const WA_SIGN = "معك إبراهيم من استوديو قوسان";
@@ -29,6 +31,7 @@ export const PRESETS: Preset[] = [
         subject: "",
         message: `{السلام عليكم|مرحبًا|أهلًا} {name}، ${WA_SIGN}. نصمم مواقع وأنظمة حجز للعيادات. لو مهتمين، أرسل لكم نموذجًا قصيرًا وسعرًا استرشاديًا؟`,
         usesIssue: false,
+        usesCustom: false,
     },
     {
         id: "wa-no-site",
@@ -38,6 +41,7 @@ export const PRESETS: Preset[] = [
         subject: "",
         message: `{السلام عليكم|مرحبًا} {name}، ${WA_SIGN}. لاحظت أن عيادتكم لا تملك موقعًا خاصًا، وكثير من المرضى يبحثون في Google ثم يحجزون من الجوال. نصمم مواقع عيادات بحجز مباشر وزر واتساب. هل يناسبكم أن أرسل لكم مثالًا سريعًا؟`,
         usesIssue: false,
+        usesCustom: false,
     },
     {
         id: "wa-weak-issue",
@@ -47,6 +51,7 @@ export const PRESETS: Preset[] = [
         subject: "",
         message: `{السلام عليكم|مرحبًا} {name}، ${WA_SIGN}. لاحظت أن موقعكم {issue}، وهذا قد يضيّع عليكم حجوزات من المرضى الذين يدخلون من الجوال. جهزت لكم ملاحظات مختصرة وطريقة إصلاح سريعة. هل أرسلها؟`,
         usesIssue: true,
+        usesCustom: false,
     },
     {
         id: "wa-free-report",
@@ -56,6 +61,17 @@ export const PRESETS: Preset[] = [
         subject: "",
         message: `{السلام عليكم|مرحبًا} {name}، ${WA_SIGN}. فحصت موقعكم فحصًا سريعًا وجهزت تقريرًا مختصرًا بنقاط تهم حجوزاتكم، مجانًا ودون التزام. هل أرسله لكم؟`,
         usesIssue: false,
+        usesCustom: false,
+    },
+    {
+        id: "wa-custom",
+        label: "فقرة مخصصة لكل جهة",
+        hint: "أنت تكتب فقرة خاصة بكل جهة حسب حاجتها بعد إنشاء الحملة. لا تُرسَل لجهة قبل أن تُكتب فقرتها.",
+        channel: "whatsapp",
+        subject: "",
+        message: `{السلام عليكم|مرحبًا} {name}، ${WA_SIGN}. {custom} هل يناسبكم أن أرسل لكم التفاصيل؟`,
+        usesIssue: false,
+        usesCustom: true,
     },
     {
         id: "mail-general",
@@ -65,6 +81,7 @@ export const PRESETS: Preset[] = [
         subject: "اقتراح لموقع {name}",
         message: `{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. نصمم مواقع وأنظمة حجز للعيادات، ولاحظت أن لديكم حضورًا جيدًا يمكن دعمه بموقع يناسب نشاطكم.\n\nهل يناسبكم أن أرسل لكم تفاصيل قصيرة وسعرًا استرشاديًا؟\n\n${MAIL_SIGN}`,
         usesIssue: false,
+        usesCustom: false,
     },
     {
         id: "mail-no-site",
@@ -74,6 +91,7 @@ export const PRESETS: Preset[] = [
         subject: "موقع لعيادة {name} يستقبل الحجوزات",
         message: `{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. لاحظت أن عيادتكم لا تملك موقعًا خاصًا، وكثير من المرضى يبحثون في Google ثم يحجزون من الجوال.\n\nنصمم مواقع عيادات بحجز مباشر وزر واتساب. هل يناسبكم أن أرسل لكم مثالًا سريعًا؟\n\n${MAIL_SIGN}`,
         usesIssue: false,
+        usesCustom: false,
     },
     {
         id: "mail-weak-issue",
@@ -83,6 +101,7 @@ export const PRESETS: Preset[] = [
         subject: "ملاحظة بخصوص موقع {name}",
         message: `{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. لاحظت أن موقعكم {issue}، وهذا قد يضيّع عليكم حجوزات من المرضى الذين يدخلون من الجوال.\n\nجهزت لكم ملاحظات مختصرة وطريقة إصلاح سريعة. هل أرسلها؟\n\n${MAIL_SIGN}`,
         usesIssue: true,
+        usesCustom: false,
     },
     {
         id: "mail-free-report",
@@ -92,6 +111,17 @@ export const PRESETS: Preset[] = [
         subject: "تقرير مجاني عن موقع {name}",
         message: `{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان. فحصت موقعكم فحصًا سريعًا وجهزت تقريرًا مختصرًا بنقاط تهم حجوزاتكم، مجانًا ودون التزام.\n\nهل أرسله لكم؟\n\n${MAIL_SIGN}`,
         usesIssue: false,
+        usesCustom: false,
+    },
+    {
+        id: "mail-custom",
+        label: "فقرة مخصصة لكل جهة",
+        hint: "أنت تكتب فقرة خاصة بكل جهة حسب حاجتها بعد إنشاء الحملة. لا تُرسَل لجهة قبل أن تُكتب فقرتها، ولا تقل ما لم تتحقق منه.",
+        channel: "email",
+        subject: "اقتراح خاص لـ{name}",
+        message: `{مرحبًا|أهلًا} فريق {name}،\n\nأنا إبراهيم من استوديو قوسان، نصمم مواقع وأنظمة حجز للعيادات.\n\n{custom}\n\nهل يناسبكم أن أرسل لكم تفاصيل مختصرة؟\n\n${MAIL_SIGN}`,
+        usesIssue: false,
+        usesCustom: true,
     },
 ];
 

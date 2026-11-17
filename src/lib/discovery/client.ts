@@ -64,6 +64,8 @@ export interface SendBatch {
     sentToday: number;
     limit: number;
     pending: number;
+    /** pending recipients whose {issue} / {custom} text is still empty: they are not sent */
+    awaitingText?: number;
     /** "limit" = daily limit reached, "done" = nothing left, "auth" = wrong mailbox credentials */
     stopped: "" | "limit" | "done" | "auth";
 }

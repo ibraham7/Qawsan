@@ -143,7 +143,15 @@ export function mainIssue(issues: string[]): string {
     return CONFIRMED_ISSUES.find(([code]) => issues.includes(code))?.[1] ?? "";
 }
 
-/** `{name}` -> the company's name, `{issue}` -> its confirmed website problem, `{a|b|c}` -> one of the options, then the stop line */
+/** longest text kept per recipient for {issue} / {custom} */
+export const MAX_ISSUE = 800;
+
+/** the message needs text written for each recipient ({issue}: the confirmed website problem, {custom}: a paragraph the person writes) */
+export const usesPersonal = (...texts: string[]) => texts.some((t) => /\{(?:issue|custom)\}/.test(t));
+/** the person writes that text by hand for every recipient ({custom}) */
+export const usesCustom = (...texts: string[]) => texts.some((t) => t.includes("{custom}"));
+
+/** `{name}` -> the company's name, `{issue}` / `{custom}` -> the text kept for this recipient, `{a|b|c}` -> one of the options, then the stop line */
 export function renderMessage(template: string, name: string, stopLine: string, seed: string, issue = ""): string {
     let i = 0;
     const body = template
@@ -152,7 +160,7 @@ export function renderMessage(template: string, name: string, stopLine: string, 
             return opts[hash(`${seed}:${i++}`) % opts.length];
         })
         .replace(/\{name\}/g, name.trim())
-        .replace(/\{issue\}/g, issue.trim());
+        .replace(/\{(?:issue|custom)\}/g, issue.trim());
     return [body.trim(), stopLine.trim()].filter(Boolean).join("\n\n");
 }
 
