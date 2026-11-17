@@ -84,6 +84,7 @@ const filterRows = (rows, q) => {
         const [op, ...r] = v.split(".");
         const val = r.join(".");
         if (op === "eq") out = out.filter((x) => String(x[k]) === val);
+        else if (op === "neq") out = out.filter((x) => String(x[k] ?? "") !== val);
         else if (op === "gte") out = out.filter((x) => x[k] && new Date(x[k]) >= new Date(val));
         else if (op === "in") {
             const items = val.slice(1, -1).split(",").map((s) => s.replace(/^"|"$/g, ""));
@@ -280,6 +281,47 @@ await test("unsubscribe: a scanner opening the link changes nothing; the button 
     assert.deepEqual(db.suppressions.map((s) => [s.value, s.kind, s.reason]), [["info7@c.com", "email", "unsubscribe_link"]]);
     assert.equal(db.recipients[0].status, "stopped");
     assert.equal(db.companies[0].status, "unsubscribed");
+});
+
+await test("{custom}: only recipients whose paragraph is written are sent; the others stay pending and are reported", async () => {
+    inbox.length = 0;
+    reset({
+        campaigns: [camp({ subject: "لـ{name}", message: "مرحبًا {name}.\n\n{custom}\n\nهل يناسبكم؟", daily_limit: 10 })],
+        companies: [1, 2, 3, 4].map((n) => comp(n)),
+        // a2 and a4 have no paragraph yet (empty), a1 and a3 do
+        recipients: [rec(1, { issue: "فقرة خاصة بالأولى" }), rec(2, { issue: "" }), rec(3, { issue: "فقرة الثالثة" }), rec(4, { issue: "   " })],
+    });
+    // "   " is not a paragraph: the database filter only drops exact empties, so the handler's own guard must catch it
+    const r = await call(send, { method: "POST", body: { campaignId: ID(1) } });
+    assert.equal(r.statusCode, 200, JSON.stringify(r.body));
+    assert.equal(r.body.sent, 2, JSON.stringify(r.body));
+    assert.equal(inbox.length, 2);
+    const to = inbox.flatMap((m) => m.to).sort();
+    assert.deepEqual(to, ["info1@c.com", "info3@c.com"]);
+    const bodies = inbox.map((m) => decodeMail(m.data).body);
+    assert.ok(bodies.some((b) => b.includes("فقرة خاصة بالأولى")) && bodies.some((b) => b.includes("فقرة الثالثة")));
+    assert.ok(bodies.every((b) => !b.includes("{custom}")), "no placeholder is ever sent");
+    const st = (n) => db.recipients.find((x) => x.id === ID(200 + n)).status;
+    assert.deepEqual([1, 2, 3, 4].map(st), ["sent", "pending", "sent", "pending"]);
+    assert.equal(db.companies.find((c) => c.id === ID(102)).status, "approved", "an unsent company keeps its status");
+    assert.equal(r.body.pending, 2);
+    assert.equal(r.body.awaitingText, 1, "one exact-empty paragraph is counted as waiting (the blank one is caught by the guard)");
+    assert.equal(r.body.stopped, "", "not done: two are still waiting for their text");
+    // once the text is written, the next call sends them
+    db.recipients.find((x) => x.id === ID(202)).issue = "فقرة الثانية";
+    db.recipients.find((x) => x.id === ID(204)).issue = "فقرة الرابعة";
+    const r2 = await call(send, { method: "POST", body: { campaignId: ID(1) } });
+    assert.equal(r2.body.sent, 2, JSON.stringify(r2.body));
+    assert.equal(r2.body.stopped, "done");
+    assert.equal(inbox.length, 4);
+});
+
+await test("a message without {issue} / {custom} is not held back by empty texts", async () => {
+    inbox.length = 0;
+    reset({ campaigns: [camp()], companies: [comp(1)], recipients: [rec(1, { issue: "" })] });
+    const r = await call(send, { method: "POST", body: { campaignId: ID(1) } });
+    assert.equal(r.body.sent, 1);
+    assert.equal(r.body.awaitingText, 0);
 });
 
 await test("unsubscribe: forged or damaged links are refused", async () => {

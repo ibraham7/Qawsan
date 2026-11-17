@@ -2,7 +2,7 @@
 // (development builds only, with ?demo in the URL) for trying the filters locally.
 
 import { phoneKind } from "../discovery/places";
-import { phoneDigits } from "./campaigns.ts";
+import { MAX_ISSUE, phoneDigits } from "./campaigns.ts";
 import type { Campaign, Recipient } from "./campaigns.ts";
 import type { Existing } from "./csvimport.ts";
 import { supabase } from "../supabase";
@@ -309,7 +309,7 @@ export const supabaseBackend: Backend = {
             .single();
         fail(error);
         const id = (data as { id: string }).id;
-        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), issue: (x.issue ?? "").slice(0, 200) }));
+        const rows = c.recipients.map((x) => ({ campaign_id: id, company_id: x.companyId, name: x.name.slice(0, 200), phone: x.phone ? phoneDigits(x.phone) : "", email: x.email.toLowerCase(), issue: (x.issue ?? "").slice(0, MAX_ISSUE) }));
         const { error: e2 } = await supabase.from(T.recipients).insert(rows);
         if (e2) {
             // do not leave an empty campaign behind
@@ -324,7 +324,7 @@ export const supabaseBackend: Backend = {
         return (data ?? []) as Recipient[];
     },
     async setRecipientIssue(id, issue) {
-        const { error } = await supabase.from(T.recipients).update({ issue: issue.trim().slice(0, 200) }).eq("id", id);
+        const { error } = await supabase.from(T.recipients).update({ issue: issue.trim().slice(0, MAX_ISSUE) }).eq("id", id);
         fail(error);
     },
     async markRecipient(r, status) {
@@ -499,7 +499,7 @@ export function demoBackend(data: { companies: CompanyRow[]; people: PersonRow[]
             return recipients.filter((r) => r.campaign_id === campaignId);
         },
         async setRecipientIssue(id, issue) {
-            recipients = recipients.map((x) => (x.id === id ? { ...x, issue: issue.trim().slice(0, 200) } : x));
+            recipients = recipients.map((x) => (x.id === id ? { ...x, issue: issue.trim().slice(0, MAX_ISSUE) } : x));
         },
         async markRecipient(r, status) {
             recipients = recipients.map((x) => (x.id === r.id ? { ...x, status, sent_at: status === "sent" ? new Date().toISOString() : x.sent_at } : x));

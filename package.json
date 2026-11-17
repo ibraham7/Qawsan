@@ -22,6 +22,7 @@
     "test:sitereport": "node scripts/test-sitereport.ts",
     "test:multicity": "node scripts/test-multicity.ts",
     "test:export": "node scripts/test-export.ts",
+    "test:custom": "node scripts/test-custom.ts",
     "test:contactedit": "node scripts/test-contactedit.ts",
     "test:views": "node scripts/test-views.ts",
     "test:batches": "node scripts/test-batches.ts",

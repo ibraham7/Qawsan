@@ -10,7 +10,7 @@
  * List-Unsubscribe headers. Sent / failed is recorded per recipient, and the company becomes
  * "contacted".
  */
-import { renderMessage } from "../../src/lib/prospects/campaigns.js";
+import { renderMessage, usesPersonal } from "../../src/lib/prospects/campaigns.js";
 import { BATCH_MAX, batchSize, dayStart, mustSkip } from "../../src/lib/prospects/sending.js";
 import type { CompanyLite } from "../../src/lib/prospects/sending.js";
 import { unsubscribeUrl, withFooter } from "../../src/lib/prospects/unsubscribe.js";
@@ -31,6 +31,8 @@ interface Recipient {
     company_id: string | null;
     name: string;
     email: string;
+    /** the text written for this recipient ({issue} / {custom}) */
+    issue?: string;
 }
 
 const GAP_MS = 3000;
@@ -55,14 +57,18 @@ export default handle(async (req, res) => {
     const start = dayStart(new Date(), sendTimezone());
     const sentToday = (await rest<{ id: string }[]>(`qawsan_campaign_recipients?select=id&campaign_id=eq.${id}&sent_at=gte.${q(start)}&limit=1000`)).length;
     const room = batchSize(sentToday, campaign.daily_limit, BATCH_MAX);
+    // a message with {issue} / {custom} is only sent to recipients whose text is written; the others stay pending
+    const personal = usesPersonal(campaign.message, campaign.subject);
+    const readyOnly = personal ? "&issue=neq." : "";
+    const awaitingText = async () => (personal ? (await rest<{ id: string }[]>(`qawsan_campaign_recipients?select=id&campaign_id=eq.${id}&status=eq.pending&issue=eq.&limit=5000`)).length : 0);
     const pendingAll = async () => (await rest<{ id: string }[]>(`qawsan_campaign_recipients?select=id&campaign_id=eq.${id}&status=eq.pending&limit=5000`)).length;
 
     if (room === 0) {
-        res.status(200).json({ ok: true, sent: 0, failed: 0, skipped: 0, sentToday, limit: campaign.daily_limit, pending: await pendingAll(), stopped: "limit" });
+        res.status(200).json({ ok: true, sent: 0, failed: 0, skipped: 0, sentToday, limit: campaign.daily_limit, pending: await pendingAll(), awaitingText: await awaitingText(), stopped: "limit" });
         return;
     }
 
-    const batch = await rest<Recipient[]>(`qawsan_campaign_recipients?select=id,company_id,name,email,issue&campaign_id=eq.${id}&status=eq.pending&order=name&limit=${room}`);
+    const batch = await rest<Recipient[]>(`qawsan_campaign_recipients?select=id,company_id,name,email,issue&campaign_id=eq.${id}&status=eq.pending${readyOnly}&order=name&limit=${room}`);
     const companyIds = [...new Set(batch.map((r) => r.company_id).filter((x): x is string => !!x))];
     const companies = new Map<string, CompanyLite>();
     if (companyIds.length) {
@@ -99,6 +105,9 @@ export default handle(async (req, res) => {
             continue;
         }
 
+        // never send a message with {issue} / {custom} while this recipient's text is empty (the query already leaves them out)
+        if (personal && !(r.issue ?? "").trim()) continue;
+
         const seed = r.company_id ?? r.id;
         const url = unsubscribeUrl(site, secret, r.id);
         const result = await mail.send({
@@ -133,5 +142,5 @@ export default handle(async (req, res) => {
     }
 
     const pending = await pendingAll();
-    res.status(200).json({ ok: true, sent, failed, skipped, sentToday: sentToday + sent, limit: campaign.daily_limit, pending, stopped: stopped || (pending === 0 ? "done" : "") });
+    res.status(200).json({ ok: true, sent, failed, skipped, sentToday: sentToday + sent, limit: campaign.daily_limit, pending, awaitingText: await awaitingText(), stopped: stopped || (pending === 0 ? "done" : "") });
 });

@@ -48,9 +48,12 @@ import {
     emailEligibility,
     gmailLink,
     mailtoLink,
+    MAX_ISSUE,
     mainIssue,
     renderMessage,
     sentToday,
+    usesCustom,
+    usesPersonal,
     validateTemplate,
     variantCount,
     waLink,
@@ -144,9 +147,12 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
     }, [companies, blocked, email]);
     // with {issue} in the message only companies with a confirmed website problem can be written to
     const usesIssue = message.includes("{issue}") || (email && subject.includes("{issue}"));
+    // {custom}: the person writes a paragraph for every company afterwards, so none is filtered out
+    const custom = usesCustom(message, email ? subject : "");
+    const filterByIssue = usesIssue && !custom;
     const issueOf = (e: { company: CompanyRow }) => mainIssue(e.company.site_issues ?? []);
-    const withoutIssue = usesIssue ? elig.eligible.filter((e) => !issueOf(e)).length : 0;
-    const chosen = elig.eligible.filter((e) => (picked ? picked.has(e.company.id) : true) && (!usesIssue || !!issueOf(e)));
+    const withoutIssue = filterByIssue ? elig.eligible.filter((e) => !issueOf(e)).length : 0;
+    const chosen = elig.eligible.filter((e) => (picked ? picked.has(e.company.id) : true) && (!filterByIssue || !!issueOf(e)));
     const skippedByReason = useMemo(() => {
         const m = new Map<string, number>();
         elig.skipped.filter((s) => s.company.status === "approved").forEach((s) => m.set(SKIP_LABEL[s.reason], (m.get(SKIP_LABEL[s.reason]) ?? 0) + 1));
@@ -201,7 +207,7 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                 message,
                 stopLine,
                 dailyLimit: Math.max(1, Math.min(200, Number(limit) || (email ? 30 : 20))),
-                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone, email: e.email, issue: usesIssue ? issueOf(e) : "" })),
+                recipients: chosen.map((e) => ({ companyId: e.company.id, name: e.company.name, phone: e.phone, email: e.email, issue: filterByIssue ? issueOf(e) : "" })),
             });
             onCreated(id);
         } catch (e) {
@@ -271,7 +277,7 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                         minRows={4}
                         fullWidth
                         error={!!msgError}
-                        helperText={msgError ?? `{name} = اسم الجهة. {issue} = أبرز عيب مؤكد في موقعها (من «فحص جودة الموقع»). {خيار1|خيار2} = تُختار صيغة لكل جهة (${variantCount(message)} صيغة ممكنة).`}
+                        helperText={msgError ?? `{name} = اسم الجهة. {issue} = أبرز عيب مؤكد في موقعها (من «فحص جودة الموقع»). {custom} = فقرة تكتبها أنت لكل جهة. {خيار1|خيار2} = تُختار صيغة لكل جهة (${variantCount(message)} صيغة ممكنة).`}
                     />
                     <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
                         <Button size="small" onClick={saveTemplate} disabled={!!msgError}>
@@ -301,7 +307,12 @@ function NewCampaign({ backend, channel, blocked, open, onClose, onCreated }: { 
                             <Typography sx={{ fontSize: 14 }}>
                                 <bdi>{chosen.length}</bdi> جهة من أصل <bdi>{elig.eligible.length}</bdi> مؤهلة. المؤهلة: «معتمد للتواصل» {email ? "ولها إيميل" : "ولها رقم جوال أو واتساب"}، وليست في «لا ترسل»، ولم يُتواصل معها.
                             </Typography>
-                            {usesIssue && (
+                            {custom && (
+                                <Alert severity="info" sx={{ mt: 1 }}>
+                                    الرسالة فيها «فقرة مخصصة». بعد إنشاء الحملة افتح كل جهة واكتب فقرتها بالقلم، ولن تُرسَل رسالة لجهة قبل أن تكتب فقرتها.
+                                </Alert>
+                            )}
+                            {filterByIssue && (
                                 <Typography sx={{ fontSize: 12.5, color: withoutIssue ? "warning.main" : "text.secondary", mt: 0.5 }}>
                                     {withoutIssue
                                         ? `${withoutIssue} جهة بلا عيب موقع مؤكد لم تُضمَّن (لا نذكر عيبًا لم نتأكد منه). اعمل لها «فحص جودة الموقع» أو أرسل لها حملة بدون {issue}.`
@@ -416,8 +427,14 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
 
     const today = rows ? sentToday(rows) : 0;
     const limitReached = today >= campaign.daily_limit;
+    const personal = usesPersonal(campaign.message, campaign.subject);
+    const custom = usesCustom(campaign.message, campaign.subject);
     const pending = rows?.filter((r) => r.status === "pending") ?? [];
-    const next = pending[0];
+    // with {issue} / {custom} a recipient can only be sent once its text is written
+    const hasText = (r: Recipient) => !personal || !!(r.issue ?? "").trim();
+    const ready = pending.filter(hasText);
+    const awaiting = pending.length - ready.length;
+    const next = ready[0];
     const total = rows?.length ?? 0;
     const done = total - pending.length;
 
@@ -436,7 +453,6 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     const subjectFor = (r: Recipient) => renderMessage(campaign.subject, r.name, "", `${r.company_id ?? r.id}:s`, r.issue ?? "");
     const bodyFor = (r: Recipient) => renderMessage(campaign.message, r.name, campaign.stop_line, r.company_id ?? r.id, r.issue ?? "");
 
-    const usesIssue = campaign.message.includes("{issue}") || campaign.subject.includes("{issue}");
     const saveIssue = async () => {
         if (!editing || !editing.value.trim()) return;
         try {
@@ -502,7 +518,7 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
     // WhatsApp queue: one click records this chat as sent AND opens the next one. The window is
     // opened first, inside the click, so the browser does not treat it as a blocked pop-up.
     const sentAndNext = async (r: Recipient) => {
-        const after = pending[1];
+        const after = ready[1];
         const room = today + 1 < campaign.daily_limit;
         const chain = !isEmail && !!after && room;
         if (chain) window.open(waLink(after.phone, bodyFor(after)), "_blank", "noopener,noreferrer");
@@ -515,8 +531,8 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
             setError((e as Error).message);
         }
     };
-    const upcoming = pending.slice(1, 5);
-    const canChain = !isEmail && pending.length > 1 && today + 1 < campaign.daily_limit;
+    const upcoming = ready.slice(1, 5);
+    const canChain = !isEmail && ready.length > 1 && today + 1 < campaign.daily_limit;
 
     // finishing the last pending recipient completes the campaign
     useEffect(() => {
@@ -545,6 +561,11 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
             </Box>
 
             {error && <Alert severity="error">{error}</Alert>}
+            {personal && awaiting > 0 && campaign.status === "active" && (
+                <Alert severity="warning">
+                    {awaiting} جهة بانتظار {custom ? "فقرتها المخصصة" : "نص العيب"}. اضغط أيقونة القلم بجانب كل جهة في الجدول وأكتبها. لن تُرسَل رسالة لجهة قبل ذلك.
+                </Alert>
+            )}
 
             <Box>
                 <LinearProgress variant="determinate" value={total ? (done / total) * 100 : 0} sx={{ height: 8, borderRadius: 4 }} />
@@ -627,25 +648,29 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                         </Typography>
                     )}
                 </Box>
-            ) : rows ? (
+            ) : awaiting > 0 ? null : rows ? (
                 <Alert severity="success">انتهت الحملة: لا توجد جهات بانتظار الإرسال.</Alert>
             ) : (
                 <LinearProgress />
             )}
 
             <Dialog open={!!editing} onClose={() => setEditing(null)} fullWidth maxWidth="sm">
-                <DialogTitle>تعديل العيب · {editing?.r.name}</DialogTitle>
+                <DialogTitle>{custom ? "الفقرة المخصصة" : "تعديل العيب"} · {editing?.r.name}</DialogTitle>
                 <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: "8px !important" }}>
-                    <Alert severity="info">اكتب ما تحققت منه بنفسك في موقع هذه الجهة. الجملة تكمل: «لاحظت أن موقعكم …». اكتب شيئًا رأيته فعلًا ولا تخمّن.</Alert>
+                    <Alert severity="info">
+                        {custom
+                            ? "اكتب فقرة خاصة بهذه الجهة حسب حاجتها، فتحل محل {custom} في الرسالة. اكتب ما تحققت منه فعلًا ولا تخمّن."
+                            : "اكتب ما تحققت منه بنفسك في موقع هذه الجهة. الجملة تكمل: «لاحظت أن موقعكم …». اكتب شيئًا رأيته فعلًا ولا تخمّن."}
+                    </Alert>
                     <TextField
-                        label="العيب"
+                        label={custom ? "الفقرة" : "العيب"}
                         value={editing?.value ?? ""}
                         onChange={(e) => editing && setEditing({ ...editing, value: e.target.value })}
                         placeholder="مثال: لا يظهر فيه زر الحجز في الشاشة الأولى على الجوال"
                         multiline
-                        minRows={2}
-                        slotProps={{ htmlInput: { maxLength: 200 } }}
-                        helperText={`${editing?.value.length ?? 0} / 200`}
+                        minRows={custom ? 5 : 2}
+                        slotProps={{ htmlInput: { maxLength: MAX_ISSUE } }}
+                        helperText={`${editing?.value.length ?? 0} / ${MAX_ISSUE}`}
                     />
                     {editing && editing.value.trim() && (
                         <Box sx={{ p: 2, borderRadius: "12px", bgcolor: "action.hover", whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.8 }}>
@@ -679,10 +704,10 @@ function Sending({ backend, campaign, onBack, onChanged }: { backend: Backend; c
                                 <TableRow key={r.id} hover>
                                     <TableCell sx={{ fontWeight: 600 }}>
                                         {r.name}
-                                        {usesIssue && r.status === "pending" && (
-                                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, fontWeight: 400, fontSize: 12.5, color: "text.secondary" }}>
-                                                <span>العيب: {r.issue || "—"}</span>
-                                                <Tooltip title="عدّل العيب المكتوب لهذه الجهة قبل الإرسال">
+                                        {personal && r.status === "pending" && (
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, fontWeight: 400, fontSize: 12.5, color: r.issue ? "text.secondary" : "warning.main" }}>
+                                                <span>{custom ? "الفقرة" : "العيب"}: {r.issue ? (r.issue.length > 70 ? `${r.issue.slice(0, 70)}…` : r.issue) : "لم تُكتب بعد"}</span>
+                                                <Tooltip title={custom ? "اكتب الفقرة الخاصة بهذه الجهة" : "عدّل العيب المكتوب لهذه الجهة قبل الإرسال"}>
                                                     <IconButton size="small" aria-label="تعديل العيب" onClick={() => setEditing({ r, value: r.issue ?? "" })}>
                                                         <EditRoundedIcon sx={{ fontSize: 16 }} />
                                                     </IconButton>
