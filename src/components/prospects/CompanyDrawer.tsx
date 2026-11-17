@@ -1,11 +1,13 @@
 // Side panel with everything known about one company.
 
-import { Box, Button, Chip, Divider, Drawer, IconButton, Link, Typography } from "@mui/material";
+import { useState } from "react";
+import { Alert, Box, Button, Chip, Divider, Drawer, IconButton, Link, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { ISSUE_LABEL, bucket } from "../../lib/discovery/siteaudit";
 import { reportAvailable } from "../../lib/prospects/sitereport";
+import { cleanWhatsapp } from "../../lib/prospects/contactedit";
 import type { IssueCode } from "../../lib/discovery/siteaudit";
 import type { CompanyRow } from "../../lib/prospects/types";
 
@@ -28,7 +30,50 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 
-export default function CompanyDrawer({ company, onClose }: { company: CompanyRow | null; onClose: () => void }) {
+/** enter or fix the WhatsApp number by hand (the campaigns only reach companies that have one) */
+function WhatsappEditor({ company, onSave }: { company: CompanyRow; onSave: (number: string) => Promise<void> }) {
+    const [value, setValue] = useState(company.whatsapp);
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState("");
+    const result = cleanWhatsapp(value, company.hq_country);
+    const changed = result.ok && result.number !== company.whatsapp;
+    const save = async () => {
+        if (!result.ok) return;
+        setBusy(true);
+        setError("");
+        try {
+            await onSave(result.number);
+        } catch (e) {
+            setError((e as Error).message);
+        } finally {
+            setBusy(false);
+        }
+    };
+    return (
+        <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                <TextField
+                    size="small"
+                    placeholder="اكتب رقم الواتساب (05… أو +966…)"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    error={!result.ok && value.trim() !== ""}
+                    slotProps={{ htmlInput: { dir: "ltr", maxLength: 30 } }}
+                    sx={{ flex: 1 }}
+                />
+                <Button size="small" variant="contained" onClick={save} disabled={busy || !changed}>
+                    حفظ
+                </Button>
+            </Box>
+            {value.trim() !== "" && !result.ok && <Typography sx={{ fontSize: 12.5, color: "error.main" }}>{result.error}</Typography>}
+            {result.ok && result.number && result.number !== value.trim() && <Typography sx={{ fontSize: 12.5, color: "text.secondary" }} dir="ltr">→ {result.number}</Typography>}
+            {result.ok && result.warning && <Alert severity="warning" sx={{ py: 0 }}>{result.warning}</Alert>}
+            {error && <Alert severity="error">{error}</Alert>}
+        </Box>
+    );
+}
+
+export default function CompanyDrawer({ company, onClose, onSetWhatsapp }: { company: CompanyRow | null; onClose: () => void; onSetWhatsapp?: (c: CompanyRow, number: string) => Promise<void> }) {
     const theme = useTheme();
     const c = company;
     return (
@@ -69,7 +114,10 @@ export default function CompanyDrawer({ company, onClose }: { company: CompanyRo
                               ))
                             : "—"}
                     </Row>
-                    <Row label="واتساب">{c.whatsapp ? <Link href={`https://wa.me/${c.whatsapp.replace(/\D/g, "")}`} {...ext} dir="ltr">{c.whatsapp}</Link> : "—"}</Row>
+                    <Row label="واتساب">
+                        {c.whatsapp ? <Link href={`https://wa.me/${c.whatsapp.replace(/\D/g, "")}`} {...ext} dir="ltr">{c.whatsapp}</Link> : "—"}
+                        {onSetWhatsapp && <WhatsappEditor key={`${c.id}:${c.whatsapp}`} company={c} onSave={(n) => onSetWhatsapp(c, n)} />}
+                    </Row>
                     <Row label="السوشيال">
                         {Object.keys(c.socials).length ? (
                             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>

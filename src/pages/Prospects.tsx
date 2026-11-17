@@ -860,7 +860,16 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
             />
 
             <DiscoverDialog open={discover} demo={backend.demo} onClose={() => setDiscover(false)} onDone={afterDiscovery} />
-            <CompanyDrawer company={opened} onClose={() => setOpened(null)} />
+            <CompanyDrawer
+                company={opened}
+                onClose={() => setOpened(null)}
+                onSetWhatsapp={async (c, number) => {
+                    await backend.setWhatsapp(c.id, number);
+                    setOpened({ ...c, whatsapp: number });
+                    setReload((x) => x + 1);
+                    setToast(number ? "حُفظ رقم الواتساب: صارت الجهة مؤهلة لحملات واتساب إن كانت معتمدة" : "حُذف رقم الواتساب");
+                }}
+            />
 
             <Snackbar open={!!toast} autoHideDuration={toast.startsWith("الإثراء") ? 8000 : toast.startsWith("فحص المواقع") ? 14000 : 2500} onClose={() => setToast("")} message={toast} />
         </Box>
