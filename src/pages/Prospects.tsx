@@ -36,6 +36,7 @@ import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import { siteList } from "../lib/prospects/export";
+import { BATCH, MAX_PER_RUN, runInBatches } from "../lib/prospects/batches";
 import { NEXT_STEP, VIEWS, applyView, viewOf } from "../lib/prospects/views";
 import UnarchiveRoundedIcon from "@mui/icons-material/UnarchiveRounded";
 import LabelRoundedIcon from "@mui/icons-material/LabelRounded";
@@ -60,7 +61,7 @@ import SettingsTab from "../components/prospects/SettingsTab";
 import SuppressionsTab from "../components/prospects/SuppressionsTab";
 import { Select } from "../components/prospects/controls";
 import { runAudit, runEnrich } from "../lib/discovery/client";
-import type { AuditOutcome, EnrichOutcome, SearchOutcome } from "../lib/discovery/client";
+import type { SearchOutcome } from "../lib/discovery/client";
 import { supabaseBackend } from "../lib/prospects/data";
 import type { Backend, Meta, Sort, Suppression } from "../lib/prospects/data";
 import { PRESETS, PROCESSING, STATUSES, statusOf } from "../lib/prospects/options";
@@ -72,6 +73,10 @@ import { supabase } from "../lib/supabase";
 const SIDEBAR = 340;
 const NO_META: Meta = { lists: [], sequences: [], owners: [], searches: [] };
 const nf = new Intl.NumberFormat("en-US");
+
+/** the tail of the result message when a run did not finish everything */
+const runNote = (run: { notReached: string[]; stopped: boolean; error?: string }) =>
+    (run.notReached.length ? ` · لم تُعالَج ${run.notReached.length} (تبقى محددة)${run.stopped ? " لأنك أوقفت العملية" : ""}` : "") + (run.error ? ` — توقفت: ${run.error}` : "");
 
 const SORTS = [
     { value: "newest", label: "الأحدث" },
@@ -121,6 +126,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const [enriching, setEnriching] = useState(false);
     const [auditing, setAuditing] = useState(false);
     const [auditDone, setAuditDone] = useState(0);
+    const [enrichDone, setEnrichDone] = useState(0);
+    // companies in the current enrich / audit run, and the flag the stop button sets
+    const [runTotal, setRunTotal] = useState(0);
+    const stopRun = useRef(false);
     // bumped to re-run the current search after data changed on the server
     const [reload, setReload] = useState(0);
     const [section, setSection] = useState<Section>(readSection);
@@ -280,23 +289,22 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const alreadyDone = selected.size - fresh.length;
 
     const enrich = async (again = false) => {
-        let ids = (again ? [...selected] : fresh).slice(0, 25);
+        const ids = (again ? [...selected] : fresh).slice(0, MAX_PER_RUN);
         if (!ids.length) {
             setToast("كل المحدد تم إثراؤه من قبل.");
             return;
         }
         setEnriching(true);
-        const all: EnrichOutcome["results"] = [];
+        setEnrichDone(0);
+        setRunTotal(ids.length);
+        stopRun.current = false;
         try {
-            // the server stops before its time limit and hands back what it did not reach
-            for (let round = 0; round < 3 && ids.length; round++) {
-                const r = await runEnrich(ids);
-                all.push(...r.results);
-                ids = r.pending;
-            }
-            const n = (s: string) => all.filter((x) => x.status === s).length;
-            setToast(`الإثراء: ${n("done")} وجدنا إيميل/واتساب · ${n("socials_only")} سوشيال فقط · ${n("nothing_found")} بلا بيانات · ${n("no_website")} بلا موقع · ${n("failed")} تعذّر فتحها`);
-            setSelected(new Set());
+            // sent in batches of 25 (the server's time limit), asking again for what it did not reach
+            const run = await runInBatches(ids, runEnrich, { shouldStop: () => stopRun.current, onProgress: (done) => setEnrichDone(done) });
+            const n = (st: string) => run.results.filter((x) => x.status === st).length;
+            setToast(`الإثراء: ${n("done")} وجدنا إيميل/واتساب · ${n("socials_only")} سوشيال فقط · ${n("nothing_found")} بلا بيانات · ${n("no_website")} بلا موقع · ${n("failed")} تعذّر فتحها${runNote(run)}`);
+            // what was not processed stays selected, to continue with one more click
+            setSelected(new Set(run.notReached));
             setReload((x) => x + 1);
         } catch (e) {
             setError((e as Error).message);
@@ -311,34 +319,29 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
     const alreadyChecked = selected.size - unchecked.length;
 
     const audit = async (again = false) => {
-        let ids = (again ? [...selected] : unchecked).slice(0, 25);
+        const ids = (again ? [...selected] : unchecked).slice(0, MAX_PER_RUN);
         if (!ids.length) {
             setToast("كل المحدد تم فحص موقعه من قبل.");
             return;
         }
         setAuditing(true);
         setAuditDone(0);
-        const all: AuditOutcome["results"] = [];
-        let speedConfigured = true;
+        setRunTotal(ids.length);
+        stopRun.current = false;
         try {
-            // each round the server finishes what it can in its time limit (Google measures slowly) and returns the rest
-            for (let round = 0; round < 10 && ids.length; round++) {
-                const r = await runAudit(ids);
-                all.push(...r.results);
-                setAuditDone(all.length);
-                speedConfigured = r.speedConfigured;
-                ids = r.pending;
-            }
-            const n = (s: string) => all.filter((x) => x.quality === s).length;
-            const speed = (s: string) => all.filter((x) => x.speed === s).length;
+            // same batching as enrichment; Google measures slowly, so the server may hand back some of each batch
+            const run = await runInBatches(ids, runAudit, { shouldStop: () => stopRun.current, onProgress: (done) => setAuditDone(done) });
+            const speedConfigured = run.last?.speedConfigured ?? true;
+            const n = (q: string) => run.results.filter((x) => x.quality === q).length;
+            const speed = (sp: string) => run.results.filter((x) => x.speed === sp).length;
             const notes = [
                 !speedConfigured && "قياس السرعة من Google غير مفعّل (أضف مفتاحًا في Vercel)",
                 speed("blocked") > 0 && "مفتاح Google لا يسمح بـ PageSpeed: فعّل PageSpeed Insights API وأضفه لقيود المفتاح",
                 speed("quota") > 0 && "انتهت حصة PageSpeed اليوم، وأُكمل الفحص بدون قياس السرعة",
                 speed("failed") > 0 && `${speed("failed")} موقع تعذّر قياس سرعته`,
             ].filter(Boolean);
-            setToast(`فحص المواقع: ${n("weak")} ضعيف · ${n("medium")} متوسط · ${n("good")} جيد · ${n("unreadable")} تعذّر الحكم · ${n("no_website")} بلا موقع${notes.length ? ` — ${notes.join(" — ")}` : ""}`);
-            setSelected(new Set());
+            setToast(`فحص المواقع: ${n("weak")} ضعيف · ${n("medium")} متوسط · ${n("good")} جيد · ${n("unreadable")} تعذّر الحكم · ${n("no_website")} بلا موقع${notes.length ? ` — ${notes.join(" — ")}` : ""}${runNote(run)}`);
+            setSelected(new Set(run.notReached));
             setReload((x) => x + 1);
         } catch (e) {
             setError((e as Error).message);
@@ -599,20 +602,25 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                             sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.5, p: 1.5, borderRadius: "12px", border: "1px solid", borderColor: "primary.main", bgcolor: "action.hover" }}
                         >
                             <Typography sx={{ fontWeight: 700 }}>{selected.size} محدد</Typography>
-                            <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={() => enrich()} disabled={enriching || auditing || backend.demo || fresh.length > 25 || fresh.length === 0}>
-                                {enriching ? "جارٍ الإثراء…" : alreadyDone ? `إثراء الجديدة فقط (${fresh.length})` : "إثراء من المواقع"}
+                            <Button variant="contained" startIcon={<AutoFixHighRoundedIcon />} onClick={() => enrich()} disabled={enriching || auditing || backend.demo || fresh.length > MAX_PER_RUN || fresh.length === 0}>
+                                {enriching ? `جارٍ الإثراء… (${enrichDone}/${runTotal})` : alreadyDone ? `إثراء الجديدة فقط (${fresh.length})` : "إثراء من المواقع"}
                             </Button>
                             {alreadyDone > 0 && (
-                                <Button variant="text" onClick={() => enrich(true)} disabled={enriching || auditing || backend.demo || selected.size > 25}>
+                                <Button variant="text" onClick={() => enrich(true)} disabled={enriching || auditing || backend.demo || selected.size > MAX_PER_RUN}>
                                     إعادة إثراء الكل ({selected.size})
                                 </Button>
                             )}
-                            <Button variant="outlined" startIcon={<FactCheckRoundedIcon />} onClick={() => audit()} disabled={enriching || auditing || backend.demo || unchecked.length > 25 || unchecked.length === 0}>
-                                {auditing ? `جارٍ الفحص… (${auditDone})` : alreadyChecked ? `فحص الموقع للجديدة فقط (${unchecked.length})` : "فحص جودة الموقع"}
+                            <Button variant="outlined" startIcon={<FactCheckRoundedIcon />} onClick={() => audit()} disabled={enriching || auditing || backend.demo || unchecked.length > MAX_PER_RUN || unchecked.length === 0}>
+                                {auditing ? `جارٍ الفحص… (${auditDone}/${runTotal})` : alreadyChecked ? `فحص الموقع للجديدة فقط (${unchecked.length})` : "فحص جودة الموقع"}
                             </Button>
                             {alreadyChecked > 0 && (
-                                <Button variant="text" onClick={() => audit(true)} disabled={enriching || auditing || backend.demo || selected.size > 25}>
+                                <Button variant="text" onClick={() => audit(true)} disabled={enriching || auditing || backend.demo || selected.size > MAX_PER_RUN}>
                                     إعادة فحص الكل ({selected.size})
+                                </Button>
+                            )}
+                            {(enriching || auditing) && (
+                                <Button color="error" variant="outlined" onClick={() => (stopRun.current = true)}>
+                                    إيقاف بعد الدفعة الحالية
                                 </Button>
                             )}
                             <Button variant="outlined" startIcon={<LabelRoundedIcon />} onClick={(e) => setStatusMenu(e.currentTarget)} disabled={enriching || auditing || busy}>
@@ -674,8 +682,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
                                 إلغاء التحديد
                             </Button>
                             <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-                                {fresh.length > 25
-                                    ? "الحد 25 جهة في المرة الواحدة."
+                                {fresh.length > MAX_PER_RUN
+                                    ? `الحد ${MAX_PER_RUN} جهة في المرة الواحدة.`
+                                    : Math.max(fresh.length, unchecked.length) > BATCH && !enriching && !auditing
+                                      ? `سيُعالَج حتى ${Math.max(fresh.length, unchecked.length)} جهة على ${Math.ceil(Math.max(fresh.length, unchecked.length) / BATCH)} دفعات (نحو نصف دقيقة لكل دفعة). أبقِ الصفحة مفتوحة، ويمكنك الإيقاف في أي وقت.`
                                     : alreadyDone
                                       ? `${alreadyDone} منها مُثراة من قبل وسنتجاوزها.`
                                     : backend.demo
