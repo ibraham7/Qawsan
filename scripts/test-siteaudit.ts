@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 
 import { parsePageSpeed } from "../src/lib/discovery/pagespeed.ts";
-import { PENALTY, auditPage, badPhoneLinks, bucket, internalLinks, scoreFrom, socialOnly } from "../src/lib/discovery/siteaudit.ts";
+import { PENALTY, auditPage, badPhoneLinks, bucket, internalLinks, redirectTarget, scoreFrom, socialOnly } from "../src/lib/discovery/siteaudit.ts";
 
 let passed = 0;
 const it = (name: string, fn: () => void) => {
@@ -159,6 +159,23 @@ it("score is clamped and buckets split at 60 and 80", () => {
     assert.equal(bucket(60), "medium");
     assert.equal(bucket(79), "medium");
     assert.equal(bucket(80), "good");
+});
+
+it("a tiny redirect stub points to the real site, a real page does not", () => {
+    // the real stubs seen on two clinic domains
+    const maya = '<html><head><title>https://mayaklinik.com.tr/</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-9"><meta http-equiv="refresh" content="0;URL=https://mayaklinik.com.tr/"></head> <body></body></html>';
+    assert.equal(redirectTarget(maya, "http://www.mayadentalklinik.com/"), "https://mayaklinik.com.tr/");
+    const dentaland = '<html><head><meta http-equiv="refresh" content="0; url=https://dentaland.com.tr/v1/"> </head></html>';
+    assert.equal(redirectTarget(dentaland, "http://www.dentaland.com.tr/"), "https://dentaland.com.tr/v1/");
+    // attribute order, relative target and a script redirect
+    assert.equal(redirectTarget('<meta content="1;url=/tr/" http-equiv="Refresh">', "https://a.com/"), "https://a.com/tr/");
+    assert.equal(redirectTarget('<script>window.location.href = "https://b.com/home"</script>', "https://a.com/"), "https://b.com/home");
+    assert.equal(redirectTarget("<script>location.replace('https://b.com/x')</script>", "https://a.com/"), "https://b.com/x");
+    // not a stub: a refresh to itself, no redirect at all, a big real page, a non-http target
+    assert.equal(redirectTarget('<meta http-equiv="refresh" content="0;url=https://a.com/">', "https://a.com/"), null);
+    assert.equal(redirectTarget("<html><body>Merhaba</body></html>", "https://a.com/"), null);
+    assert.equal(redirectTarget('<meta http-equiv="refresh" content="0;url=https://b.com/">' + "x".repeat(4000), "https://a.com/"), null);
+    assert.equal(redirectTarget('<meta http-equiv="refresh" content="0;url=javascript:alert(1)">', "https://a.com/"), null);
 });
 
 console.log(`\n${passed} checks passed`);
