@@ -35,6 +35,9 @@ import SiteReport from "../components/prospects/SiteReport";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import { quickListSize, quickTerm, withQuickTerm } from "../lib/prospects/quicksearch";
 import { siteList } from "../lib/prospects/export";
 import { BATCH, MAX_PER_RUN, runInBatches } from "../lib/prospects/batches";
 import { NEXT_STEP, VIEWS, applyView, viewOf } from "../lib/prospects/views";
@@ -223,6 +226,10 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
         setState((s) => ({ ...s, [s.tab]: f }));
     };
     const clearAll = () => setFilters({});
+    // quick search box: keeps what was typed (with its spaces) and follows the filter when it changes elsewhere
+    const [quickText, setQuickText] = useState("");
+    const quickShown = quickText.trim() === quickTerm(filters) ? quickText : quickTerm(filters);
+    const quickList = quickListSize(filters);
     const setTab = (t: Tab) => {
         setPage(0);
         setSelected(new Set());
@@ -558,6 +565,37 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
 
                     {tab === "companies" && (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <TextField
+                                size="small"
+                                fullWidth
+                                value={quickList ? "" : quickShown}
+                                placeholder={quickList ? `الفلتر الآن قائمة من ${quickList} اسم. الكتابة هنا تستبدلها، وزر ✕ يمسحها` : "ابحث عن عيادة بالاسم أو الدومين…"}
+                                onChange={(e) => {
+                                    setQuickText(e.target.value);
+                                    setSelected(new Set());
+                                    setFilters(withQuickTerm(filters, e.target.value));
+                                }}
+                                slotProps={{
+                                    htmlInput: { "aria-label": "ابحث عن عيادة بالاسم أو الدومين" },
+                                    input: {
+                                        startAdornment: <SearchRoundedIcon fontSize="small" sx={{ color: "text.secondary", mx: 0.5 }} />,
+                                        endAdornment:
+                                            quickShown || quickList ? (
+                                                <IconButton
+                                                    size="small"
+                                                    aria-label="مسح البحث"
+                                                    onClick={() => {
+                                                        setQuickText("");
+                                                        setSelected(new Set());
+                                                        setFilters(withQuickTerm(filters, ""));
+                                                    }}
+                                                >
+                                                    <ClearRoundedIcon fontSize="small" />
+                                                </IconButton>
+                                            ) : undefined,
+                                    },
+                                }}
+                            />
                             <Box role="tablist" aria-label="مراحل الجهات" sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                                 {VIEWS.map((v) => (
                                     <Chip
