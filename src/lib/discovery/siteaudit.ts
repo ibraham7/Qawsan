@@ -188,6 +188,33 @@ export function internalLinks(html: string, pageUrl: string, max = 6): string[] 
     return out;
 }
 
+/**
+ * Where a tiny "redirect stub" page sends the visitor (<meta http-equiv="refresh"> or a one-line
+ * location assignment), as an absolute URL, or null when the page is a real page.
+ * Old domains often keep such a stub, and scoring it as the site would call a good site "weak".
+ */
+export function redirectTarget(html: string, pageUrl: string): string | null {
+    if (html.length > 3000) return null;
+    let target = "";
+    const meta = [...html.matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]).find((t) => /http-equiv\s*=\s*["']?refresh/i.test(t));
+    if (meta) {
+        const content = /content\s*=\s*["']([^"']*)["']/i.exec(meta)?.[1] ?? "";
+        target = /url\s*=\s*['"]?\s*([^'";\s]+)/i.exec(content)?.[1] ?? "";
+    }
+    if (!target) {
+        const js = /(?:\blocation(?:\.href)?\s*=|\blocation\.(?:replace|assign)\s*\()\s*["']([^"']+)["']/i.exec(html);
+        target = js?.[1] ?? "";
+    }
+    if (!target) return null;
+    try {
+        const next = new URL(target, pageUrl);
+        if (!/^https?:$/.test(next.protocol) || next.href === new URL(pageUrl).href) return null;
+        return next.href;
+    } catch {
+        return null;
+    }
+}
+
 export function auditPage(page: PageFacts, extra: Extra = {}, now = new Date()): SiteAudit {
     const html = page.html;
     const head = html.slice(0, 60_000);

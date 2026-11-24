@@ -13,6 +13,7 @@ import net from "node:net";
 import type { LookupFunction } from "node:net";
 
 import { isPrivateAddress } from "../../src/lib/discovery/extract.js";
+import { redirectTarget } from "../../src/lib/discovery/siteaudit.js";
 
 export interface Req {
     method?: string;
@@ -216,7 +217,7 @@ export async function fetchForAudit(raw: string, timeoutMs = 9000): Promise<Audi
         return { kind: "unreadable" };
     }
     const started = Date.now();
-    for (let hop = 0; hop < 4; hop++) {
+    for (let hop = 0; hop < 6; hop++) {
         if (!/^https?:$/.test(url.protocol) || url.username || url.password) return { kind: "unreadable" };
         if (url.port && !["80", "443"].includes(url.port)) return { kind: "unreadable" };
         const literal = url.hostname.replace(/^\[|\]$/g, "");
@@ -227,8 +228,14 @@ export async function fetchForAudit(raw: string, timeoutMs = 9000): Promise<Audi
         } catch (e) {
             return (e as NodeJS.ErrnoException).code === "ENOTFOUND" ? { kind: "dead" } : { kind: "unreadable" };
         }
-        if (r.location && hop < 3) {
+        if (r.location && hop < 5) {
             url = new URL(r.location, url);
+            continue;
+        }
+        // a tiny stub that only forwards the visitor (meta refresh / location = "...") is not the site itself
+        const forward = r.status >= 200 && r.status < 300 && r.body ? redirectTarget(r.body, url.toString()) : null;
+        if (forward && hop < 5) {
+            url = new URL(forward);
             continue;
         }
         if (r.status === 404 || r.status === 410) return { kind: "dead" };
