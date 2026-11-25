@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 
 import { NEXT_STEP, VIEWS, applyView, viewOf } from "../src/lib/prospects/views.ts";
+import { STATUSES } from "../src/lib/prospects/options.ts";
 import type { Filters } from "../src/lib/prospects/types.ts";
 
 let passed = 0;
@@ -68,6 +69,13 @@ it("the 'move on' step goes review -> qualified -> approved and nowhere else", (
     assert.deepEqual(NEXT_STEP.review, { status: "qualified", label: "تأهيل" });
     assert.deepEqual(NEXT_STEP.qualified, { status: "approved", label: "اعتماد للتواصل" });
     assert.deepEqual(Object.keys(NEXT_STEP), ["review", "qualified"]);
+});
+
+it("the status menu lets the admin record a message sent straight from WhatsApp", () => {
+    const manual = STATUSES.filter((s) => s.manual).map((s) => s.value);
+    for (const v of ["contacted", "replied", "interested", "not_interested"]) assert.ok(manual.includes(v), v);
+    // statuses that only the system sets stay out of the menu
+    for (const v of ["converted", "unsubscribed"]) assert.ok(!manual.includes(v), v);
 });
 
 console.log(`\n${passed} checks passed`);

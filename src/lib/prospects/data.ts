@@ -225,7 +225,8 @@ export const supabaseBackend: Backend = {
         fail(error);
     },
     async setStatus(ids, status) {
-        const { error } = await supabase.from(T.companies).update({ status }).in("id", ids);
+        // a clinic marked contacted by hand (a message sent straight from WhatsApp) gets its contact date too
+        const { error } = await supabase.from(T.companies).update(status === "contacted" ? { status, contacted_at: new Date().toISOString() } : { status }).in("id", ids);
         fail(error);
     },
     async setWhatsapp(id, number) {

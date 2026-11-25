@@ -827,7 +827,7 @@ function Workspace({ backend, email }: { backend: Backend; email: string | null 
 
             {/* only the statuses an admin may set by hand */}
             <Menu anchorEl={statusMenu} open={!!statusMenu} onClose={() => setStatusMenu(null)}>
-                <Typography sx={{ px: 2, pt: 1, pb: 0.5, fontSize: 12, color: "text.secondary", maxWidth: 280 }}>«معتمد» لا يرسل شيئًا، بل يجعل الجهة قابلة للدخول في حملة.</Typography>
+                <Typography sx={{ px: 2, pt: 1, pb: 0.5, fontSize: 12, color: "text.secondary", maxWidth: 280 }}>«معتمد» لا يرسل شيئًا، بل يجعل الجهة قابلة للدخول في حملة. «تم التواصل» و«ردّ» و«مهتم» و«غير مهتم» لتسجيل ما أرسلته من واتساب مباشرة.</Typography>
                 {STATUSES.filter((s) => s.manual).map((s) => (
                     <MenuItem
                         key={s.value}
