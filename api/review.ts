@@ -1,8 +1,8 @@
 /**
  * POST /api/review  (Vercel Serverless Function)
  *
- * Saves a customer review as "pending" in Supabase (qawsan_reviews) and emails the owner.
- * Nothing is shown on the site until an admin approves it in /admin.
+ * Saves a customer review in Supabase (qawsan_reviews), published straight away, and emails
+ * the owner. An admin can hide or delete any review in /admin.
  *
  * Env (Vercel > Settings > Environment Variables, never in the client):
  *   SUPABASE_SERVICE_ROLE_KEY   required: the service-role key of the Supabase project
@@ -94,7 +94,7 @@ async function save(p: ReviewPayload) {
       text: p.text.trim(),
       locale: lang,
       consent: true,
-      approved: false,
+      approved: true,
     }),
   });
   if (!r.ok) throw new Error(`supabase insert ${r.status} ${(await r.text()).slice(0, 200)}`);
@@ -105,11 +105,11 @@ async function notify(p: ReviewPayload) {
   const to = process.env.NOTIFY_EMAIL_TO;
   if (!key || !to) return;
   const stars = "★".repeat(p.rating) + "☆".repeat(5 - p.rating);
-  const html = `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7"><h2>تقييم جديد بانتظار الموافقة ${stars}</h2>
+  const html = `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7"><h2>تقييم جديد على الموقع ${stars}</h2>
 <p><b>الاسم:</b> ${esc(p.name.trim())}</p>
 <p><b>الوظيفة / الجهة:</b> ${esc(p.role.trim() || "-")}</p>
 <p><b>الرأي:</b><br>${esc(p.text.trim()).replace(/\n/g, "<br>")}</p>
-<p>وافق على نشره. للمراجعة: <a href="https://qawsan.website/admin">qawsan.website/admin</a></p></div>`;
+<p>نُشر على الموقع فور إرساله. للإخفاء أو الحذف: <a href="https://qawsan.website/admin">qawsan.website/admin</a></p></div>`;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
